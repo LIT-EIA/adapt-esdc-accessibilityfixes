@@ -1,0 +1,19 @@
+{
+	"name": "Adapt-accessibilityfixes",
+	"version": "0.0.1",
+	"framework": ">=1.1.2",
+	"displayName": "Adapt-accessibilityfixes",
+	"extension": "Adapt-accessibilityfixes",
+	"targetAttribute": "_Adapt-accessibilityfixes",
+	"description": "ESDC-JS-fixer",
+	"main": "/js/adapt-mathJax.js",
+	"keywords": [
+		"adapt-plugin",
+		"adapt-extension"
+	],
+	"authors": [
+		""
+	],
+	"license": "GPL-3.0",
+	"homepage": ""
+}

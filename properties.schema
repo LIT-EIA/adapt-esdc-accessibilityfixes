@@ -1,0 +1,48 @@
+{
+  "type": "object",
+  "$schema": "http://json-schema.org/draft-03/schema",
+  "id": "http://jsonschema.net",
+  "properties": {
+    "pluginLocations": {
+      "type": "object",
+      "properties": {
+        "config": {
+          "type": "object",
+          "properties": {
+            "_Adapt-accessibilityfixes": {
+              "type": "object",
+              "legend": "Adapt-accessibilityfixes",
+              "properties": {
+                "_inlineConfig": {
+                  "type": "object",
+                  "default": {
+                    "extensions": [
+                      "tex2jax.js"
+                    ],
+                    "jax": [
+                      "input/TeX",
+                      "output/HTML-CSS"
+                    ]
+                  },
+                  "title": "In-line config",
+                  "inputType": {
+                    "type": "CodeEditor",
+                    "mode": "json"
+                  },
+                  "help": "Define any in-line configuration for MathJax"
+                },
+                "_src": {
+                  "type": "string",
+                  "default": "./assets/Adapt-accessibilityfixes.js",
+                  "title": "Source",
+                  "inputType": "Text",
+                  "help": "Enter the URL to the copy of MathJax which should be loaded"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
