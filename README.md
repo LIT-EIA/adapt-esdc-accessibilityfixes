@@ -1,3 +1,5 @@
+#Adapt-accessibilityfixes
+
 ESDC's special Javascript to fix Adapt accessibility issues.
 Coded to work with the following component version numbers:
 
@@ -6,12 +8,19 @@ adapt-framework			4.4.1
 adapt-authoring			0.10.2
 
 EXTENSIONS
-adapt-contrib-assessment	3.1.1	https://github.com/adaptlearning/adapt-contrib-assessment	
-adapt-contrib-trickle		3.0.1	https://github.com/adaptlearning/adapt-contrib-trickle	
-adapt-contrib-tutor		2.1.2	https://github.com/adaptlearning/adapt-contrib-tutor	
-adapt-contrib-pageLevelProgress	4.1.3	https://github.com/adaptlearning/adapt-contrib-pageLevelProgress	
-adapt-contrib-resources		3.0.2	https://github.com/adaptlearning/adapt-contrib-resources	
-adapt-contrib-spoor		3.3.1	https://github.com/adaptlearning/adapt-contrib-spoor	
+adapt-contrib-assessment | 3.1.1 | https://github.com/adaptlearning/adapt-contrib-assessment
+-------------------------------- | ------ | -------------------------------------------------------------
+adapt-contrib-trickle | 3.0.1 | https://github.com/adaptlearning/adapt-contrib-trickle
+-------------------------------- | ------ | -------------------------------------------------------------
+adapt-contrib-tutor | 2.1.2 | https://github.com/adaptlearning/adapt-contrib-tutor
+-------------------------------- | ------ | -------------------------------------------------------------
+adapt-contrib-pageLevelProgress | 4.1.3 | https://github.com/adaptlearning/adapt-contrib-pageLevelProgress
+-------------------------------- | ------ | -------------------------------------------------------------
+adapt-contrib-resources | 3.0.2 | https://github.com/adaptlearning/adapt-contrib-resources
+-------------------------------- | ------ | -------------------------------------------------------------
+adapt-contrib-spoor | 3.3.1 | https://github.com/adaptlearning/adapt-contrib-spoor
+-------------------------------- | ------ | -------------------------------------------------------------
+
 adapt-contrib-bookmarking	2.2.0	https://github.com/adaptlearning/adapt-contrib-bookmarking	
 adapt-contrib-languagePicker	3.0.1	https://github.com/adaptlearning/adapt-contrib-languagePicker	
 adapt-contrib-glossary		2.1.3	https://github.com/adaptlearning/adapt-contrib-glossary	
