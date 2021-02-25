@@ -1,4 +1,4 @@
-# MathJax
+# MathJax (College version!)
 
 An extension to load [MathJax](https://www.mathjax.org) into Adapt.
 
