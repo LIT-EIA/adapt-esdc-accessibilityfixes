@@ -1,15 +1,15 @@
-#Adapt-accessibilityfixes
+# Adapt-accessibilityfixes
 
 ESDC's special Javascript to fix Adapt accessibility issues.
 Coded to work with the following component version numbers:
 
-##FRAMEWORK
+## FRAMEWORK
 Name | Ver. | path
 -------------------------------- | ------ | -------------------------------------------------------------
 adapt-framework | 4.4.1 |  
 adapt-authoring | 0.10.2 |  
 
-##EXTENSIONS
+## EXTENSIONS
 Name | Ver. | path
 -------------------------------- | ------ | -------------------------------------------------------------
 adapt-contrib-assessment | 3.1.1 | https://github.com/adaptlearning/adapt-contrib-assessment
@@ -60,12 +60,12 @@ adapt-hotgrid | 3.2.0 | https://github.com/cgkineo/adapt-hotgrid
 adapt-stacklist | 4.0.0 | https://github.com/danielstorey/adapt-stacklist	
 adapt-vimeo | 1.0.0 | https://github.com/adaptlearning/adapt-vimeo
 
-##THEMES
+## THEMES
 Name | Ver. | path
 -------------------------------- | ------ | -------------------------------------------------------------
 adapt-contrib-vanilla | 4.1.0 | https://github.com/adaptlearning/adapt-contrib-vanilla	
 
-##MENUS
+## MENUS
 Name | Ver. | path
 -------------------------------- | ------ | -------------------------------------------------------------
 adapt-contrib-boxMenu | 4.0.1 | https://github.com/adaptlearning/adapt-contrib-boxmenu	
