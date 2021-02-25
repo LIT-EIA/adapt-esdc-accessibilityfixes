@@ -210,4 +210,8 @@ Object.prototype.hasAttr = function(attr) {
         var _attr = this.getAttribute(attr);
     }
     return (typeof _attr !== "undefined" && _attr !== false && _attr !== null);      
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> origin/master
