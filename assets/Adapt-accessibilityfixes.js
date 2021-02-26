@@ -15,7 +15,7 @@
 //Startup update
 //-----------------------------------------------------------------------------
 window.setTimeout(function(){
-	//accessibilityfixes();
+	accessibilityfixes();
 }, 500);
 
 
@@ -24,8 +24,16 @@ window.setTimeout(function(){
 //-----------------------------------------------------------------------------
 var observer = new MutationObserver(function(mutations) {
 	mutations.forEach(function(mutation) {
-	if (mutation.type == 'attributes' && mutation.attributeName == 'data-location') {
-		setTimeout(accessibilityfixes, 200);
+		if (mutation.type == 'attributes' && mutation.attributeName == 'data-location') {
+			setTimeout(accessibilityfixes, 200);
+		}
+	});		
+});
+
+var validationobserver = new MutationObserver(function(mutations) {
+	mutations.forEach(function(mutation) {
+		if (mutation.type == 'attributes' && mutation.attributeName == 'class') {
+			console.log("WEEEEEEEEEEEEEEEEEE");
 		}
 	});
 });
@@ -38,6 +46,7 @@ observer.observe(document.documentElement, {
 	attributes: true
 });
 
+
 //This function runs anytime anything in the DOM (inside #wrapper) is modified
 //DON'T DO IT !
 //-----------------------------------------------------------------------------
@@ -45,7 +54,6 @@ $('#wrapper').on('DOMSubtreeModified', function(){
 
 
 });
-
 
 // -------------------------------------------------------------------------
 //
@@ -74,7 +82,7 @@ function accessibilityfixes (){
 	//-----------------------------------------------------------------------------
 
 	$('a').filter(function() {
-	   return this.hostname && this.hostname !== location.hostname;
+		return this.hostname && this.hostname !== location.hostname;
 	}).attr('target', '_blank');
 	
 	
@@ -105,8 +113,6 @@ function accessibilityfixes (){
 	// 
 	// ----------------	
 
-
-	
 	if($('#adapt').attr('data-location') == 'course'){
 	// ----------------
 	// MENU FIXES
@@ -128,12 +134,16 @@ function accessibilityfixes (){
 		// multiple choice label fix
 		//-----------------------------------------------------------------------------
 		let multiChoiceComponents = $('.mcq-component');
-		multiChoiceComponents.each(function(i){
+		multiChoiceComponents.each(function(){
 			let label = $(this).attr('data-adapt-id') + 'qlabel';
 			$('.mcq-body-inner > p').attr('id', label);
 			$('.mcq-widget').attr('aria-labelledby', label);
 		});
 
+		validationobserver.observe(document.getElementsByClassName("component-instruction-inner"), {
+			attributes: true
+		});
+		
 		//Matching questions fix
 		//-----------------------------------------------------------------------------
 		$('.matching-select-container').each(function(k){
@@ -189,7 +199,6 @@ function sortmulti(n, comparatorFunction, reverse) {
     }
 }
 
-
 //Check if object has given attribute
 function hasAttr(obj, attr) {
     if(obj.attr) {
@@ -199,4 +208,4 @@ function hasAttr(obj, attr) {
     }
     return (typeof _attr !== 'undefined' && _attr !== false && _attr !== null);      
 
-};
+}
