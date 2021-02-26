@@ -15,7 +15,7 @@
 //Startup update
 //-----------------------------------------------------------------------------
 window.setTimeout(function(){
-	accessibilityfixes();
+	//accessibilityfixes();
 }, 500);
 
 
@@ -47,9 +47,6 @@ $('#wrapper').on('DOMSubtreeModified', function(){
 });
 
 
-
-
-
 // -------------------------------------------------------------------------
 //
 //		Accessibility fixes - grouped by global fixes, fixes for the menu 
@@ -66,11 +63,11 @@ function accessibilityfixes (){
 	//Tab order of buttons in the top navigation bar
 	var buttonArray = [];
 	$('.navigation-inner button').each(function(i){
-		buttonArray.push([i, $(this).position().left]);		
+		buttonArray.push([i, $(this).position().left]);	
 	});
 	buttonArray.sort(sortmulti(1, comparator, false));
 	for (var j=0; j < buttonArray.length; j++){
-	$('.navigation-inner button').eq(buttonArray[j][0]).attr('tabindex', j+1);
+		$('.navigation-inner button').eq(buttonArray[j][0]).attr('tabindex', j+1);
 	}
 
 	//target blank to external sites (ignore local hrefs)
@@ -83,6 +80,7 @@ function accessibilityfixes (){
 	
 	//img alt tag and aria-hidden fixes
 	//-----------------------------------------------------------------------------	
+	/*
 	$('img').each(function(){
 		
 		//if img doesn't have an alt tag, create an empty one
@@ -101,6 +99,7 @@ function accessibilityfixes (){
 			$(this).removeAttr('aria-hidden');
 		}	
 	});
+	*/
 	
 	// ----------------
 	// 
@@ -167,9 +166,6 @@ function accessibilityfixes (){
 }
 
 
-
-
-
 // -------------------------------------------------------------------------
 //
 //		Utility functions
@@ -193,6 +189,7 @@ function sortmulti(n, comparatorFunction, reverse) {
     }
 }
 
+/*
 //Check if object has given attribute
 Object.prototype.hasAttr = function(attr) {
     if(this.attr) {
@@ -203,3 +200,4 @@ Object.prototype.hasAttr = function(attr) {
     return (typeof _attr !== 'undefined' && _attr !== false && _attr !== null);      
 
 };
+*/
