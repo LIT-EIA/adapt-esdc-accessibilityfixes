@@ -80,16 +80,16 @@ function accessibilityfixes (){
 	
 	//img alt tag and aria-hidden fixes
 	//-----------------------------------------------------------------------------	
-	/*
+	
 	$('img').each(function(){
 		
 		//if img doesn't have an alt tag, create an empty one
-		if (!$(this).hasAttr('alt')){	
+		if (!(hasAttr($(this), 'alt')){
 			$(this).attr('alt', '');
 		}
 		
 		//if img has an aria-label, copy into alt tag and remove aria-label
-		if ($(this).hasAttr('aria-label')){
+		if (hasAttr($(this),'aria-label')){
 			$(this).attr('alt', $(this).attr('aria-label'));
 			$(this).removeAttr('aria-label');		
 		}
@@ -99,7 +99,7 @@ function accessibilityfixes (){
 			$(this).removeAttr('aria-hidden');
 		}	
 	});
-	*/
+	
 	
 	// ----------------
 	// 
@@ -189,15 +189,15 @@ function sortmulti(n, comparatorFunction, reverse) {
     }
 }
 
-/*
+
 //Check if object has given attribute
-Object.prototype.hasAttr = function(attr) {
-    if(this.attr) {
-        var _attr = this.attr(attr);
+function hasAttr(obj, attr) {
+    if(obj.attr) {
+        var _attr = obj.attr(attr);
     } else {
-        var _attr = this.getAttribute(attr);
+        var _attr = obj.getAttribute(attr);
     }
     return (typeof _attr !== 'undefined' && _attr !== false && _attr !== null);      
 
 };
-*/
+
