@@ -15,7 +15,7 @@
 //Startup update
 //-----------------------------------------------------------------------------
 window.setTimeout(function(){
-
+	accessibilityfixes();
 }, 500);
 
 
@@ -24,7 +24,7 @@ window.setTimeout(function(){
 //-----------------------------------------------------------------------------
 var observer = new MutationObserver(function(mutations) {
 	mutations.forEach(function(mutation) {
-	if (mutation.type == "attributes" && mutation.attributeName == "data-location") {
+	if (mutation.type == 'attributes' && mutation.attributeName == 'data-location') {
 		setTimeout(accessibilityfixes, 200);
 		}
 	});
@@ -65,44 +65,35 @@ function accessibilityfixes (){
 
 	//Tab order of buttons in the top navigation bar
 	var buttonArray = [];
-	$(".navigation-inner button").each(function(i){
+	$('.navigation-inner button').each(function(i){
 		buttonArray.push([i, $(this).position().left]);		
 	});
 	buttonArray.sort(sortmulti(1, comparator, false));
 	for (var j=0; j < buttonArray.length; j++){
-	$(".navigation-inner button").eq(buttonArray[j][0]).attr("tabindex", j+1);
+	$('.navigation-inner button').eq(buttonArray[j][0]).attr('tabindex', j+1);
 	}
 
 	//target blank to external sites (ignore local hrefs)
 	//-----------------------------------------------------------------------------
-	$( 'a' ).each(function() {
-  		if( location.hostname === this.hostname || !this.hostname.length ) {
-			//Do nothing
-  		} 
-		else {
-     		$(this).attr('target', '_blank');
-  		}
-	});
 
-	//Standard ARIA label conversions and control of aria hidden attributes
+	$('a').filter(function() {
+	   return this.hostname && this.hostname !== location.hostname;
+	}).attr('target', '_blank');
+	
+	
+	//img alt tag and aria-hidden fixes
 	//-----------------------------------------------------------------------------	
 	$('img').each(function(){
 		
-		// if image has already has alt
-		if ($(this).hasAttr('alt')){
-			//do nothing
-		}
-		
-		//if img has aria-label, convert to alt
-		else if ($(this).hasAttr('aria-label')){
-			$(this).attr("alt", $(this).attr("aria-label"));
-			$(this).removeAttr("aria-label");		
-		}
-		
-		//image had neither aria-label or alt, add an empty alt
-		else{
-			
+		//if img doesn't have an alt tag, create an empty one
+		if (!$(this).hasAttr('alt')){	
 			$(this).attr('alt', '');
+		}
+		
+		//if img has an aria-label, copy into alt tag and remove aria-label
+		if ($(this).hasAttr('aria-label')){
+			$(this).attr('alt', $(this).attr('aria-label'));
+			$(this).removeAttr('aria-label');		
 		}
 		
 		// if image has aria-hidden, remove it.
@@ -138,35 +129,35 @@ function accessibilityfixes (){
 
 		// multiple choice label fix
 		//-----------------------------------------------------------------------------
-		let multiChoiceComponents = $(".mcq-component");
+		let multiChoiceComponents = $('.mcq-component');
 		multiChoiceComponents.each(function(i){
-			let label = $(this).attr("data-adapt-id") + "qlabel";
-			$(".mcq-body-inner > p").attr("id", label);
-			$(".mcq-widget").attr("aria-labelledby", label);
+			let label = $(this).attr('data-adapt-id') + 'qlabel';
+			$('.mcq-body-inner > p').attr('id', label);
+			$('.mcq-widget').attr('aria-labelledby', label);
 		});
 
 		//Matching questions fix
 		//-----------------------------------------------------------------------------
-		$(".matching-select-container").each(function(k){
-			var glabel = $(this).parents().find('.matching-component').attr("data-adapt-id")+'_qlabel_'+k;
-			$(this).find(".dropdown__inner").attr('id', glabel);
-			$(this).find("button").attr('aria-labelledby', glabel);
+		$('.matching-select-container').each(function(k){
+			var glabel = $(this).parents().find('.matching-component').attr('data-adapt-id')+'_qlabel_'+k;
+			$(this).find('.dropdown__inner').attr('id', glabel);
+			$(this).find('button').attr('aria-labelledby', glabel);
 		});
 		
 		//Accordion component accessibility fixes
 		//-----------------------------------------------------------------------------
-		$(".accordion-component").each(function(){
-			var parentID = $(this).attr("data-adapt-id");
-			$(".accordion-item-title").each(function(i){
-				var blockid = "accord-" + i + "-" + parentID;
-				$(this).attr("aria-controls", blockid);
+		$('.accordion-component').each(function(){
+			var parentID = $(this).attr('data-adapt-id');
+			$('.accordion-item-title').each(function(i){
+				var blockid = 'accord-' + i + '-' + parentID;
+				$(this).attr('aria-controls', blockid);
 				$(this).next().attr('id', blockid);
 			});
 		});
 
 		//remove tooltips from buttons
 		//-----------------------------------------------------------------------------
-		$("button").removeAttr("tooltip");
+		$('button').removeAttr('tooltip');
 		
 		
 	// ----------------
@@ -210,6 +201,6 @@ Object.prototype.hasAttr = function(attr) {
     } else {
         var _attr = this.getAttribute(attr);
     }
-    return (typeof _attr !== "undefined" && _attr !== false && _attr !== null);      
+    return (typeof _attr !== 'undefined' && _attr !== false && _attr !== null);      
 
 };
