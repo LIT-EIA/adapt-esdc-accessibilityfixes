@@ -84,7 +84,7 @@ function accessibilityfixes (){
 	$('img').each(function(){
 		
 		//if img doesn't have an alt tag, create an empty one
-		if (!(hasAttr($(this), 'alt')){
+		if (!(     hasAttr($(this), 'alt'))){
 			$(this).attr('alt', '');
 		}
 		
@@ -200,4 +200,3 @@ function hasAttr(obj, attr) {
     return (typeof _attr !== 'undefined' && _attr !== false && _attr !== null);      
 
 };
-
