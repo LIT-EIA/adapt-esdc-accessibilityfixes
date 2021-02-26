@@ -99,8 +99,7 @@ function accessibilityfixes (){
 		// if image has aria-hidden, remove it.
 		if ($(this).attr('aria-hidden') == 'true'){
 			$(this).removeAttr('aria-hidden');
-		}
-		
+		}	
 	});
 	
 	// ----------------
