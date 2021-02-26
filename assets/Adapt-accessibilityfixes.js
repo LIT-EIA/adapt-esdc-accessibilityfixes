@@ -71,12 +71,15 @@ function accessibilityfixes (){
 	buttonArray.sort(sortmulti(1, comparator, false));
 	for (var j=0; j < buttonArray.length; j++){
 	$(".navigation-inner button").eq(buttonArray[j][0]).attr("tabindex", j+1);
+	}
 
 	//target blank to external sites (ignore local hrefs)
 	//-----------------------------------------------------------------------------
 	$( 'a' ).each(function() {
   		if( location.hostname === this.hostname || !this.hostname.length ) {
-  		} else {
+			//Do nothing
+  		} 
+		else {
      		$(this).attr('target', '_blank');
   		}
 	});
@@ -128,9 +131,7 @@ function accessibilityfixes (){
 	// ----------------	
 	}
 
-
-
-	}else {
+	else {
 	// ------------------
 	// COURSE PAGE FIXES
 	// ------------------
@@ -210,4 +211,5 @@ Object.prototype.hasAttr = function(attr) {
         var _attr = this.getAttribute(attr);
     }
     return (typeof _attr !== "undefined" && _attr !== false && _attr !== null);      
+
 };
