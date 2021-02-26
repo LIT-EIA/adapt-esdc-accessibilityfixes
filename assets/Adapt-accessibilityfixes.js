@@ -64,7 +64,7 @@ htmlobserver.observe(document.documentElement, options);
 //run page fixes once 500 ms after the window was opened
 //-----------------------------------------------------------------------------
 window.setTimeout(function(){
-	pagefixes();
+	allfixes();
 }, 1500);
 
 //This function runs anytime anything in the DOM (inside #wrapper) is modified
@@ -153,7 +153,8 @@ function menufixes(){
 	// MENU FIXES
 	// ----------------
 
-	//Weeeeeee
+		//Weeee
+
 		
 	// ----------------
 	// 
