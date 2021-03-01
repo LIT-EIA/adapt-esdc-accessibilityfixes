@@ -189,7 +189,6 @@ function pagefixes(){
 	let allComponents = $(".component");
 
 	allComponents.each(function(){
-		console.log($(this).html());
 		$('.component-instruction-inner').attr('role', 'alert');
 		$('.component-instruction-inner').attr('aria-live', 'assertive');
 	});
@@ -206,7 +205,7 @@ function pagefixes(){
 	//Matching questions fix
 	//-----------------------------------------------------------------------------
 	$('.matching-select-container').each(function(k){
-		var glabel = $(this).parents().find('.matching-component').attr('data-adapt-id')+'_qlabel_'+k;
+		let glabel = $(this).parents().find('.matching-component').attr('data-adapt-id')+'_qlabel_'+k;
 		$(this).find('.dropdown__inner').attr('id', glabel);
 		$(this).find('button').attr('aria-labelledby', glabel);
 	});
@@ -214,9 +213,9 @@ function pagefixes(){
 	//Accordion component accessibility fixes
 	//-----------------------------------------------------------------------------
 	$('.accordion-component').each(function(){
-		var parentID = $(this).attr('data-adapt-id');
+		let parentID = $(this).attr('data-adapt-id');
 		$('.accordion-item-title').each(function(i){
-			var blockid = 'accord-' + i + '-' + parentID;
+			let blockid = 'accord-' + i + '-' + parentID;
 			$(this).attr('aria-controls', blockid);
 			$(this).next().attr('id', blockid);
 		});
@@ -227,7 +226,17 @@ function pagefixes(){
 	$('button').removeAttr('tooltip');
 	
 	
-		
+	//Hotgraphic pin title checker
+	let hotgraphicPins = $('.hotgraphic-graphic-pin');
+	hotgraphicPins.each(function(){
+
+		if($(this).find('.aria-label').html() == "."){
+			$(this).prepend('<p style="color:red; font-weight:bold;">VEUILLEZ AJOUTER UN TITRE / PLEASE ADD A PIN TITLE</p>')
+		}
+	});
+
+
+
 	// ----------------
 	// 
 	// ----------------		
@@ -239,9 +248,9 @@ function pagefixes(){
 
 function trapinsidepopup(){
 	//add trap code here
-	var tabbable = $('.notify-popup-inner').find('select, input, textarea, button, a').filter(':visible');
-    var firstTabbable = tabbable.first();
-    var lastTabbable = tabbable.last();
+	let tabbable = $('.notify-popup-inner').find('select, input, textarea, button, a').filter(':visible');
+    let firstTabbable = tabbable.first();
+    let lastTabbable = tabbable.last();
     /*set focus on first input*/
     firstTabbable.focus();
 
