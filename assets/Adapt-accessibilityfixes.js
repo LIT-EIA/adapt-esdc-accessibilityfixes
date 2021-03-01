@@ -40,38 +40,51 @@ function observehtml(mutations)
 		if(mutation.type == 'attributes')
 		{
 			if(mutation.attributeName == 'data-location'){
-				//console.log('the data-location attribute of <html> has been changed!');
+				console.log('the data-location attribute of an observed object has changed!');
 				
-				setTimeout(allfixes(), 200); 
+				setTimeout(allfixes(), 200);
 			}
 			else if(mutation.attributeName == 'class'){
-				//console.log('the class attribute of <html> has been changed!');
+				console.log('the class attribute of an observed object has changed!');
 				
 				if ($('html').hasClass('notify')){
 					console.log("a popup has been opened!");
 					trapinsidepopup();
+				}				
+			}
+			else if(mutation.attributeName == 'style')
+			{
+				console.log('The inline style of an observed object has changed!')
+
+				//If the loading wheel is gone, run all fixes (page really fully loaded)
+				if( $('.loading').css('display') == 'none' )
+				{
+					setTimeout(allfixes());
 				}
-				
 			}
 		}
 	}
 }
 
-let options = {attributes: true, attributeFilter: ['class', 'data-location']};
-htmlobserver.observe(document.documentElement, options);
+//Set observers to run all fixes or specific fixes after different events.
+function setObservers()
+{
+	htmlobserver.disconnect()
+	let options = {attributes: true, attributeFilter: ['class', 'data-location', 'style']};
+	let loadingSpinner = document.getElementsByClassName('loading')[0];
+	htmlobserver.observe(document.documentElement, options);
+	htmlobserver.observe(loadingSpinner, options);
+}
 
-
-//run page fixes once 500 ms after the window was opened
-//-----------------------------------------------------------------------------
-window.setTimeout(function(){
-	allfixes();
-}, 1500);
+//enable observers when doc is ready
+docReady(function(){
+	setObservers();
+});
 
 //This function runs anytime anything in the DOM (inside #wrapper) is modified
 //DON'T DO IT !
 //-----------------------------------------------------------------------------
 //$('#wrapper').on('DOMSubtreeModified', function(){});
-
 
 // -------------------------------------------------------------------------
 //
@@ -82,12 +95,20 @@ window.setTimeout(function(){
 
 function allfixes()
 {
+	console.log('running all fixes');
+	//re-initialize observer
+	setObservers();
+
+	//Run Global fixes
 	globalfixes();
+
+	//if menu page, run menufixes, else run page fixes
 	($('#adapt').attr('data-location') == 'course') ? menufixes() : pagefixes();
 }
 
 function globalfixes(){
 	
+	console.log('  running global fixes');
 	// -------------
 	// GLOBAL FIXES
 	// -------------
@@ -130,18 +151,9 @@ function globalfixes(){
 		if ($(this).attr('aria-hidden') == 'true'){
 			$(this).removeAttr('aria-hidden');
 		}	
-	});
-	
-	//add aria live to component instructions so learner will be alerted if they change	
-	//Note that aria-live added by JS typically doesn't function well...
-	//aria-live doesn't work with attribute changes
-	//https://bitsofco.de/using-aria-live/
-	
-	//Not working - V 20200226
-	console.log($('.component-instruction-inner').html());
-	$('.component-instruction-inner').attr('role', 'alert');
-	$('.component-instruction-inner').attr('aria-live', 'polite');
-	
+	});	
+
+
 	// ----------------
 	// 
 	// ----------------	
@@ -149,6 +161,8 @@ function globalfixes(){
 }
 
 function menufixes(){
+
+	console.log('  running menu fixes');
 	// ----------------
 	// MENU FIXES
 	// ----------------
@@ -163,11 +177,24 @@ function menufixes(){
 
 function pagefixes(){
 
+	console.log('  running page fixes');
 	// ------------------
 	// COURSE PAGE FIXES
 	// ------------------
 
-	// multiple choice label fix
+	//Global component fixes
+	//-----------------------------------------------------------------------------
+	
+	//add aria live to component instructions so learner will be alerted if they change	
+	let allComponents = $(".component");
+
+	allComponents.each(function(){
+		console.log($(this).html());
+		$('.component-instruction-inner').attr('role', 'alert');
+		$('.component-instruction-inner').attr('aria-live', 'assertive');
+	});
+
+	// multiple choice fixes
 	//-----------------------------------------------------------------------------
 	let multiChoiceComponents = $('.mcq-component');
 	multiChoiceComponents.each(function(){
@@ -175,7 +202,7 @@ function pagefixes(){
 		$('.mcq-body-inner > p').attr('id', label);
 		$('.mcq-widget').attr('aria-labelledby', label);
 	});
-		
+
 	//Matching questions fix
 	//-----------------------------------------------------------------------------
 	$('.matching-select-container').each(function(k){
@@ -198,7 +225,8 @@ function pagefixes(){
 	//remove tooltips from buttons
 	//-----------------------------------------------------------------------------
 	$('button').removeAttr('tooltip');
-		
+	
+	
 		
 	// ----------------
 	// 
@@ -235,9 +263,6 @@ function trapinsidepopup(){
     });
 }
 
-
-
-
 // -------------------------------------------------------------------------
 //
 //		Utility functions
@@ -267,4 +292,15 @@ function hasAttr(obj, attr) {
 	let _attr = (obj.attr) ? obj.attr(attr) : obj.getAttribute(attr);
     return (typeof _attr !== 'undefined' && _attr !== false && _attr !== null);      
 
+}
+
+//Pure Javascript document ready function
+function docReady(fn) {
+    // see if DOM is already available
+    if (document.readyState === "complete" || document.readyState === "interactive") {
+        // call on next available tick
+        setTimeout(fn, 1);
+    } else {
+        document.addEventListener("DOMContentLoaded", fn);
+    }
 }
