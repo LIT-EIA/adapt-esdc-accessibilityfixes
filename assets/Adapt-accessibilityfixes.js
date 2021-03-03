@@ -223,7 +223,9 @@ function pagefixes(){
 
 	//remove tooltips from buttons
 	//-----------------------------------------------------------------------------
-	$('button').removeAttr('tooltip');
+	$('.quicknav-widget').find('button').hover(function() {
+		$(this).removeAttr('tooltip');
+	});
 	
 	
 	//Hotgraphic pin title checker
