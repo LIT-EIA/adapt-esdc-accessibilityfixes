@@ -235,6 +235,34 @@ function pagefixes(){
 		}
 	});
 
+	//Media component label fixes (INCOMPLETE)
+	if($('html').attr('lang') == 'en')
+	{
+		$('.media-component').each(function(){
+			// BORKEN WHEN VIDEO IS PAUSED / RE-PLAYED
+			$(this).find('.mejs-playpause-button button').attr('title', 'Jouer'); //Play button title
+			$(this).find('.mejs-playpause-button button').attr('aria-label', 'Jouer'); //Play button aria label
+
+			// Reverts back to Time Slider when it plays?
+			$(this).find('.mejs-time-slider').attr('aria-label','Curseur de temps'); //Time slider aria-label
+			
+			//Seems ok!
+			$(this).find('.mejs-fullscreen-button button').attr('title', 'Plein écran'); //Full screen button title
+			$(this).find('.mejs-fullscreen-button button').attr('aria-label', 'Plein écran'); //Full screen button aria-label
+
+
+			// BORKEN WHEN VIDEO IS MUTED / UNMUTED
+			$(this).find('.mejs-volume-button button').attr('title', 'Sourdine'); //Mute button title
+			
+			// BORKEN WHEN VIDEO IS MUTED / UNMUTED
+			$(this).find('.mejs-volume-button button').attr('aria-label', 'Sourdine'); //Mute button aria-label
+			
+			//Bork bork this one works
+			$(this).find('.mejs-volume-button .mejs-offscreen').html('Utilisez les touches fléchées haut / bas pour augmenter ou diminuer le volume.'); //volume slider
+		});
+	}
+	
+
 
 
 	// ----------------
@@ -246,8 +274,9 @@ function pagefixes(){
 	// OTHER FIXES
 	// ----------------
 
+// Code to trap tabbing between a start and end object
 function trapinsidepopup(){
-	//add trap code here
+
 	let tabbable = $('.notify-popup-inner').find('select, input, textarea, button, a').filter(':visible');
     let firstTabbable = tabbable.first();
     let lastTabbable = tabbable.last();
@@ -271,6 +300,8 @@ function trapinsidepopup(){
         }
     });
 }
+
+
 
 // -------------------------------------------------------------------------
 //
