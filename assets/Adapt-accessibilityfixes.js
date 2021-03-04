@@ -226,6 +226,8 @@ function pagefixes(){
 	$('.quicknav-widget').find('button').hover(function() {
 		$(this).removeAttr('tooltip');
 	});
+	// remove disabled button in quicknavigation from dom
+	$('.quicknav button.disabled').remove();
 	
 	
 	//Hotgraphic pin title checker
