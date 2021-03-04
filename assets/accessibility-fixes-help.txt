@@ -1,0 +1,19 @@
+//https://www.smashingmagazine.com/2019/04/mutationobserver-api-guide/
+/*Observer functions - define what to observe
+//Note: document.documentElement is a pointer to the <html> node
+//-----------------------------------------------------------------------------
+//all possible options
+let options = {
+  childList: false,						//turn on to check if child nodes of a specific node gets modified
+  attributes: true,						//turn on to check if the attributes of a node get altered
+  characterData: false,					//turn on to check if the text inside a node changes
+  subtree: false,						//turn on to have the observer run on all child nodes in the node
+  attributeFilter: ['class', 'data-location'],		//specify attributes to look at, ignore others
+  attributeOldValue: false,				//keeps a log of the node's observed attributes' last data
+  characterDataOldValue: false			//keeps a log of the node's observed text data's last value
+};
+//-----------------------------------------------------------------------------
+//intercepts and records the mutations before they are processed by observer callback function
+let myRecords = htmlObserver.takeRecords(); 
+*/
+//-----------------------------------------------------------------------------

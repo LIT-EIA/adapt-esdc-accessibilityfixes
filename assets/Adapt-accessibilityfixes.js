@@ -12,27 +12,10 @@
 //
 // -------------------------------------------------------------------------
 
-//https://www.smashingmagazine.com/2019/04/mutationobserver-api-guide/
-/*Observer functions - define what to observe
-//Note: document.documentElement is a pointer to the <html> node
-//-----------------------------------------------------------------------------
-//all possible options
-let options = {
-  childList: false,						//turn on to check if child nodes of a specific node gets modified
-  attributes: true,						//turn on to check if the attributes of a node get altered
-  characterData: false,					//turn on to check if the text inside a node changes
-  subtree: false,						//turn on to have the observer run on all child nodes in the node
-  attributeFilter: ['class', 'data-location'],		//specify attributes to look at, ignore others
-  attributeOldValue: false,				//keeps a log of the node's observed attributes' last data
-  characterDataOldValue: false			//keeps a log of the node's observed text data's last value
-};
-//-----------------------------------------------------------------------------
-//intercepts and records the mutations before they are processed by observer callback function
-let myRecords = htmlObserver.takeRecords(); 
-*/
+//*** Need stricter rules, code is running every time page scrolls? */
 
-//-----------------------------------------------------------------------------
 let htmlobserver = new MutationObserver(observehtml);
+var initialPageLoadingFlag = true;
 
 function observehtml(mutations) 
 {
@@ -43,6 +26,7 @@ function observehtml(mutations)
 				console.log('the data-location attribute of an observed object has changed!');
 				
 				setTimeout(allfixes(), 200);
+				initialPageLoadingFlag  = true; //page changed, reset initial loading flag
 			}
 			else if(mutation.attributeName == 'class'){
 				console.log('the class attribute of an observed object has changed!');
@@ -52,14 +36,21 @@ function observehtml(mutations)
 					trapinsidepopup();
 				}				
 			}
-			else if(mutation.attributeName == 'style')
-			{
+			else if(mutation.attributeName == 'style'){
 				console.log('The inline style of an observed object has changed!')
 
 				//If the loading wheel is gone, run all fixes (page really fully loaded)
-				if( $('.loading').css('display') == 'none' )
+				if( $('.loading').css('display') == 'none' && initialPageLoadingFlag)
 				{
-					setTimeout(allfixes());
+					allfixes();
+					initialPageLoadingFlag = false; //stop running after first run
+				}
+			}
+			else if(mutation.attributeName == 'aria-label' || mutation.attributeName == 'title'){
+				console.log('The aria-label or title of an observed object has changed!')
+				if($('html').attr('lang') == 'en'){ 
+					//Change to FR in final *************************************
+					frenchifyMediaLabels();
 				}
 			}
 		}
@@ -70,10 +61,15 @@ function observehtml(mutations)
 function setObservers()
 {
 	htmlobserver.disconnect()
-	let options = {attributes: true, attributeFilter: ['class', 'data-location', 'style']};
+	let options = {attributes: true, attributeFilter: ['class', 'data-location', 'style', 'aria-label'], subtree: true};
 	let loadingSpinner = document.getElementsByClassName('loading')[0];
+	let mediaComponents = Array.from(document.getElementsByClassName('media-component'));
+	console.log(mediaComponents);
 	htmlobserver.observe(document.documentElement, options);
 	htmlobserver.observe(loadingSpinner, options);
+	mediaComponents.forEach(function(item){
+		//htmlobserver.observe(item, options); //crashes course, hmmm...
+	});
 }
 
 //enable observers when doc is ready
@@ -239,36 +235,6 @@ function pagefixes(){
 		}
 	});
 
-	//Media component label fixes (INCOMPLETE)
-	if($('html').attr('lang') == 'en')
-	{
-		$('.media-component').each(function(){
-			// BORKEN WHEN VIDEO IS PAUSED / RE-PLAYED
-			$(this).find('.mejs-playpause-button button').attr('title', 'Jouer'); //Play button title
-			$(this).find('.mejs-playpause-button button').attr('aria-label', 'Jouer'); //Play button aria label
-
-			// Reverts back to Time Slider when it plays?
-			$(this).find('.mejs-time-slider').attr('aria-label','Curseur de temps'); //Time slider aria-label
-			
-			//Seems ok!
-			$(this).find('.mejs-fullscreen-button button').attr('title', 'Plein écran'); //Full screen button title
-			$(this).find('.mejs-fullscreen-button button').attr('aria-label', 'Plein écran'); //Full screen button aria-label
-
-
-			// BORKEN WHEN VIDEO IS MUTED / UNMUTED
-			$(this).find('.mejs-volume-button button').attr('title', 'Sourdine'); //Mute button title
-			
-			// BORKEN WHEN VIDEO IS MUTED / UNMUTED
-			$(this).find('.mejs-volume-button button').attr('aria-label', 'Sourdine'); //Mute button aria-label
-			
-			//Bork bork this one works
-			$(this).find('.mejs-volume-button .mejs-offscreen').html('Utilisez les touches fléchées haut / bas pour augmenter ou diminuer le volume.'); //volume slider
-		});
-	}
-	
-
-
-
 	// ----------------
 	// 
 	// ----------------		
@@ -310,6 +276,32 @@ function trapinsidepopup(){
             lastTabbable.focus();
         }
     });
+}
+
+function frenchifyMediaLabels()
+{
+	console.log('Updating the labels!');
+	//Media component label fixes (INCOMPLETE)
+	$('.media-component').each(function(){
+		// BORKEN WHEN VIDEO IS PAUSED / RE-PLAYED
+		$(this).find('.mejs-playpause-button button').attr('title', 'Jouer'); //Play button title
+		$(this).find('.mejs-playpause-button button').attr('aria-label', 'Jouer'); //Play button aria label
+			// Reverts back to Time Slider when it plays?
+		$(this).find('.mejs-time-slider').attr('aria-label','Curseur de temps'); //Time slider aria-label
+		
+		//Seems ok!
+		$(this).find('.mejs-fullscreen-button button').attr('title', 'Plein écran'); //Full screen button title
+		$(this).find('.mejs-fullscreen-button button').attr('aria-label', 'Plein écran'); //Full screen button aria-label
+
+		// BORKEN WHEN VIDEO IS MUTED / UNMUTED
+		$(this).find('.mejs-volume-button button').attr('title', 'Sourdine'); //Mute button title
+		
+		// BORKEN WHEN VIDEO IS MUTED / UNMUTED
+		$(this).find('.mejs-volume-button button').attr('aria-label', 'Sourdine'); //Mute button aria-label
+		
+		//Bork bork this one works
+		$(this).find('.mejs-volume-button .mejs-offscreen').html('Utilisez les touches fléchées haut / bas pour augmenter ou diminuer le volume.'); //volume slider
+	});
 }
 
 
