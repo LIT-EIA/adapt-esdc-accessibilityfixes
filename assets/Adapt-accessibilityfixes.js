@@ -8,6 +8,27 @@
 
 // -------------------------------------------------------------------------
 //
+//		Important Variables - variables which we want quick access 
+//		to without people having to understand the rest of the code
+//
+// -------------------------------------------------------------------------
+
+//Labels dictionary object
+var theLabels = new Object();
+theLabels = {
+	'Play' : 'Jouer',
+	'Pause' : 'Pause',
+	'Time Slider' : 'Curseur de temps',
+	'Fullscreen' : 'Plein écran',
+	'Volume Slider' : 'Curseur de volume',
+	'Mute' : 'Sourdine',
+	'Unmute' : 'Activer le son',
+	'volinstr-en' : 'Use Up/Down Arrow keys to increase or decrease volume',
+	'volinstr-fr' : 'Utilisez les touches fléchées haut / bas pour augmenter ou diminuer le volume'
+};
+
+// -------------------------------------------------------------------------
+//
 //		Update listeners - functions which decide when to run fixes
 //
 // -------------------------------------------------------------------------
@@ -15,6 +36,7 @@
 //*** Need stricter rules, code is running every time page scrolls? */
 
 let htmlobserver = new MutationObserver(observehtml);
+let mediaobserver = new MutationObserver(observemedia);
 var initialPageLoadingFlag = true;
 
 function observehtml(mutations) 
@@ -46,35 +68,60 @@ function observehtml(mutations)
 					initialPageLoadingFlag = false; //stop running after first run
 				}
 			}
-			else if(mutation.attributeName == 'aria-label' || mutation.attributeName == 'title'){
-				console.log('The aria-label or title of an observed object has changed!')
-				if($('html').attr('lang') == 'en'){ 
-					//Change to FR in final *************************************
-					frenchifyMediaLabels();
-				}
+		}
+	}
+}
+
+function observemedia(mutations) 
+{
+	for(let mutation of mutations){
+		if(mutation.attributeName == 'title'){
+			console.log('The aria-label or title of an observed object has changed!')
+			
+			if($('html').attr('lang') == 'en'){ 
+				//Change to FR in final *************************************
+				mediaobserver.disconnect();
+				frenchifyMediaLabels();
+				setmMediaObservers();
 			}
 		}
 	}
 }
 
+
 //Set observers to run all fixes or specific fixes after different events.
 function setObservers()
 {
-	htmlobserver.disconnect()
-	let options = {attributes: true, attributeFilter: ['class', 'data-location', 'style', 'aria-label'], subtree: true};
-	let loadingSpinner = document.getElementsByClassName('loading')[0];
-	let mediaComponents = Array.from(document.getElementsByClassName('media-component'));
-	console.log(mediaComponents);
-	htmlobserver.observe(document.documentElement, options);
-	htmlobserver.observe(loadingSpinner, options);
-	mediaComponents.forEach(function(item){
-		//htmlobserver.observe(item, options); //crashes course, hmmm...
+	htmlobserver.disconnect();
+
+	let observerOptions = {attributes: true, attributeFilter: ['class', 'data-location', 'style']};
+	let object_htmlTag = document.documentElement;
+	let object_Spinner = $('.loading')[0];
+	htmlobserver.observe(object_htmlTag, observerOptions);
+	htmlobserver.observe(object_Spinner, observerOptions);
+}
+
+function setmMediaObservers()
+{
+	mediaobserver.disconnect();
+
+	let mediaObserverOptions = {attributes: true, attributeFilter: ['title']};
+	let object_MediaComponentPlay = $('.mejs-playpause-button button');
+	let object_MediaComponentMute = $('.mejs-volume-button button');
+	
+	object_MediaComponentPlay.each(function(item){
+		mediaobserver.observe(object_MediaComponentPlay[item], mediaObserverOptions); 
+	});
+	object_MediaComponentMute.each(function(item){
+		mediaobserver.observe(object_MediaComponentMute[item], mediaObserverOptions); 
 	});
 }
 
 //enable observers when doc is ready
 docReady(function(){
+	frenchifyMediaLabels();
 	setObservers();
+	setmMediaObservers();
 });
 
 //This function runs anytime anything in the DOM (inside #wrapper) is modified
@@ -94,6 +141,7 @@ function allfixes()
 	console.log('running all fixes');
 	//re-initialize observer
 	setObservers();
+	setmMediaObservers();
 
 	//Run Global fixes
 	globalfixes();
@@ -280,31 +328,38 @@ function trapinsidepopup(){
 
 function frenchifyMediaLabels()
 {
-	console.log('Updating the labels!');
-	//Media component label fixes (INCOMPLETE)
+	//Media component label fixes
 	$('.media-component').each(function(){
-		// BORKEN WHEN VIDEO IS PAUSED / RE-PLAYED
-		$(this).find('.mejs-playpause-button button').attr('title', 'Jouer'); //Play button title
-		$(this).find('.mejs-playpause-button button').attr('aria-label', 'Jouer'); //Play button aria label
-			// Reverts back to Time Slider when it plays?
-		$(this).find('.mejs-time-slider').attr('aria-label','Curseur de temps'); //Time slider aria-label
-		
-		//Seems ok!
-		$(this).find('.mejs-fullscreen-button button').attr('title', 'Plein écran'); //Full screen button title
-		$(this).find('.mejs-fullscreen-button button').attr('aria-label', 'Plein écran'); //Full screen button aria-label
+		let playpauseButton = $(this).find('.mejs-playpause-button button');
+		let timeSlider = $(this).find('.mejs-time-slider');
+		let fullscreenButton = $(this).find('.mejs-fullscreen-button button');
+		let volumeButton = $(this).find('.mejs-volume-button button');
+		let volumeSlider = $(this).find('.mejs-volume-slider');
+		let volumeInstructions = $(this).find('.mejs-volume-button .mejs-offscreen');
 
-		// BORKEN WHEN VIDEO IS MUTED / UNMUTED
-		$(this).find('.mejs-volume-button button').attr('title', 'Sourdine'); //Mute button title
-		
-		// BORKEN WHEN VIDEO IS MUTED / UNMUTED
-		$(this).find('.mejs-volume-button button').attr('aria-label', 'Sourdine'); //Mute button aria-label
-		
-		//Bork bork this one works
-		$(this).find('.mejs-volume-button .mejs-offscreen').html('Utilisez les touches fléchées haut / bas pour augmenter ou diminuer le volume.'); //volume slider
+		//Verified!
+		playpauseButton.attr('title', theLabels[playpauseButton.attr('title')]);
+		playpauseButton.attr('aria-label', theLabels[playpauseButton.attr('aria-label')]);
+
+		//ToFix:
+		//Changing itself back to Time Slider while playing *******************
+		timeSlider.attr('aria-label',theLabels['Time Slider']); 
+
+		//Verified!
+		fullscreenButton.attr('title', theLabels['Fullscreen']); 
+		fullscreenButton.attr('aria-label', theLabels['Fullscreen']);
+
+		//Verified!
+		volumeButton.attr('title', theLabels[volumeButton.attr('title')]);
+		volumeButton.attr('aria-label', theLabels[volumeButton.attr('title')]);
+
+		//Verified!
+		volumeSlider.attr('aria-label', theLabels['Volume Slider']);
+
+		//Verified!
+		volumeInstructions.html(theLabels['volinstr-fr']);
 	});
 }
-
-
 
 // -------------------------------------------------------------------------
 //
