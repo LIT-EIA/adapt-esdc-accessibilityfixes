@@ -278,7 +278,13 @@ function pagefixes(){
 
 // Code to trap tabbing between a start and end object
 function trapinsidepopup(){
+	// first we clear up disabled element present in the dom notification
+	$('.notify-popup-inner').find("button[disabled='disabled']").remove();
 
+	// will need to ensure that close button is first focus in tabbable. 
+	//Otherwise the closed loop breaks and it seems to be inconsistant between components
+
+	//establish tab elements and list it for a navigation loop (locked)
 	let tabbable = $('.notify-popup-inner').find('select, input, textarea, button, a').filter(':visible');
     let firstTabbable = tabbable.first();
     let lastTabbable = tabbable.last();
