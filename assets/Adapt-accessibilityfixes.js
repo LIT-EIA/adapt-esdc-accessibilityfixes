@@ -145,9 +145,11 @@ function allfixes()
 
 	//Run Global fixes
 	globalfixes();
+	
 
 	//if menu page, run menufixes, else run page fixes
 	($('#adapt').attr('data-location') == 'course') ? menufixes() : pagefixes();
+
 }
 
 function globalfixes(){
@@ -167,13 +169,8 @@ function globalfixes(){
 		$('.navigation-inner button').eq(buttonArray[j][0]).attr('tabindex', j+1);
 	}
 
-	//target blank to external sites (ignore local hrefs)
-	//-----------------------------------------------------------------------------
-
-	$('a').filter(function() {
-		return this.hostname && this.hostname !== location.hostname;
-	}).attr('target', '_blank');
-	
+	//fix links
+	linkfixes();
 	
 	//img alt tag and aria-hidden fixes
 	//-----------------------------------------------------------------------------	
@@ -203,6 +200,7 @@ function globalfixes(){
 	// ----------------	
 
 }
+
 
 function menufixes(){
 
@@ -324,6 +322,20 @@ function trapinsidepopup(){
             lastTabbable.focus();
         }
     });
+
+	// fix links
+	linkfixes();
+}
+
+function linkfixes(){
+
+	//target blank to external sites (ignore local hrefs)
+	//-----------------------------------------------------------------------------
+
+	$('a').filter(function() {
+		return this.hostname && this.hostname !== location.hostname;
+	}).attr('target', '_blank');
+	console.log('I will fix your links!');
 }
 
 function frenchifyMediaLabels()
