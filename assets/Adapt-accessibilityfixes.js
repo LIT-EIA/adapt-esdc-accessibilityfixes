@@ -335,7 +335,6 @@ function linkfixes(){
 	$('a').filter(function() {
 		return this.hostname && this.hostname !== location.hostname;
 	}).attr('target', '_blank');
-	console.log('I will fix your links!');
 }
 
 function frenchifyMediaLabels()
