@@ -262,6 +262,19 @@ function pagefixes(){
 			$(this).next().attr('id', blockid);
 		});
 	});
+	// Expose fixes
+	$('.expose-component').each(function(){
+		//remove empty button
+		$(this).find('.expose-item-button').remove();
+		//assign clickable div proper role
+		$(this).find('.expose-item-cover').attr('role', 'button');
+		// make tabbable
+		$(this).find('.expose-item-cover').attr('tabindex', '0');
+		//aria states between for proper toggle indication to assistive technology
+		$(this).find('.expose-item-cover').attr('aria-pressed', 'false');
+		//need to add aria-pressed true when pressed or not possibly via click/toggle function
+		//note that fade is added to this element which could be used to detect div state
+	})
 
 	//remove tooltips from buttons
 	//-----------------------------------------------------------------------------
