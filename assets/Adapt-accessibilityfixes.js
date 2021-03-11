@@ -56,6 +56,7 @@ function observehtml(mutations)
 				if ($('html').hasClass('notify')){
 					console.log("a popup has been opened!");
 					trapinsidepopup();
+					allfixes();
 				}				
 			}
 			else if(mutation.attributeName == 'style'){
@@ -169,31 +170,13 @@ function globalfixes(){
 		$('.navigation-inner button').eq(buttonArray[j][0]).attr('tabindex', j+1);
 	}
 
-	//fix links
+	//anchor tag fixes (links)
+	//-----------------------------------------------------------------------------	
 	linkfixes();
 	
 	//img alt tag and aria-hidden fixes
 	//-----------------------------------------------------------------------------	
-	
-	$('img').each(function(){
-		
-		//if img doesn't have an alt tag, create an empty one
-		if (!(hasAttr($(this), 'alt'))){
-			$(this).attr('alt', '');
-		}
-		
-		//if img has an aria-label, copy into alt tag and remove aria-label
-		if (hasAttr($(this),'aria-label')){
-			$(this).attr('alt', $(this).attr('aria-label'));
-			$(this).removeAttr('aria-label');		
-		}
-		
-		// if image has aria-hidden, remove it.
-		if ($(this).attr('aria-hidden') == 'true'){
-			$(this).removeAttr('aria-hidden');
-		}	
-	});	
-
+	altFixes();
 
 	// ----------------
 	// 
@@ -262,7 +245,9 @@ function pagefixes(){
 			$(this).next().attr('id', blockid);
 		});
 	});
+
 	// Expose basic fixes
+	//-----------------------------------------------------------------------------
 	$('.expose-component').each(function(){
 		//remove empty button
 		$(this).find('.expose-item-button').remove();
@@ -298,10 +283,12 @@ function pagefixes(){
 		$(this).removeAttr('tooltip');
 	});
 	// remove disabled button in quicknavigation from dom
-	$('.quicknav button.disabled').remove();
+	// *** Was also removing buttons when using a different lock mechanism, disabled for now
+	//$('.quicknav button.disabled').remove();
 	
 	
 	//Hotgraphic pin title checker
+	//-----------------------------------------------------------------------------
 	let hotgraphicPins = $('.hotgraphic-graphic-pin');
 	hotgraphicPins.each(function(){
 
@@ -357,13 +344,32 @@ function trapinsidepopup(){
 }
 
 function linkfixes(){
-
-	//target blank to external sites (ignore local hrefs)
-	//-----------------------------------------------------------------------------
-
+	//add target = _blank to all external links
 	$('a').filter(function() {
 		return this.hostname && this.hostname !== location.hostname;
 	}).attr('target', '_blank');
+}
+
+function altFixes()
+{	
+	$('img').each(function(){
+		
+		//if img doesn't have an alt tag, create an empty one
+		if (!(hasAttr($(this), 'alt'))){
+			$(this).attr('alt', '');
+		}
+		
+		//if img has an aria-label, copy into alt tag and remove aria-label
+		if (hasAttr($(this),'aria-label')){
+			$(this).attr('alt', $(this).attr('aria-label'));
+			$(this).removeAttr('aria-label');		
+		}
+		
+		// if image has aria-hidden, remove it.
+		if ($(this).attr('aria-hidden') == 'true'){
+			$(this).removeAttr('aria-hidden');
+		}	
+	});	
 }
 
 function frenchifyMediaLabels()
@@ -401,6 +407,7 @@ function frenchifyMediaLabels()
 	});
 }
 
+
 // -------------------------------------------------------------------------
 //
 //		Utility functions
@@ -424,7 +431,7 @@ function sortmulti(n, comparatorFunction, reverse) {
     }
 }
 
-//Check if object has given attribute
+//Check if object has a given attribute
 function hasAttr(obj, attr) {
 	
 	let _attr = (obj.attr) ? obj.attr(attr) : obj.getAttribute(attr);
