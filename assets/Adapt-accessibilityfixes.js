@@ -297,6 +297,18 @@ function pagefixes(){
 		}
 	});
 
+	//Slider fixes
+	//-----------------------------------------------------------------------------
+
+	theSlider = $('.slider-component');
+	theSlider.each(function(i){
+		var newid = $(this).attr('data-adapt-id') + "slabel" + i
+		$(this).find('.slider-instruction-inner').attr('id', newid);
+		$(this).find('.slider-item input').attr('aria-labelledby', newid);
+	});
+	
+
+
 	// ----------------
 	// 
 	// ----------------		
