@@ -37,6 +37,7 @@ theLabels = {
 
 let htmlobserver = new MutationObserver(observehtml);
 let mediaobserver = new MutationObserver(observemedia);
+let timeobserver = new MutationObserver(observetimeslider);
 var initialPageLoadingFlag = true;
 
 function observehtml(mutations) 
@@ -77,18 +78,32 @@ function observemedia(mutations)
 {
 	for(let mutation of mutations){
 		if(mutation.attributeName == 'title'){
-			console.log('The aria-label or title of an observed object has changed!')
+			console.log('The title of an observed object has changed!')
 			
 			if($('html').attr('lang') == 'en'){ 
 				//Change to FR in final *************************************
 				mediaobserver.disconnect();
 				frenchifyMediaLabels();
-				setmMediaObservers();
+				setMediaObservers();
 			}
 		}
 	}
 }
 
+function observetimeslider(mutations)
+{
+	for(let mutation of mutations){
+		if(mutation.attributeName == 'aria-label'){
+			console.log('The aria-label of an observed object has changed!')
+
+			if($('html').attr('lang') == 'en'){ 
+				timeobserver.disconnect();
+				forceTimeSliderLabel();
+				setTimeObserver();
+			}
+		}
+	}
+}
 
 //Set observers to run all fixes or specific fixes after different events.
 function setObservers()
@@ -102,14 +117,14 @@ function setObservers()
 	htmlobserver.observe(object_Spinner, observerOptions);
 }
 
-function setmMediaObservers()
+function setMediaObservers()
 {
 	mediaobserver.disconnect();
 
 	let mediaObserverOptions = {attributes: true, attributeFilter: ['title']};
 	let object_MediaComponentPlay = $('.mejs-playpause-button button');
 	let object_MediaComponentMute = $('.mejs-volume-button button');
-	
+
 	object_MediaComponentPlay.each(function(item){
 		mediaobserver.observe(object_MediaComponentPlay[item], mediaObserverOptions); 
 	});
@@ -118,11 +133,22 @@ function setmMediaObservers()
 	});
 }
 
+function setTimeObserver()
+{
+	timeobserver.disconnect();
+	let timeObserverOptions = {attributes: true, attributeFilter: ['aria-label']};
+	let object_timeSlider = $('.mejs-time-slider');
+
+	object_timeSlider.each(function(item){
+		timeobserver.observe(object_timeSlider[item], timeObserverOptions); 
+	});
+}
+
+
 //enable observers when doc is ready
 docReady(function(){
-	frenchifyMediaLabels();
-	setObservers();
-	setmMediaObservers();
+	
+	allfixes();
 });
 
 //This function runs anytime anything in the DOM (inside #wrapper) is modified
@@ -142,11 +168,11 @@ function allfixes()
 	console.log('running all fixes');
 	//re-initialize observer
 	setObservers();
-	setmMediaObservers();
+	setMediaObservers();
+	setTimeObserver();
 
 	//Run Global fixes
 	globalfixes();
-	
 
 	//if menu page, run menufixes, else run page fixes
 	($('#adapt').attr('data-location') == 'course') ? menufixes() : pagefixes();
@@ -183,7 +209,6 @@ function globalfixes(){
 	// ----------------	
 
 }
-
 
 function menufixes(){
 
@@ -268,6 +293,7 @@ function pagefixes(){
 		   return false;  
 		 }
 	});
+
 	// aria-pressed toggle for expose
 	$('.expose-item-cover').on('click', function(){
 		if ($(".expose-item-cover").hasClass("fade")) {
@@ -307,6 +333,8 @@ function pagefixes(){
 		$(this).find('.slider-item input').attr('aria-labelledby', newid);
 	});
 	
+	//Media component fixes
+	frenchifyMediaLabels();
 
 
 	// ----------------
@@ -389,7 +417,6 @@ function frenchifyMediaLabels()
 	//Media component label fixes
 	$('.media-component').each(function(){
 		let playpauseButton = $(this).find('.mejs-playpause-button button');
-		let timeSlider = $(this).find('.mejs-time-slider');
 		let fullscreenButton = $(this).find('.mejs-fullscreen-button button');
 		let volumeButton = $(this).find('.mejs-volume-button button');
 		let volumeSlider = $(this).find('.mejs-volume-slider');
@@ -399,12 +426,8 @@ function frenchifyMediaLabels()
 		playpauseButton.attr('title', theLabels[playpauseButton.attr('title')]);
 		playpauseButton.attr('aria-label', theLabels[playpauseButton.attr('aria-label')]);
 
-		//ToFix:
-		//Changing itself back to Time Slider while playing *******************
-		timeSlider.attr('aria-label',theLabels['Time Slider']); 
-
 		//Verified!
-		fullscreenButton.attr('title', theLabels['Fullscreen']); 
+		fullscreenButton.attr('title', theLabels['Fullscreen']);
 		fullscreenButton.attr('aria-label', theLabels['Fullscreen']);
 
 		//Verified!
@@ -416,6 +439,18 @@ function frenchifyMediaLabels()
 
 		//Verified!
 		volumeInstructions.html(theLabels['volinstr-fr']);
+	});
+}
+
+function forceTimeSliderLabel()
+{
+	//For media player time slider only
+	$('.media-component').each(function(){
+		let timeSlider = $(this).find('.mejs-time-slider');
+		if(timeSlider.attr('aria-label') == 'Time Slider')
+		{
+			timeSlider.attr('aria-label',theLabels['Time Slider']);
+		}
 	});
 }
 
@@ -461,3 +496,4 @@ function docReady(fn) {
         document.addEventListener("DOMContentLoaded", fn);
     }
 }
+
