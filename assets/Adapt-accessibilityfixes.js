@@ -286,6 +286,9 @@ function pagefixes(){
 	// *** Was also removing buttons when using a different lock mechanism, disabled for now
 	//$('.quicknav button.disabled').remove();
 	
+	//add aria-live to narrative 
+	//-----------------------------------------------------------------------------
+	$('.narrative-content').attr('aria-live', 'polite');
 	
 	//Hotgraphic pin title checker
 	//-----------------------------------------------------------------------------
