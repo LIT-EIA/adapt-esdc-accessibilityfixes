@@ -80,7 +80,7 @@ function observemedia(mutations)
 		if(mutation.attributeName == 'title'){
 			console.log('The title of an observed object has changed!')
 			
-			if($('html').attr('lang') == 'en'){ 
+			if($('html').attr('lang') == 'fr'){ 
 				//Change to FR in final *************************************
 				mediaobserver.disconnect();
 				frenchifyMediaLabels();
@@ -96,7 +96,7 @@ function observetimeslider(mutations)
 		if(mutation.attributeName == 'aria-label'){
 			console.log('The aria-label of an observed object has changed!')
 
-			if($('html').attr('lang') == 'en'){ 
+			if($('html').attr('lang') == 'fr'){ 
 				timeobserver.disconnect();
 				forceTimeSliderLabel();
 				setTimeObserver();
