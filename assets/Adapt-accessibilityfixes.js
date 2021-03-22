@@ -259,6 +259,15 @@ function pagefixes(){
 		$(this).find('.dropdown__inner').attr('id', glabel);
 		$(this).find('button').attr('aria-labelledby', glabel);
 	});
+
+	//Open Textinput fix
+	//-----------------------------------------------------------------------------
+	$('.openTextInput-inner').each(function(k){
+		let olabel = $(this).parents().find('.openTextInput-component').attr('data-adapt-id')+'_qlabel_'+k;
+		$(this).find('.openTextInput-count-characters-container').attr('aria-live', 'polite');
+		$(this).find('.openTextInput-instruction-inner').attr('id', olabel);
+		$(this).find('.openTextInput-answer-container textarea').attr('aria-labelledby', olabel);
+	});
 		
 	//Accordion component accessibility fixes
 	//-----------------------------------------------------------------------------
@@ -270,6 +279,7 @@ function pagefixes(){
 			$(this).next().attr('id', blockid);
 		});
 	});
+	
 
 	// Expose basic fixes
 	//-----------------------------------------------------------------------------
