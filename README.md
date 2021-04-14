@@ -69,3 +69,11 @@ adapt-contrib-vanilla | 4.1.0 | https://github.com/adaptlearning/adapt-contrib-v
 Name | Ver. | path
 -------------------------------- | ------ | -------------------------------------------------------------
 adapt-contrib-boxMenu | 4.0.1 | https://github.com/adaptlearning/adapt-contrib-boxmenu	
+
+
+
+
+
+Issue reports (Only accessible by MeD members):
+https://014gc.sharepoint.com/:w:/r/sites/MeD/Shared%20Documents/Accessibility/Accessibility%20Testing/General%20A11Y%20testing/RoDI/A11Y-report-html-RDI-BIL-v3.docx?d=wbfb734e517104697a5e25dd695ae48d3&csf=1&web=1&e=2q7bSj
+
