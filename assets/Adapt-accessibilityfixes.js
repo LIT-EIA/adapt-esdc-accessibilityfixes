@@ -19,12 +19,17 @@ theLabels = {
     'Play': 'Jouer',
     'Pause': 'Pause',
     'Time Slider': 'Curseur de temps',
+
     'Fullscreen': 'Plein écran',
     'Volume Slider': 'Curseur de volume',
     'Mute': 'Sourdine',
     'Unmute': 'Activer le son',
     'volinstr-en': 'Use Up/Down Arrow keys to increase or decrease volume',
-    'volinstr-fr': 'Utilisez les touches fléchées haut / bas pour augmenter ou diminuer le volume'
+    'volinstr-fr': 'Utilisez les touches fléchées haut / bas pour augmenter ou diminuer le volume',
+    'French': 'Français',
+    'English': 'Anglais',
+    'None': 'Aucun',
+    'Captions/Subtitles': 'Sous-titres codés'
 };
 
 // -------------------------------------------------------------------------
@@ -209,7 +214,11 @@ function menufixes() {
     // ----------------
 
     //Weeee
-
+    $('.menu-item').each(function() {
+        //$(this).find('.menu-item-button button').attr('aria-label', $(this).find('.menu-item-title-inner').html());
+        //Need to add "view" or "visioner" depending on language
+        //Need to consider situation when the button is greyed / visited       
+    })
 
     // ----------------
     // 
@@ -460,24 +469,29 @@ function frenchifyMediaLabels() {
         let volumeButton = $(this).find('.mejs-volume-button button');
         let volumeSlider = $(this).find('.mejs-volume-slider');
         let volumeInstructions = $(this).find('.mejs-volume-button .mejs-offscreen');
+        let ccOptions = $(this).find('.mejs-captions-selector label');
+        let ccButton = $(this).find('.mejs-captions-button button');
 
-        //Verified!
         playpauseButton.attr('title', theLabels[playpauseButton.attr('title')]);
         playpauseButton.attr('aria-label', theLabels[playpauseButton.attr('aria-label')]);
 
-        //Verified!
         fullscreenButton.attr('title', theLabels['Fullscreen']);
         fullscreenButton.attr('aria-label', theLabels['Fullscreen']);
 
-        //Verified!
         volumeButton.attr('title', theLabels[volumeButton.attr('title')]);
         volumeButton.attr('aria-label', theLabels[volumeButton.attr('title')]);
 
-        //Verified!
         volumeSlider.attr('aria-label', theLabels['Volume Slider']);
-
-        //Verified!
         volumeInstructions.html(theLabels['volinstr-fr']);
+
+        ccOptions.each(function() {
+            $(this).html(theLabels[$(this).html()]);
+        });
+
+        ccButton.attr('title', theLabels['Captions/Subtitles']);
+        ccButton.attr('aria-label', theLabels['Captions/Subtitles']);
+
+
     });
 }
 
