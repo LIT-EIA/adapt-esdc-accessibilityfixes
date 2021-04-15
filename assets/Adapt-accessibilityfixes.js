@@ -238,9 +238,15 @@ function pagefixes() {
     //-----------------------------------------------------------------------------
     let multiChoiceComponents = $('.mcq-component');
     multiChoiceComponents.each(function() {
-        let label = $(this).attr('data-adapt-id') + 'qlabel';
-        $('.mcq-body-inner > p').attr('id', label);
-        $('.mcq-widget').attr('aria-labelledby', label);
+        //let label = $(this).attr('data-adapt-id') + 'qlabel';
+        //$('.mcq-body-inner').attr('id', label);
+        //$('.mcq-widget').attr('aria-labelledby', label);
+
+        //Changed the fix to add a fieldset and legend to MCQ. 
+        //Will need to create a version of this for Graphical MCQ
+
+        $(this).find('.mcq-inner').wrap("<fieldset></fieldset>");
+        $(this).find('.mcq-body-inner').wrap("<legend></legend>");
     });
 
     //Matching questions fix
