@@ -286,6 +286,10 @@ function pagefixes() {
         });
     });
 
+    // video skip to transcript removal
+    //-----------------------------------------------------------------------------
+    $('.aria-label.js-skip-to-transcript').remove();
+
 
     // Expose basic fixes
     //-----------------------------------------------------------------------------
