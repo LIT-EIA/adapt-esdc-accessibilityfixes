@@ -235,10 +235,10 @@ function pagefixes() {
     //Global component fixes
     //-----------------------------------------------------------------------------
 
-    //add aria live to component instructions so learner will be alerted if they change	
-    let allComponents = $(".component");
+    //add aria live to question component instructions so learner will be alerted if they change	
+    let allQuestionComponents = $(".question-component");
 
-    allComponents.each(function() {
+    allQuestionComponents.each(function() {
         $('.component-instruction-inner').attr('role', 'alert');
         $('.component-instruction-inner').attr('aria-live', 'assertive');
     });
@@ -252,11 +252,19 @@ function pagefixes() {
         //$('.mcq-widget').attr('aria-labelledby', label);
 
         //Changed the fix to add a fieldset and legend to MCQ. 
-        //Will need to create a version of this for Graphical MCQ
 
         $(this).find('.mcq-inner').wrap("<fieldset></fieldset>");
         $(this).find('.mcq-body-inner').wrap("<legend></legend>");
     });
+
+    // graphical multichoice fixes
+    //-----------------------------------------------------------------------------   
+    let gmultiChoiceComponents = $('.gmcq-component');
+    gmultiChoiceComponents.each(function() {
+        $(this).find('.gmcq-inner').wrap("<fieldset></fieldset>");
+        $(this).find('.gmcq-body-inner').wrap("<legend></legend>");
+    });
+
 
     //Matching questions fix
     //-----------------------------------------------------------------------------
@@ -265,6 +273,7 @@ function pagefixes() {
         $(this).find('.dropdown__inner').attr('id', glabel);
         $(this).find('button').attr('aria-labelledby', glabel);
     });
+
 
     //Open Textinput fix
     //-----------------------------------------------------------------------------
@@ -304,16 +313,20 @@ function pagefixes() {
         $(this).find('.expose-item-cover').attr('aria-pressed', 'false');
     })
 
-     // Auto focus instructions on empty selection submit
+    // Auto focus instructions on empty selection submit
     //-----------------------------------------------------------------------------
     $('.buttons-action').on("click", function() {
         if ($(this).next().attr('disabled') == 'disabled') {
             var componentid = $(this).parents('.component').attr('data-adapt-id');
-            var instrfocus = '.component[data-adapt-id="' + componentid + '"] .component-instruction-inner';
+            var instrfocus = $('.component[data-adapt-id="' + componentid + '"] .component-instruction-inner');
             console.log(instrfocus);
-            $([document.documentElement, document.body]).animate({
-                scrollTop: $(instrfocus).offset().top - (window.innerHeight / 2)
-            }, 200);
+
+            //Only trigger if instructions exist and not empty
+            if (instrfocus.length > 0 && !(instrfocus.html() == "")) {
+                $([document.documentElement, document.body]).animate({
+                    scrollTop: instrfocus.offset().top - (window.innerHeight / 2)
+                }, 200);
+            }
         }
     })
 
@@ -385,7 +398,9 @@ function pagefixes() {
 // Code to trap tabbing between a start and end object
 function trapinsidepopup() {
     // first we clear up disabled element present in the dom notification
-    $('.notify-popup-inner').find("button[disabled='disabled']").remove();
+    //Disabled, was causing issue #60 https://github.com/MeD-DMC/Adapt-accessibilityfixes/issues/60
+    //$('.notify-popup-inner').find("button[disabled='disabled']").remove();
+
     //hotgraphic specific fix
     $('.hotgraphic-popup-toolbar.component-item-color.clearfix').insertBefore($('.hotgraphic-popup-inner.clearfix'));
     $('.notify.hotgraphic .a11y-focusguard.a11y-ignore.a11y-ignore-focus').remove();
