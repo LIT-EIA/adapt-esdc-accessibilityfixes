@@ -300,6 +300,19 @@ function pagefixes() {
         $(this).find('.expose-item-cover').attr('aria-pressed', 'false');
     })
 
+     // Auto focus instructions on empty selection submit
+    //-----------------------------------------------------------------------------
+    $('.buttons-action').on("click", function() {
+        if ($(this).next().attr('disabled') == 'disabled') {
+            var componentid = $(this).parents('.component').attr('data-adapt-id');
+            var instrfocus = '.component[data-adapt-id="' + componentid + '"] .component-instruction-inner';
+            console.log(instrfocus);
+            $([document.documentElement, document.body]).animate({
+                scrollTop: $(instrfocus).offset().top - (window.innerHeight / 2)
+            }, 200);
+        }
+    })
+
     //expose button div needs to react to enter press and change aria status
     $('.expose-item-cover').keypress(function(e) {
         var key = e.which;
