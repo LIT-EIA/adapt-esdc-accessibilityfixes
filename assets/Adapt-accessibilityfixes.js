@@ -299,7 +299,6 @@ function pagefixes() {
     //-----------------------------------------------------------------------------
     $('.aria-label.js-skip-to-transcript').remove();
 
-
     // Expose basic fixes
     //-----------------------------------------------------------------------------
     $('.expose-component').each(function() {
@@ -328,7 +327,7 @@ function pagefixes() {
                 }, 200);
             }
         }
-    })
+    });
 
     //expose button div needs to react to enter press and change aria status
     $('.expose-item-cover').keypress(function(e) {
@@ -362,6 +361,7 @@ function pagefixes() {
     //-----------------------------------------------------------------------------
     $('.narrative-content').attr('aria-live', 'polite');
 
+
     //Hotgraphic pin title checker
     //-----------------------------------------------------------------------------
     let hotgraphicPins = $('.hotgraphic-graphic-pin');
@@ -385,7 +385,6 @@ function pagefixes() {
     //Media component fixes
     frenchifyMediaLabels();
 
-
     // ----------------
     // 
     // ----------------		
@@ -405,14 +404,12 @@ function trapinsidepopup() {
     $('.hotgraphic-popup-toolbar.component-item-color.clearfix').insertBefore($('.hotgraphic-popup-inner.clearfix'));
     $('.notify.hotgraphic .a11y-focusguard.a11y-ignore.a11y-ignore-focus').remove();
 
-
     //establish tab elements and list it for a navigation loop (locked)
     let tabbable = $('.notify-popup-inner').find('select, input, textarea, button, a').filter(':visible');
     let firstTabbable = tabbable.first();
     let lastTabbable = tabbable.last();
     /*set focus on first input*/
     firstTabbable.focus();
-
 
     /*redirect last tab to first input*/
     lastTabbable.on('keydown', function(e) {
