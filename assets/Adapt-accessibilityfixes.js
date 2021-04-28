@@ -329,6 +329,27 @@ function pagefixes() {
         }
     });
 
+    // captions UI fixes when pressing space bar and click to show/hide elements
+    $(".mejs-captions-button button").on('keypress',function(e) {
+        if(e.which == 13) {
+            var getcapcss = $(this).next().css('visibility');
+            if (getcapcss == 'visible') {
+               $(this).next().css('visibility', 'hidden');
+            }else {
+               $(this).next().css('visibility', 'visible');
+            }
+        }
+    });
+    
+    $(".mejs-captions-button button").click(function(){
+        var getcapcss = $(this).next().css('visibility');
+        if (getcapcss == 'visible') {
+            $(this).next().css('visibility', 'hidden');
+        }else {
+            $(this).next().css('visibility', 'visible');
+            }
+    });
+
     //expose button div needs to react to enter press and change aria status
     $('.expose-item-cover').keypress(function(e) {
         var key = e.which;
