@@ -295,9 +295,18 @@ function pagefixes() {
         });
     });
 
-    // video skip to transcript removal
+    // video skip to transcript fix
     //-----------------------------------------------------------------------------
-    $('.aria-label.js-skip-to-transcript').remove();
+    var skiptxt = $('.aria-label.js-skip-to-transcript').attr('aria-label');
+    $('.aria-label.js-skip-to-transcript').html(skiptxt);
+    $('.aria-label.js-skip-to-transcript').removeAttr('aria-label');
+    $('.aria-label.js-skip-to-transcript').attr('tabindex', '0');
+    $('.media-transcript-container').attr('tabindex', '0');
+
+    $(".aria-label.js-skip-to-transcript").on("click", function(){
+        var compid = $(this).parents('.component').attr('data-adapt-id');
+        $('.'+compid+' .media-transcript-button-container:first button').focus();
+    });
 
     // Expose basic fixes
     //-----------------------------------------------------------------------------
