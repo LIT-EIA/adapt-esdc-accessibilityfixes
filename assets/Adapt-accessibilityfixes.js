@@ -266,13 +266,30 @@ function pagefixes() {
     });
 
 
-    //Matching questions fix
+    //Matching questions fix & feedback fix
     //-----------------------------------------------------------------------------
     $('.matching-select-container').each(function(k) {
         let glabel = $(this).parents().find('.matching-component').attr('data-adapt-id') + '_qlabel_' + k;
         $(this).find('.dropdown__inner').attr('id', glabel);
         $(this).find('button').attr('aria-labelledby', glabel);
     });
+
+    $(".matching-component .buttons-cluster.clearfix button").on("click", function(){
+        var compid = $(this).parents('.component').attr('data-adapt-id');
+        setTimeout(function() { 
+            if ($('#adapt').attr('lang') == 'fr'){
+                $('.notify-popup-body-inner').prepend("<p>Vous avez sélectionné les éléments suivants :</p><ol class='notifanswer'></ol>");
+            }else {
+                $('.notify-popup-body-inner').prepend("<p>You have selected the following:</p><ol class='notifanswer'></ol>");
+            }
+            $('.'+compid+' .dropdown__inner').each(function(i){
+                var matchanswers = $(this).text();
+                $('.notifanswer').append('<li>&nbsp;'+matchanswers+'</li>');
+                console.log('hey');
+            })
+        }, 100);
+    });
+
 
 
     //Open Textinput fix
