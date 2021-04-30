@@ -33,6 +33,8 @@ theLabels = {
 
 var displayAriaLevelsOnPage = true;
 
+var lastHeaderLevelBeforeClickedButton = 0;
+
 // -------------------------------------------------------------------------
 //
 //		Update listeners - functions which decide when to run fixes
@@ -51,22 +53,24 @@ function observehtml(mutations) {
     for (let mutation of mutations) {
         if (mutation.type == 'attributes') {
             if (mutation.attributeName == 'data-location') {
-                console.log('the data-location attribute of an observed object has changed!');
+                //console.log('the data-location attribute of an observed object has changed!');
 
                 setTimeout(allfixes(), 200);
                 initialPageLoadingFlag = true; //page changed, reset initial loading flag
                 displayAriaLevels(true);
 
             } else if (mutation.attributeName == 'class') {
-                console.log('the class attribute of an observed object has changed!');
+                //console.log('the class attribute of an observed object has changed!');
 
                 if ($('html').hasClass('notify')) {
                     console.log("a popup has been opened!");
                     trapinsidepopup();
+                    $('.notify-popup-inner *[aria-level]').attr('aria-level', Number(lastHeaderLevelBeforeClickedButton) + 1);
+                    displayAriaLevels(false);
                     allfixes();
                 }
             } else if (mutation.attributeName == 'style') {
-                console.log('The inline style of an observed object has changed!');
+                //console.log('The inline style of an observed object has changed!');
 
                 //If the loading wheel is gone, run all fixes (page really fully loaded)
                 if ($('.loading').css('display') == 'none' && initialPageLoadingFlag) {
@@ -81,7 +85,7 @@ function observehtml(mutations) {
 function observemedia(mutations) {
     for (let mutation of mutations) {
         if (mutation.attributeName == 'title') {
-            console.log('The title of an observed object has changed!');
+            //console.log('The title of an observed object has changed!');
 
             if ($('html').attr('lang') == 'fr') {
                 //Change to FR in final *************************************
@@ -96,7 +100,7 @@ function observemedia(mutations) {
 function observetimeslider(mutations) {
     for (let mutation of mutations) {
         if (mutation.attributeName == 'aria-label') {
-            console.log('The aria-label of an observed object has changed!');
+            //console.log('The aria-label of an observed object has changed!');
 
             if ($('html').attr('lang') == 'fr') {
                 timeobserver.disconnect();
@@ -111,7 +115,7 @@ function observeheaders(mutations) {
     for (let mutation of mutations) {
         if (mutation.attributeName == 'class') {
             //currently never runs
-            console.log('The class of an observed header has changed!');
+            //console.log('The class of an observed header has changed!');
             checkHeaderLevels();
         }
     }
@@ -155,7 +159,7 @@ function setTimeObserver() {
 
 function setHeaderObservers(objects) {
 
-    console.log('setting header observers on ' + objects.length + 'headers');
+    //console.log('setting header observers on ' + objects.length + 'headers');
     headerobserver.disconnect();
     let headerObserverOptions = { attributes: true, attributeFilter: ['class'] };
 
@@ -220,6 +224,7 @@ function globalfixes() {
     //img alt tag and aria-hidden fixes
     //-----------------------------------------------------------------------------	
     altFixes();
+
 
     // ----------------
     // 
@@ -304,7 +309,6 @@ function pagefixes() {
             $('.' + compid + ' .dropdown__inner').each(function(i) {
                 var matchanswers = $(this).text();
                 $('.notifanswer').append('<li>&nbsp;' + matchanswers + '</li>');
-                console.log('hey');
             })
         }, 100);
     });
@@ -361,7 +365,6 @@ function pagefixes() {
         if ($(this).next().attr('disabled') == 'disabled') {
             var componentid = $(this).parents('.component').attr('data-adapt-id');
             var instrfocus = $('.component[data-adapt-id="' + componentid + '"] .component-instruction-inner');
-            console.log(instrfocus);
 
             //Only trigger if instructions exist and not empty
             if (instrfocus.length > 0 && !(instrfocus.html() == "")) {
@@ -453,7 +456,12 @@ function pagefixes() {
     checkHeaderLevels();
     // ----------------
     // 
-    // ----------------		
+    // ----------------	
+
+    $('button').click(function() {
+        //find the nearest parent object which contains an object with an aria-level, then find the object that has an aria level and get its aria level
+        lastHeaderLevelBeforeClickedButton = $(this).closest('div:has(div[aria-level])').find('div[aria-level]').attr('aria-level');
+    });
 }
 
 // ----------------
@@ -535,16 +543,19 @@ function altFixes() {
 function checkHeaderLevels() {
     //header level warnings
 
-    console.log('Checking headers!');
     var prevLevel = 0;
     var foundTheH1 = false;
 
     //pass 1 - Set all header levels to 5, 
     //this sets any headers inside components to 5 regardless of their classes
+
+    //Disabled for now
+    /*
     $('html *[aria-level]').each(function() {
         $(this).attr('aria-level', '5');
         $(this).attr('data-level-type', '5');
     });
+    */
 
     //pass 2 - Set all header levels as they should be if all headers were used
     var pageElementTypes = ['.page-title', '.article-title', '.block-title', '.component-title'];
@@ -568,32 +579,32 @@ function checkHeaderLevels() {
         var currLevel = Number(allAriaLevels[i].getAttribute('aria-level'));
         var nextLevel = Number(allAriaLevels[i + 1].getAttribute('aria-level'));
 
-        console.log('comparing element type ' + pageElementTypes[currType - 1] + ' to element type ' + pageElementTypes[nextType - 1]);
-        console.log('comparing ' + currLevel + ' with ' + nextLevel + ' = ' + (nextLevel - currLevel));
+        //console.log('comparing element type ' + pageElementTypes[currType - 1] + ' to element type ' + pageElementTypes[nextType - 1]);
+        //console.log('comparing ' + currLevel + ' with ' + nextLevel + ' = ' + (nextLevel - currLevel));
 
         //the next level is the same type as the current one. Make sure they match
         if (currType == nextType) {
             allAriaLevels[i + 1].setAttribute('aria-level', currLevel);
 
-            console.log('comparing two of the same item, make sure they match. ' + allAriaLevels[i].getAttribute('aria-level') + ' & ' + allAriaLevels[i + 1].getAttribute('aria-level'));
+            //console.log('comparing two of the same item, make sure they match. ' + allAriaLevels[i].getAttribute('aria-level') + ' & ' + allAriaLevels[i + 1].getAttribute('aria-level'));
             lastTypeEncounterKey[nextType] = currLevel;
         }
 
         //if the current type is higher level than the next one, make sure the next one doesn't skip a level
         else if (currType < nextType) {
 
-            console.log('comparing an element of higher level with a lower one');
+            //console.log('comparing an element of higher level with a lower one');
             if (nextLevel - currLevel > 1) {
                 allAriaLevels[i + 1].setAttribute('aria-level', currLevel + 1);
                 lastTypeEncounterKey[nextType] = currLevel + 1;
-                console.log('the next level had higher difference than 2! Changed to ' + allAriaLevels[i + 1].getAttribute('aria-level'));
+                //console.log('the next level had higher difference than 2! Changed to ' + allAriaLevels[i + 1].getAttribute('aria-level'));
             }
         }
         //if the current level was lower than the next one, set the next one to its desired level 
         //(the same level as the last time the same type of element was encountered)
         else if (currType > nextType) {
-            console.log('comparing an element of lower level with a higher.');
-            console.log('setting to same as last time ' + pageElementTypes[nextType - 1] + ' was encountered ' + lastTypeEncounterKey[nextType]);
+            //console.log('comparing an element of lower level with a higher.');
+            //console.log('setting to same as last time ' + pageElementTypes[nextType - 1] + ' was encountered ' + lastTypeEncounterKey[nextType]);
             allAriaLevels[i + 1].setAttribute('aria-level', lastTypeEncounterKey[nextType]);
         }
 
@@ -607,6 +618,8 @@ function checkHeaderLevels() {
 
 
     //pass 5 - fix modal header levels
+
+
 
     displayAriaLevels(false);
 }
@@ -708,7 +721,7 @@ function displayAriaLevels() {
             if (checkPar.length == 0) {
                 $(this).append('<p class="medariadebug" style="color:red">aria-level:' + $(this).attr('aria-level') + '</p>');
             } else {
-                checkPar.html('Aria-level:' + $(this).attr('aria-level'));
+                checkPar.html('aria-level:' + $(this).attr('aria-level'));
             }
         });
     }
