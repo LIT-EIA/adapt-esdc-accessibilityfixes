@@ -31,7 +31,7 @@ theLabels = {
     'Captions/Subtitles': 'Sous-titres codés'
 };
 
-var displayAriaLevelsOnPage = true;
+var displayAriaLevelsOnPage = false;
 
 var lastHeaderLevelBeforeClickedButton = 0;
 
