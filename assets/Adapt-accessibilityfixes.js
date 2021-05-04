@@ -470,39 +470,41 @@ function pagefixes() {
 
 // Code to trap tabbing between a start and end object
 function trapinsidepopup() {
-    // first we clear up disabled element present in the dom notification
-    //Disabled, was causing issue #60 https://github.com/MeD-DMC/Adapt-accessibilityfixes/issues/60
-    //$('.notify-popup-inner').find("button[disabled='disabled']").remove();
+    
+    // add all the elements inside modal which you want to make focusable
+    const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+    const modal = document.querySelector('.notify.hotgraphic.active, .notify-popup-inner'); // select the modal by it's id
 
-    //hotgraphic specific fix
-    $('.hotgraphic-popup-toolbar.component-item-color.clearfix').insertBefore($('.hotgraphic-popup-inner.clearfix'));
-    $('.notify.hotgraphic .a11y-focusguard.a11y-ignore.a11y-ignore-focus').remove();
+    const firstFocusableElement = modal.querySelectorAll(focusableElements)[0]; // get first element to be focused inside modal
+    const focusableContent = modal.querySelectorAll(focusableElements);
+    const lastFocusableElement = focusableContent[focusableContent.length - 1]; // get last element to be focused inside modal
+    console.log(focusableContent);
 
-    //establish tab elements and list it for a navigation loop (locked)
-    let tabbable = $('.notify-popup-inner').find('select, input, textarea, button, a').filter(':visible');
-    let firstTabbable = tabbable.first();
-    let lastTabbable = tabbable.last();
-    /*set focus on first input*/
-    firstTabbable.focus();
 
-    /*redirect last tab to first input*/
-    lastTabbable.on('keydown', function(e) {
-        if ((e.which === 9 && !e.shiftKey)) {
-            e.preventDefault();
-            firstTabbable.focus();
+    document.addEventListener('keydown', function(e) {
+    let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
+
+    if (!isTabPressed) {
+        return;
+    }
+
+    if (e.shiftKey) { // if shift key pressed for shift + tab combination
+        if (document.activeElement === firstFocusableElement) {
+        lastFocusableElement.focus(); // add focus for the last focusable element
+        e.preventDefault();
         }
+    } else { // if tab key is pressed
+        if (document.activeElement === lastFocusableElement) { // if focused has reached to last focusable element then focus first focusable element after pressing tab
+        firstFocusableElement.focus(); // add focus for the first focusable element
+        e.preventDefault();
+        }
+    }
     });
 
-    /*redirect first shift+tab to last input*/
-    firstTabbable.on('keydown', function(e) {
-        if ((e.which === 9 && e.shiftKey)) {
-            e.preventDefault();
-            lastTabbable.focus();
-        }
-    });
+    firstFocusableElement.focus();
 
-    // fix links
-    linkfixes();
+        // fix links
+        linkfixes();
 }
 
 function linkfixes() {
