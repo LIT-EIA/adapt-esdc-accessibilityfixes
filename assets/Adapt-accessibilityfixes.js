@@ -64,10 +64,17 @@ function observehtml(mutations) {
 
                 if ($('html').hasClass('notify')) {
                     console.log("a popup has been opened!");
+
+                    $('.hotgrid-popup .hotgrid-popup-controls, .hotgraphic-popup .hotgraphic-popup-controls').click(function() {
+                        trapinsidepopup();
+                    });
+
                     trapinsidepopup();
                     $('.notify-popup-inner *[aria-level]').attr('aria-level', Number(lastHeaderLevelBeforeClickedButton) + 1);
                     displayAriaLevels(false);
                     allfixes();
+
+
                 }
             } else if (mutation.attributeName == 'style') {
                 //console.log('The inline style of an observed object has changed!');
@@ -473,42 +480,48 @@ function pagefixes() {
 
 // Code to trap tabbing between a start and end object
 function trapinsidepopup() {
-    
+
+    // select the modal
+    const modal = $('.notify-popup');
     // add all the elements inside modal which you want to make focusable
-    const focusableElements = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
-    const modal = document.querySelector('.notify.hotgraphic.active, .notify-popup-inner'); // select the modal by it's id
+    const focusableElements = modal.find('button, input, select, textarea, details, [tabindex], a[href]').not('[tabindex = "-1"], [disabled="disabled"]');
 
-    const firstFocusableElement = modal.querySelectorAll(focusableElements)[0]; // get first element to be focused inside modal
-    const focusableContent = modal.querySelectorAll(focusableElements);
-    const lastFocusableElement = focusableContent[focusableContent.length - 1]; // get last element to be focused inside modal
-    console.log(focusableContent);
+    //select the first and last ones
+    const firstFocusableElement = focusableElements.first();
+    const lastFocusableElement = focusableElements.last();
 
+    console.log(focusableElements);
+    console.log(firstFocusableElement + " " + lastFocusableElement + " " + focusableElements.length);
+    console.log(firstFocusableElement.attributes);
+    console.log(lastFocusableElement.attributes);
+
+    firstFocusableElement.css('outline', 'solid orange 2px');
+    lastFocusableElement.css('outline', 'solid green 2px');
 
     document.addEventListener('keydown', function(e) {
-    let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
+        let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
 
-    if (!isTabPressed) {
-        return;
-    }
+        if (focusableElements.lenght <= 1) {
+            e.preventDefault();
+        }
 
-    if (e.shiftKey) { // if shift key pressed for shift + tab combination
-        if (document.activeElement === firstFocusableElement) {
-        lastFocusableElement.focus(); // add focus for the last focusable element
-        e.preventDefault();
+        if (isTabPressed) {
+            if (e.shiftKey && firstFocusableElement.is(':focus')) {
+                e.preventDefault();
+                lastFocusableElement.focus();
+            } else if (lastFocusableElement.is(':focus')) {
+                e.preventDefault();
+                firstFocusableElement.focus();
+            }
         }
-    } else { // if tab key is pressed
-        if (document.activeElement === lastFocusableElement) { // if focused has reached to last focusable element then focus first focusable element after pressing tab
-        firstFocusableElement.focus(); // add focus for the first focusable element
-        e.preventDefault();
-        }
-    }
     });
 
-    firstFocusableElement.focus();
 
-        // fix links
-        linkfixes();
+    // fix links
+    linkfixes();
 }
+
+
 
 function linkfixes() {
     //add target = _blank to all external links
@@ -565,8 +578,7 @@ function checkHeaderLevels() {
 
     //pass 1 - Set all header levels to 5, 
     //this sets any headers inside components to 5 regardless of their classes
-
-    //Disabled for now
+    //Not really needed anymore - can delete on cleanup
     /*
     $('html *[aria-level]').each(function() {
         $(this).attr('aria-level', '5');
@@ -632,10 +644,6 @@ function checkHeaderLevels() {
     //pass 4 - setup change event listeners to keep headers at set levels
     setHeaderObservers($('.js-heading'));
     //Observers set but never trigger? to fix
-
-
-    //pass 5 - fix modal header levels
-
 
 
     displayAriaLevels(false);
