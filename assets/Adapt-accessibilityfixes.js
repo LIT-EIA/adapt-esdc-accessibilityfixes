@@ -31,7 +31,7 @@ theLabels = {
     'Captions/Subtitles': 'Sous-titres codés'
 };
 
-var displayAriaLevelsOnPage = false;
+var displayAriaLevelsOnPage = true;
 
 var lastHeaderLevelBeforeClickedButton = 0;
 
@@ -244,6 +244,9 @@ function menufixes() {
         //Need to add "view" or "visioner" depending on language
         //Need to consider situation when the button is greyed / visited       
     })
+
+    //
+    checkMenuHeaderLevels();
 
     // ----------------
     // 
@@ -538,6 +541,18 @@ function altFixes() {
             $(this).attr('aria-hidden', true);
         }
     });
+}
+
+function checkMenuHeaderLevels() {
+    //Force level of page header to 1
+    $('html .course-heading *[aria-level]').attr('aria-level', 1);
+
+    //Force level of menu item titles to 2
+    $('html .menu-item-title-inner *[aria-level]').each(function() {
+        $(this).attr('aria-level', 2);
+    });
+
+    displayAriaLevels(false);
 }
 
 function checkHeaderLevels() {
