@@ -464,6 +464,13 @@ function pagefixes() {
         $(this).find('.slider-item input').attr('aria-labelledby', newid);
     });
 
+    //graphical question fix
+    //-----------------------------------------------------------------------------
+    $('.gmcq-component label').attr('tabindex', '0');
+    $('.gmcq-component label').keypress(function(){
+        $(this).click();
+    });
+
     //Media component fixes
     frenchifyMediaLabels();
 
