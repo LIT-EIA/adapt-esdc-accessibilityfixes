@@ -252,6 +252,11 @@ function menufixes() {
         //Need to consider situation when the button is greyed / visited       
     })
 
+    // notranslate chrome
+    $('body').addClass('notranslate');
+
+    // notranslate Edge
+    $('body').attr('translate', 'no');
     //
     checkMenuHeaderLevels();
 
