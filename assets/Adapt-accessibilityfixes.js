@@ -443,7 +443,15 @@ function pagefixes() {
     //-----------------------------------------------------------------------------
     $('.narrative-content').attr('aria-live', 'polite');
 
-
+    //narrative controls comprehensive aria labels
+    if ($('html').attr('lang') == 'fr') {
+        $('.base.narrative-controls.narrative-control-right').attr('aria-label', 'Diapositive suivante');
+        $('.base.narrative-controls.narrative-control-left').attr('aria-label', 'Diapositive précédente');
+    } else {
+        $('.base.narrative-controls.narrative-control-right').attr('aria-label', 'Next slide');
+        $('.base.narrative-controls.narrative-control-left').attr('aria-label', 'Previous slide');
+    }
+    
     //Hotgraphic pin title checker
     //-----------------------------------------------------------------------------
     let hotgraphicPins = $('.hotgraphic-graphic-pin');
