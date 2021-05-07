@@ -31,7 +31,7 @@ theLabels = {
     'Captions/Subtitles': 'Sous-titres codés'
 };
 
-var displayAriaLevelsOnPage = true;
+var displayAriaLevelsOnPage = false;
 
 var lastHeaderLevelBeforeClickedButton = 0;
 
@@ -66,7 +66,8 @@ function observehtml(mutations) {
                     console.log("a popup has been opened!");
 
                     $('.hotgrid-popup .hotgrid-popup-controls, .hotgraphic-popup .hotgraphic-popup-controls').click(function() {
-                        trapinsidepopup();
+                        console.log('the current popup has just changed pages!');
+                        //trapinsidepopup();
                     });
 
                     trapinsidepopup();
@@ -83,6 +84,7 @@ function observehtml(mutations) {
                 if ($('.loading').css('display') == 'none' && initialPageLoadingFlag) {
                     allfixes();
                     initialPageLoadingFlag = false; //stop running after first run
+                    addClasses();
                 }
             }
         }
@@ -181,10 +183,6 @@ docReady(function() {
     allfixes();
 });
 
-//This function runs anytime anything in the DOM (inside #wrapper) is modified
-//DON'T DO IT !
-//-----------------------------------------------------------------------------
-//$('#wrapper').on('DOMSubtreeModified', function(){});
 
 // -------------------------------------------------------------------------
 //
@@ -287,22 +285,21 @@ function pagefixes() {
     //-----------------------------------------------------------------------------
     let multiChoiceComponents = $('.mcq-component');
     multiChoiceComponents.each(function() {
-        //let label = $(this).attr('data-adapt-id') + 'qlabel';
-        //$('.mcq-body-inner').attr('id', label);
-        //$('.mcq-widget').attr('aria-labelledby', label);
 
-        //Changed the fix to add a fieldset and legend to MCQ. 
-
-        $(this).find('.mcq-inner').wrap("<fieldset></fieldset>");
-        $(this).find('.mcq-body-inner').wrap("<legend></legend>");
+        if ($(this).find('fieldset').length == 0) {
+            $(this).find('.mcq-inner').wrap("<fieldset></fieldset>");
+            $(this).find('.mcq-body-inner').wrap("<legend></legend>");
+        }
     });
 
     // graphical multichoice fixes
     //-----------------------------------------------------------------------------   
     let gmultiChoiceComponents = $('.gmcq-component');
     gmultiChoiceComponents.each(function() {
-        $(this).find('.gmcq-inner').wrap("<fieldset></fieldset>");
-        $(this).find('.gmcq-body-inner').wrap("<legend></legend>");
+        if ($(this).find('fieldset').length == 0) {
+            $(this).find('.gmcq-inner').wrap("<fieldset></fieldset>");
+            $(this).find('.gmcq-body-inner').wrap("<legend></legend>");
+        }
     });
 
     //Matching questions fix & feedback fix
@@ -451,7 +448,7 @@ function pagefixes() {
         $('.base.narrative-controls.narrative-control-right').attr('aria-label', 'Next slide');
         $('.base.narrative-controls.narrative-control-left').attr('aria-label', 'Previous slide');
     }
-    
+
     //Hotgraphic pin title checker
     //-----------------------------------------------------------------------------
     let hotgraphicPins = $('.hotgraphic-graphic-pin');
@@ -475,7 +472,7 @@ function pagefixes() {
     //graphical question fix
     //-----------------------------------------------------------------------------
     $('.gmcq-component label').attr('tabindex', '0');
-    $('.gmcq-component label').keypress(function(){
+    $('.gmcq-component label').keypress(function() {
         $(this).click();
     });
 
@@ -515,15 +512,18 @@ function trapinsidepopup() {
     console.log(firstFocusableElement.attributes);
     console.log(lastFocusableElement.attributes);
 
-    firstFocusableElement.css('outline', 'solid orange 2px');
-    lastFocusableElement.css('outline', 'solid green 2px');
+    modal.children().removeClass('firstfocus');
+    modal.children().removeClass('lastfocus');
+    firstFocusableElement.addClass('firstfocus');
+    lastFocusableElement.addClass('lastfocus');
 
-    document.addEventListener('keydown', function(e) {
+
+    document.removeEventListener('keydown', keyPress, true);
+
+    var keyPress = function(e) {
         let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
-
-        if (focusableElements.lenght <= 1) {
-            e.preventDefault();
-        }
+        console.log("key pressed! " + e.key);
+        console.log(focusableElements.length);
 
         if (isTabPressed) {
             if (e.shiftKey && firstFocusableElement.is(':focus')) {
@@ -534,8 +534,10 @@ function trapinsidepopup() {
                 firstFocusableElement.focus();
             }
         }
-    });
+    }
 
+    console.log('creating event listener!');
+    document.addEventListener('keydown', keyPress, true);
 
     // fix links
     linkfixes();
@@ -770,4 +772,13 @@ function displayAriaLevels() {
             }
         });
     }
+}
+
+function addClasses() {
+    //$('body').append('<style>' +
+
+    //    '.firstfocus{outline: 2px solid orange;}' +
+    //    '.lastfocus{outline: 2px solid green;}' +
+
+    //    '</style>');
 }
