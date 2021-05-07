@@ -83,6 +83,7 @@ function observehtml(mutations) {
                 //If the loading wheel is gone, run all fixes (page really fully loaded)
                 if ($('.loading').css('display') == 'none' && initialPageLoadingFlag) {
                     allfixes();
+                    $('.mejs-captions-button button').next().css('visibility', 'hidden');
                     initialPageLoadingFlag = false; //stop running after first run
                     addClasses();
                 }
@@ -471,10 +472,16 @@ function pagefixes() {
 
     //graphical question fix
     //-----------------------------------------------------------------------------
-    $('.gmcq-component label').attr('tabindex', '0');
-    $('.gmcq-component label').keypress(function() {
-        $(this).click();
-    });
+
+    //Instead, we need an event listener. when input has focus, highlight label.
+    //Problem is we can't do it with CSS because the input is after the label
+
+    //$('.gmcq-component label').attr('tabindex', '0');
+    //$('.gmcq-component label').keypress(function() {
+    //    $(this).click();
+    //});
+
+
 
     //Media component fixes
     frenchifyMediaLabels();
@@ -522,8 +529,8 @@ function trapinsidepopup() {
 
     var keyPress = function(e) {
         let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
-        console.log("key pressed! " + e.key);
-        console.log(focusableElements.length);
+        //console.log("key pressed! " + e.key);
+        //console.log(focusableElements.length);
 
         if (isTabPressed) {
             if (e.shiftKey && firstFocusableElement.is(':focus')) {
