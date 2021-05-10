@@ -83,6 +83,7 @@ function observehtml(mutations) {
                 //If the loading wheel is gone, run all fixes (page really fully loaded)
                 if ($('.loading').css('display') == 'none' && initialPageLoadingFlag) {
                     allfixes();
+                    addKeyboardListener();
                     $('.mejs-captions-button button').next().css('visibility', 'hidden');
                     initialPageLoadingFlag = false; //stop running after first run
                     addClasses();
@@ -278,8 +279,8 @@ function pagefixes() {
     let allQuestionComponents = $(".question-component");
 
     allQuestionComponents.each(function() {
-        $('.component-instruction-inner').attr('role', 'alert');
-        $('.component-instruction-inner').attr('aria-live', 'assertive');
+        $(this).find('.component-instruction-inner').attr('role', 'alert');
+        $(this).find('.component-instruction-inner').attr('aria-live', 'assertive');
     });
 
     // multiple choice fixes
@@ -503,16 +504,23 @@ function pagefixes() {
 // ----------------
 
 // Code to trap tabbing between a start and end object
+
+var modal;
+var focusableElements;
+var firstFocusableElement;
+var lastFocusableElement;
+
+
 function trapinsidepopup() {
 
     // select the modal
-    const modal = $('.notify-popup');
+    modal = $('.notify-popup');
     // add all the elements inside modal which you want to make focusable
-    const focusableElements = modal.find('button, input, select, textarea, details, [tabindex], a[href]').not('[tabindex = "-1"], [disabled="disabled"]');
+    focusableElements = modal.find('button, input, select, textarea, details, [tabindex], a[href]').not('[tabindex = "-1"], [disabled="disabled"]');
 
     //select the first and last ones
-    const firstFocusableElement = focusableElements.first();
-    const lastFocusableElement = focusableElements.last();
+    firstFocusableElement = focusableElements.first();
+    lastFocusableElement = focusableElements.last();
 
     console.log(focusableElements);
     console.log(firstFocusableElement + " " + lastFocusableElement + " " + focusableElements.length);
@@ -524,31 +532,47 @@ function trapinsidepopup() {
     firstFocusableElement.addClass('firstfocus');
     lastFocusableElement.addClass('lastfocus');
 
-
-    document.removeEventListener('keydown', keyPress, true);
-
-    var keyPress = function(e) {
-        let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
-        //console.log("key pressed! " + e.key);
-        //console.log(focusableElements.length);
-
-        if (isTabPressed) {
-            if (e.shiftKey && firstFocusableElement.is(':focus')) {
-                e.preventDefault();
-                lastFocusableElement.focus();
-            } else if (lastFocusableElement.is(':focus')) {
-                e.preventDefault();
-                firstFocusableElement.focus();
-            }
-        }
-    }
-
     console.log('creating event listener!');
-    document.addEventListener('keydown', keyPress, true);
 
     // fix links
     linkfixes();
 }
+
+function addKeyboardListener() {
+
+    console.log('initializing keyboard...');
+    document.addEventListener('keydown', function(e) {
+
+        console.log('key pressed! ' + e.key);
+        //Change this code to only run while a popup is open
+        var declared;
+        try {
+            focusableElements;
+            declared = true;
+        } catch (e) {
+            declared = false;
+        }
+
+        if (declared && firstFocusableElement !== typeof undefined && lastFocusableElement !== typeof undefined) {
+            let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
+            //console.log("key pressed! " + e.key);
+            //console.log(focusableElements.length);
+
+            if (isTabPressed) {
+                if (e.shiftKey && firstFocusableElement.is(':focus')) {
+                    e.preventDefault();
+                    lastFocusableElement.focus();
+                } else if (lastFocusableElement.is(':focus')) {
+                    e.preventDefault();
+                    firstFocusableElement.focus();
+                }
+            }
+        }
+    });
+
+}
+
+// On Modal close, stop event listener from firing
 
 
 
@@ -602,20 +626,7 @@ function checkMenuHeaderLevels() {
 function checkHeaderLevels() {
     //header level warnings
 
-    var prevLevel = 0;
-    var foundTheH1 = false;
-
-    //pass 1 - Set all header levels to 5, 
-    //this sets any headers inside components to 5 regardless of their classes
-    //Not really needed anymore - can delete on cleanup
-    /*
-    $('html *[aria-level]').each(function() {
-        $(this).attr('aria-level', '5');
-        $(this).attr('data-level-type', '5');
-    });
-    */
-
-    //pass 2 - Set all header levels as they should be if all headers were used
+    //pass 1 - Set all header levels as they should be if all headers were used
     var pageElementTypes = ['.page-title', '.article-title', '.block-title', '.component-title'];
 
     for (var i = 0; i < 5; i++) {
@@ -625,7 +636,7 @@ function checkHeaderLevels() {
         });
     }
 
-    //pass 3 - Fix headers if some are missing
+    //pass 2 - Fix headers if some are missing
     var allAriaLevels = $('html *[aria-level]');
     var lastTypeEncounterKey = [0, 1, 2, 3, 4, 5, 6];
 
@@ -669,11 +680,8 @@ function checkHeaderLevels() {
         console.log('--------------------------------------------');
     }
 
-    //WARNING - WHEN VISITED, IT RESETS ARIA-LEVELS TO THE VALUE IN THE JSON
-    //pass 4 - setup change event listeners to keep headers at set levels
+    //pass 3 - setup change event listeners to keep headers at set levels
     setHeaderObservers($('.js-heading'));
-    //Observers set but never trigger? to fix
-
 
     displayAriaLevels(false);
 }
