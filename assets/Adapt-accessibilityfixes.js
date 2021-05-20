@@ -306,12 +306,14 @@ function pagefixes() {
 
     //Matching questions fix & feedback fix
     //-----------------------------------------------------------------------------
+
     $('.matching-select-container').each(function(k) {
         let glabel = $(this).parents().find('.matching-component').attr('data-adapt-id') + '_qlabel_' + k;
         $(this).find('.dropdown__inner').attr('id', glabel);
         $(this).find('button').attr('aria-labelledby', glabel);
     });
 
+    /* //NEEDS FIXING, DOUBLING SOMETIMES
     $(".matching-component .buttons-cluster.clearfix button").on("click", function() {
         var compid = $(this).parents('.component').attr('data-adapt-id');
         setTimeout(function() {
@@ -326,6 +328,7 @@ function pagefixes() {
             })
         }, 100);
     });
+    */
 
     //Open Textinput fix
     //-----------------------------------------------------------------------------
