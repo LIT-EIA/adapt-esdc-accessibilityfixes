@@ -500,7 +500,33 @@ function pagefixes() {
         //find the nearest parent object which contains an object with an aria-level, then find the object that has an aria level and get its aria level
         lastHeaderLevelBeforeClickedButton = $(this).closest('div:has(div[aria-level])').find('div[aria-level]').attr('aria-level');
     });
+
+    //Hotrgrid fixes - aria label copy
+    let hotGridButtons = $('.component.hotgrid-component .hotgrid-grid-item');
+    hotGridButtons.each(function() {
+        //copy the labels anytime one is clicked, probably a bit overzealous but works for now
+        $(this).click(hotGridCopyLabel());
+    });
+    hotGridCopyLabel();
 }
+
+function hotGridCopyLabel() {
+    let hotGridButtons = $('.component.hotgrid-component .hotgrid-grid-item');
+
+    hotGridButtons.each(function() {
+        let hotGridButtonLabel = $(this).find('.aria-label');
+        let hotGridImage = $(this).find('.hotgrid-item-image img');
+
+        //console.log(hotGridButtonLabel.html().replace(/\s+/g, ' ').trim());
+
+        hotGridButtonLabel.attr('aria-hidden', 'true');
+        hotGridImage.attr('alt', hotGridButtonLabel.html().replace(/\s+/g, ' ').trim());
+    });
+}
+
+
+
+
 
 // ----------------
 // OTHER FIXES
