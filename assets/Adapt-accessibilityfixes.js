@@ -64,6 +64,8 @@ function observehtml(mutations) {
                 //console.log('the class attribute of an observed object has changed!');
 
                 if ($('html').hasClass('notify')) {
+
+                    popupIsOpened = true;
                     console.log("a popup has been opened!");
 
                     $('.hotgrid-popup .hotgrid-popup-controls, .hotgraphic-popup .hotgraphic-popup-controls').click(function() {
@@ -77,7 +79,10 @@ function observehtml(mutations) {
                     allfixes();
 
 
+                } else {
+                    popupIsOpened = false;
                 }
+
             } else if (mutation.attributeName == 'style') {
                 //console.log('The inline style of an observed object has changed!');
 
@@ -570,28 +575,30 @@ function addKeyboardListener() {
     console.log('initializing keyboard...');
     document.addEventListener('keydown', function(e) {
 
-        console.log('key pressed! ' + e.key);
-        //Change this code to only run while a popup is open
-        var declared;
-        try {
-            focusableElements;
-            declared = true;
-        } catch (e) {
-            declared = false;
-        }
+        if (popupIsOpened) {
+            //Change this code to only run while a popup is open
+            console.log('key pressed! ' + e.key);
+            var declared;
+            try {
+                focusableElements;
+                declared = true;
+            } catch (e) {
+                declared = false;
+            }
 
-        if (declared && firstFocusableElement !== typeof undefined && lastFocusableElement !== typeof undefined) {
-            let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
-            //console.log("key pressed! " + e.key);
-            //console.log(focusableElements.length);
+            if (declared && firstFocusableElement !== typeof undefined && lastFocusableElement !== typeof undefined) {
+                let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
+                //console.log("key pressed! " + e.key);
+                //console.log(focusableElements.length);
 
-            if (isTabPressed) {
-                if (e.shiftKey && firstFocusableElement.is(':focus')) {
-                    e.preventDefault();
-                    lastFocusableElement.focus();
-                } else if (lastFocusableElement.is(':focus')) {
-                    e.preventDefault();
-                    firstFocusableElement.focus();
+                if (isTabPressed) {
+                    if (e.shiftKey && firstFocusableElement.is(':focus')) {
+                        e.preventDefault();
+                        lastFocusableElement.focus();
+                    } else if (lastFocusableElement.is(':focus')) {
+                        e.preventDefault();
+                        firstFocusableElement.focus();
+                    }
                 }
             }
         }
