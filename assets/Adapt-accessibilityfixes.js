@@ -31,8 +31,9 @@ theLabels = {
     'Captions/Subtitles': 'Sous-titres codés'
 };
 
+var popupIsOpened = false;
 var displayAriaLevelsOnPage = false;
-
+var showFocusableItemsInPopups = false;
 var lastHeaderLevelBeforeClickedButton = 0;
 
 // -------------------------------------------------------------------------
@@ -525,9 +526,6 @@ function hotGridCopyLabel() {
 }
 
 
-
-
-
 // ----------------
 // OTHER FIXES
 // ----------------
@@ -819,10 +817,13 @@ function displayAriaLevels() {
 }
 
 function addClasses() {
-    //$('body').append('<style>' +
 
-    //    '.firstfocus{outline: 2px solid orange;}' +
-    //    '.lastfocus{outline: 2px solid green;}' +
+    if (showFocusableItemsInPopups) {
+        $('body').append('<style>' +
 
-    //    '</style>');
+            '.firstfocus{outline: 2px solid orange;}' +
+            '.lastfocus{outline: 2px solid green;}' +
+
+            '</style>');
+    }
 }
