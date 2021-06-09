@@ -222,12 +222,24 @@ function globalfixes() {
 
     //Tab order of buttons in the top navigation bar
     var buttonArray = [];
+    var buttonObjArray = [];
+
     $('.navigation-inner button').each(function(i) {
         buttonArray.push([i, $(this).position().left]);
+        buttonObjArray.push($(this));
+        $(this).detach();
     });
+
+    //Sort button array
     buttonArray.sort(sortmulti(1, comparator, false));
+
+    //
     for (var j = 0; j < buttonArray.length; j++) {
-        $('.navigation-inner button').eq(buttonArray[j][0]).attr('tabindex', j + 1);
+        //$('.navigation-inner button').eq(buttonArray[j][0]).attr('tabindex', j + 1);
+
+        //GitHub error 96
+        //var toAppend = $('.navigation-inner button').eq(buttonArray[j][0])
+        $(".navigation-inner.clearfix").append(buttonObjArray[buttonArray[j][0]]);
     }
 
     //anchor tag fixes (links)
