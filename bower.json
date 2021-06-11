@@ -1,6 +1,6 @@
 {
     "name": "Adapt-accessibilityfixes",
-    "version": "0.3.2",
+    "version": "0.3.4",
     "framework": ">=1.1.2",
     "displayName": "Adapt-accessibilityfixes",
     "extension": "Adapt-accessibilityfixes",
