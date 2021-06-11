@@ -232,37 +232,43 @@ function globalfixes() {
 
     //Tab order of buttons in the top navigation bar
     var buttonArray = [];
+
+    var topNavButtons = [
+        ".skip-nav-link",
+        ".navigation-back-button",
+        ".navigation-home-button",
+        ".languagepicker-icon",
+        ".pagelevelprogress-navigation",
+        ".navigation-drawer-toggle-button",
+        ".navigation-close-button"
+    ];
+
     for (var i = 0; i < topNavButtons.length; i++) {
+        //if the button exists, add it to the buttonArray
         if ($(topNavButtons[i]).length > 0) {
             buttonArray.push($(topNavButtons[i]));
         }
     }
 
-    console.log(topNavButtons);
-    console.log(buttonArray);
-
-    //var buttonObjArray = [];
-
     for (var i = 0; i < buttonArray.length; i++) {
-        //buttonArray.push([i, $(this).position().left]);
-        //buttonObjArray.push($(this));
         console.log(buttonArray[i]);
         buttonArray[i].detach();
         $(".navigation-inner.clearfix").append(buttonArray[i]);
     }
 
+    var itemToMargin;
+    if ($(".navigation-home-button").length > 0) {
+        itemToMargin = buttonArray[topNavButtons.indexOf(".navigation-home-button") + 1];
+    } else if ($(".navigation-back-button").lenght > 0) {
+        itemToMargin = buttonArray[topNavButtons.indexOf(".navigation-back-button") + 1];
+    } else {
+        itemToMargin = buttonArray[0];
+    }
+
+    itemToMargin.css("margin-left", "auto");
+
     //Sort button array
     //buttonArray.sort(sortmulti(1, comparator, false));
-    /*
-    //
-    for (var j = 0; j < buttonArray.length; j++) {
-        //$('.navigation-inner button').eq(buttonArray[j][0]).attr('tabindex', j + 1);
-        $(this).detach();
-        //GitHub error 96
-        //var toAppend = $('.navigation-inner button').eq(buttonArray[j][0])
-        $(".navigation-inner.clearfix").append(buttonArray[j]);
-    }
-    */
 
     //anchor tag fixes (links)
     //-----------------------------------------------------------------------------	
