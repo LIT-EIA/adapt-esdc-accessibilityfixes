@@ -1,9 +1,5 @@
 // ================================================
-//
-//
 //		Adapt ESDC Accessibility fixes script
-//
-//
 // ================================================
 
 // -------------------------------------------------------------------------
@@ -43,11 +39,12 @@ var topNavButtons = [
 //Specify which item in the array above should start aligning to the right.
 var navSplitValue = 3;
 
-
 var popupIsOpened = false;
 var displayAriaLevelsOnPage = false;
 var showFocusableItemsInPopups = false;
 var lastHeaderLevelBeforeClickedButton = 0;
+
+
 
 // -------------------------------------------------------------------------
 //
@@ -79,10 +76,10 @@ function observehtml(mutations) {
                 if ($('html').hasClass('notify')) {
 
                     popupIsOpened = true;
-                    console.log("a popup has been opened!");
+                    //console.log("a popup has been opened!");
 
                     $('.hotgrid-popup .hotgrid-popup-controls, .hotgraphic-popup .hotgraphic-popup-controls').click(function() {
-                        console.log('the current popup has just changed pages!');
+                        //console.log('the current popup has just changed pages!');
                         //trapinsidepopup();
                     });
 
@@ -90,7 +87,6 @@ function observehtml(mutations) {
                     $('.notify-popup-inner *[aria-level]').attr('aria-level', Number(lastHeaderLevelBeforeClickedButton) + 1);
                     displayAriaLevels(false);
                     allfixes();
-
 
                 } else {
                     popupIsOpened = false;
@@ -198,6 +194,8 @@ function setHeaderObservers(objects) {
     })
 }
 
+
+
 //enable observers when doc is ready
 docReady(function() {
 
@@ -213,7 +211,7 @@ docReady(function() {
 // -------------------------------------------------------------------------
 
 function allfixes() {
-    console.log('running all fixes');
+    //console.log('running all fixes');
     //re-initialize observer
     setObservers();
     setMediaObservers();
@@ -228,7 +226,7 @@ function allfixes() {
 
 function globalfixes() {
 
-    console.log('  running global fixes');
+    //console.log('  running global fixes');
     // -------------
     // GLOBAL FIXES
     // -------------
@@ -259,9 +257,6 @@ function globalfixes() {
         $(".navigation-inner").append(buttonArray[i]);
     }
 
-    //Sort button array
-    //buttonArray.sort(sortmulti(1, comparator, false));
-
     //anchor tag fixes (links)
     //-----------------------------------------------------------------------------	
     linkfixes();
@@ -270,7 +265,6 @@ function globalfixes() {
     //-----------------------------------------------------------------------------	
     altFixes();
 
-
     // ----------------
     // 
     // ----------------	
@@ -278,17 +272,12 @@ function globalfixes() {
 
 function menufixes() {
 
-    console.log('  running menu fixes');
+    //console.log('  running menu fixes');
     // ----------------
     // MENU FIXES
     // ----------------
 
-    //Weeee
-    $('.menu-item').each(function() {
-        //$(this).find('.menu-item-button button').attr('aria-label', $(this).find('.menu-item-title-inner').html());
-        //Need to add "view" or "visioner" depending on language
-        //Need to consider situation when the button is greyed / visited       
-    })
+    //Shouldn't we run this code globally, not just in the menu?
 
     // notranslate chrome
     $('body').addClass('notranslate');
@@ -305,7 +294,7 @@ function menufixes() {
 
 function pagefixes() {
 
-    console.log('  running page fixes');
+    //console.log('  running page fixes');
     // ------------------
     // COURSE PAGE FIXES
     // ------------------
@@ -563,9 +552,9 @@ function hotGridCopyLabel() {
 }
 
 
-// ----------------
-// OTHER FIXES
-// ----------------
+// ---------------
+//   OTHER FIXES
+// ---------------
 
 // Code to trap tabbing between a start and end object
 
@@ -586,17 +575,17 @@ function trapinsidepopup() {
     firstFocusableElement = focusableElements.first();
     lastFocusableElement = focusableElements.last();
 
-    console.log(focusableElements);
-    console.log(firstFocusableElement + " " + lastFocusableElement + " " + focusableElements.length);
-    console.log(firstFocusableElement.attributes);
-    console.log(lastFocusableElement.attributes);
+    //console.log(focusableElements);
+    //console.log(firstFocusableElement + " " + lastFocusableElement + " " + focusableElements.length);
+    //console.log(firstFocusableElement.attributes);
+    //console.log(lastFocusableElement.attributes);
 
     modal.children().removeClass('firstfocus');
     modal.children().removeClass('lastfocus');
     firstFocusableElement.addClass('firstfocus');
     lastFocusableElement.addClass('lastfocus');
 
-    console.log('creating event listener!');
+    //console.log('creating event listener!');
 
     // fix links
     linkfixes();
@@ -604,12 +593,12 @@ function trapinsidepopup() {
 
 function addKeyboardListener() {
 
-    console.log('initializing keyboard...');
+    //console.log('initializing keyboard...');
     document.addEventListener('keydown', function(e) {
 
         if (popupIsOpened) {
             //Change this code to only run while a popup is open
-            console.log('key pressed! ' + e.key);
+            //console.log('key pressed! ' + e.key);
             var declared;
             try {
                 focusableElements;
@@ -636,7 +625,20 @@ function addKeyboardListener() {
         }
     });
 
+    //Issue 103
+    $(".narrative-widget.component-widget *").keydown(function(e) {
+        if (e.keyCode == 37) {
+            $('.base.narrative-controls.narrative-control-left')[0].click();
+            event.stopPropagation(300);
+        } else if (e.keyCode == 39) {
+            $('.base.narrative-controls.narrative-control-right')[0].click();
+            event.stopPropagation(300);
+        }
+    });
+
 }
+
+
 
 // On Modal close, stop event listener from firing
 
@@ -743,7 +745,7 @@ function checkHeaderLevels() {
             allAriaLevels[i + 1].setAttribute('aria-level', lastTypeEncounterKey[nextType]);
         }
 
-        console.log('--------------------------------------------');
+        //console.log('--------------------------------------------');
     }
 
     //pass 3 - setup change event listeners to keep headers at set levels

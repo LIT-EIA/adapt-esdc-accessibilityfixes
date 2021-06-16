@@ -17,3 +17,7 @@ let options = {
 let myRecords = htmlObserver.takeRecords(); 
 */
 //-----------------------------------------------------------------------------
+
+
+    //Sort button array
+    //buttonArray.sort(sortmulti(1, comparator, false));
