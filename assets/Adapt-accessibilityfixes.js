@@ -565,7 +565,16 @@ var lastFocusableElement;
 
 
 function trapinsidepopup() {
-
+    //keyboard operable focus hotgrid notify
+    $('.hotgrid-popup').keydown(function(e) { 
+        if(e.keyCode == 40){$('.hotgrid-popup').scrollTop($('.hotgrid-popup').scrollTop()+10);} 
+        if(e.keyCode == 38){$('.hotgrid-popup').scrollTop($('.hotgrid-popup').scrollTop()-10);} 
+    });
+    //keyboard operable focus hotgraphic-popup
+    $('.hotgraphic-popup').keydown(function(e) { 
+        if(e.keyCode == 40){$('.hotgraphic-popup').scrollTop($('.hotgraphic-popup').scrollTop()+10);} 
+        if(e.keyCode == 38){$('.hotgraphic-popup').scrollTop($('.hotgraphic-popup').scrollTop()-10);} 
+    });
     // select the modal
     modal = $('.notify-popup');
     // add all the elements inside modal which you want to make focusable
