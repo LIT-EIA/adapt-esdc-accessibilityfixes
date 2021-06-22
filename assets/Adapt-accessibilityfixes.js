@@ -96,11 +96,15 @@ function observehtml(mutations) {
                 //console.log('The inline style of an observed object has changed!');
 
                 //If the loading wheel is gone, run all fixes (page really fully loaded)
+                //Code added here will only run once per page load!
                 if ($('.loading').css('display') == 'none' && initialPageLoadingFlag) {
                     allfixes();
                     addKeyboardListener();
+                    destroyMediaPlayers();
                     $('.mejs-captions-button button').next().css('visibility', 'hidden');
                     initialPageLoadingFlag = false; //stop running after first run
+
+
                     addClasses();
                 }
             }
@@ -598,6 +602,17 @@ function trapinsidepopup() {
 
     // fix links
     linkfixes();
+}
+
+function destroyMediaPlayers() {
+    $('video').each(function(k) {
+        var link = $(this).attr('src');
+        var track = $(this).children('track').attr('src');
+        var poster = $(this).attr('poster');
+
+        var newhtmlplayer = '<video width="100%" height="100%" poster="' + poster + '" controls><source src="' + link + '" type="video/mp4"><track style="z-index:10;" label="English" kind="subtitles" srclang="en" src="' + track + '" type="text/vtt" default></video>'
+        $(this).parents('.mejs-container').html(newhtmlplayer);
+    });
 }
 
 function addKeyboardListener() {
