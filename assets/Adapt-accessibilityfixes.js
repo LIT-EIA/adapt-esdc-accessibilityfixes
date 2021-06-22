@@ -635,15 +635,21 @@ function addKeyboardListener() {
     });
 
     //Issue 103
-    $(".narrative-widget.component-widget *").keydown(function(e) {
-        if (e.keyCode == 37) {
-            $('.base.narrative-controls.narrative-control-left')[0].click();
-            event.stopPropagation(300);
-        } else if (e.keyCode == 39) {
-            $('.base.narrative-controls.narrative-control-right')[0].click();
-            event.stopPropagation(300);
-        }
+    $(".narrative-widget.component-widget .base.narrative-controls.narrative-control-left, .base.narrative-controls.narrative-control-right, .narrative-progress ").click(function(e) {
+        var narelem = this;
+         setTimeout(function(){
+           focusnar(narelem);
+           e.stopPropagation();
+        }, 500);
+
     });
+    function focusnar(val){
+        if ($(val).hasClass('narrative-hidden') == true){
+            $(val).parent().find('button:not(.narrative-hidden)').focus();
+        } else {
+            $(val).focus();
+        }
+    }
 
 }
 
