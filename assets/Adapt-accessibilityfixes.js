@@ -9,24 +9,7 @@
 //
 // -------------------------------------------------------------------------
 
-//Labels dictionary object
-var theLabels = new Object();
-theLabels = {
-    'Play': 'Jouer',
-    'Pause': 'Pause',
-    'Time Slider': 'Curseur de temps',
-    'Fullscreen': 'Plein écran',
-    'Volume Slider': 'Curseur de volume',
-    'Mute': 'Sourdine',
-    'Unmute': 'Activer le son',
-    'volinstr-en': 'Use Up/Down Arrow keys to increase or decrease volume',
-    'volinstr-fr': 'Utilisez les touches fléchées haut / bas pour augmenter ou diminuer le volume',
-    'French': 'Français',
-    'English': 'Anglais',
-    'None': 'Aucun',
-    'Captions/Subtitles': 'Sous-titres codés'
-};
-
+//topnav button order
 var topNavButtons = [
     ".skip-nav-link",
     ".navigation-back-button",
@@ -39,119 +22,73 @@ var topNavButtons = [
 //Specify which item in the array above should start aligning to the right.
 var navSplitValue = 3;
 
+//Utility variables
 var popupIsOpened = false;
 var displayAriaLevelsOnPage = false;
 var showFocusableItemsInPopups = false;
 var lastHeaderLevelBeforeClickedButton = 0;
 
-
-
 // -------------------------------------------------------------------------
 //
-//		Update listeners - functions which decide when to run fixes
+//		TABLE OF CONTENTS
 //
 // -------------------------------------------------------------------------
 
-//*** Need stricter rules, code is running every time page scrolls? */
+// [!!] - Startup functions
+//      [!!01] STARTUP - Event and Mutation listeners
+//      [!!02] STARTUP - Accessibility fix runners
+//
+// [**] - Global fixes
+//      [**01] GLOBAL FIXES - Stop auto translate
+//      [**02] GLOBAL FIXES - <a> anchor tag link fixes
+//      [**03] GLOBAL FIXES - Alt tags for <img> and tags with role="img"
+//      [**04] GLOBAL FIXES - Navigation bar tab order
+//      [**05] GLOBAL FIXES - Popups
+//
+// [^^] - Menu fixes
+//      [^^01] MENU FIXES - Check menu header levels    
+//      
+// [$$] - page fixes
+//		[$$01] PAGE FIXES - for all question components
+//		[$$02] PAGE FIXES - Component - adapt-contrib-mcq - 3.0.0
+//		[$$03] PAGE FIXES - Component - adapt-contrib-gmcq - 4.0.0
+//		[$$04] PAGE FIXES - Component - adapt-contrib-matching - 3.0.1
+//		[$$05] PAGE FIXES - Component - adapt-contrib-openTextInput - 1.2.11
+//		[$$06] PAGE FIXES - Component - adapt-contrib-accordion - 4.0.0
+//		[$$07] PAGE FIXES - Component - adapt-contrib-media - 4.1.1
+//		[$$08] PAGE FIXES - Component - adapt-expose - 1.1.4
+//		[$$09] PAGE FIXES - Component - adapt-quicknav - 3.2.0
+//		[$$10] PAGE FIXES - Component - adapt-contrib-narrative - 5.0.2
+//		[$$11] PAGE FIXES - Component - adapt-contrib-hotgraphic - 4.3.0
+//		[$$12] PAGE FIXES - Component - adapt-hotgrid - 3.2.0
+//		[$$13] PAGE FIXES - Component - adapt-contrib-slider - 2.4.0
+//		[$$14] PAGE FIXES - header Levels    
+
+// [%%] - Utility fixes
+//		[%%01] UTILITY - Keyboard listener
+//		[%%02] UTILITY - Check if object has a given attribute
+//		[%%03] UTILITY - Pure Javascript document ready function
+//		[%%04] UTILITY - Show aria levels above headers (for QA purposes)
+//		[%%05] UTILITY - add first and last focusable item styles to dom    
+
+
+// [!!] STARTUP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+// -------------------------------------------------------------------------
+//
+//	    [!!01] STARTUP - Event and Mutation listeners
+//
+// -------------------------------------------------------------------------
+//run global fixes when document is ready
+docReady(function() {
+    globalfixes();
+});
 
 let htmlobserver = new MutationObserver(observehtml);
-let mediaobserver = new MutationObserver(observemedia);
-let timeobserver = new MutationObserver(observetimeslider);
 let headerobserver = new MutationObserver(observeheaders);
 var initialPageLoadingFlag = true;
 
-function observehtml(mutations) {
-    for (let mutation of mutations) {
-        if (mutation.type == 'attributes') {
-            if (mutation.attributeName == 'data-location') {
-                //console.log('the data-location attribute of an observed object has changed!');
-
-                setTimeout(allfixes(), 200);
-                initialPageLoadingFlag = true; //page changed, reset initial loading flag
-                displayAriaLevels(true);
-
-            } else if (mutation.attributeName == 'class') {
-                //console.log('the class attribute of an observed object has changed!');
-
-                if ($('html').hasClass('notify')) {
-
-                    popupIsOpened = true;
-                    //console.log("a popup has been opened!");
-
-                    $('.hotgrid-popup .hotgrid-popup-controls, .hotgraphic-popup .hotgraphic-popup-controls').click(function() {
-                        //console.log('the current popup has just changed pages!');
-                        //trapinsidepopup();
-                    });
-
-                    trapinsidepopup();
-                    $('.notify-popup-inner *[aria-level]').attr('aria-level', Number(lastHeaderLevelBeforeClickedButton) + 1);
-                    displayAriaLevels(false);
-                    allfixes();
-
-                } else {
-                    popupIsOpened = false;
-                }
-
-            } else if (mutation.attributeName == 'style') {
-                //console.log('The inline style of an observed object has changed!');
-
-                //If the loading wheel is gone, run all fixes (page really fully loaded)
-                //Code added here will only run once per page load!
-                if ($('.loading').css('display') == 'none' && initialPageLoadingFlag) {
-                    allfixes();
-                    addKeyboardListener();
-                    destroyMediaPlayers();
-                    $('.mejs-captions-button button').next().css('visibility', 'hidden');
-                    initialPageLoadingFlag = false; //stop running after first run
-
-
-                    addClasses();
-                }
-            }
-        }
-    }
-}
-
-function observemedia(mutations) {
-    for (let mutation of mutations) {
-        if (mutation.attributeName == 'title') {
-            //console.log('The title of an observed object has changed!');
-
-            if ($('html').attr('lang') == 'fr') {
-                //Change to FR in final *************************************
-                mediaobserver.disconnect();
-                frenchifyMediaLabels();
-                setMediaObservers();
-            }
-        }
-    }
-}
-
-function observetimeslider(mutations) {
-    for (let mutation of mutations) {
-        if (mutation.attributeName == 'aria-label') {
-            //console.log('The aria-label of an observed object has changed!');
-
-            if ($('html').attr('lang') == 'fr') {
-                timeobserver.disconnect();
-                forceTimeSliderLabel();
-                setTimeObserver();
-            }
-        }
-    }
-}
-
-function observeheaders(mutations) {
-    for (let mutation of mutations) {
-        if (mutation.attributeName == 'class') {
-            //currently never runs
-            //console.log('The class of an observed header has changed!');
-            checkHeaderLevels();
-        }
-    }
-}
-
-//Set observers to run all fixes or specific fixes after different events.
+//Set properties that trigger htmlobserver
 function setObservers() {
     htmlobserver.disconnect();
 
@@ -162,31 +99,7 @@ function setObservers() {
     htmlobserver.observe(object_Spinner, observerOptions);
 }
 
-function setMediaObservers() {
-    mediaobserver.disconnect();
-
-    let mediaObserverOptions = { attributes: true, attributeFilter: ['title'] };
-    let object_MediaComponentPlay = $('.mejs-playpause-button button');
-    let object_MediaComponentMute = $('.mejs-volume-button button');
-
-    object_MediaComponentPlay.each(function(item) {
-        mediaobserver.observe(object_MediaComponentPlay[item], mediaObserverOptions);
-    });
-    object_MediaComponentMute.each(function(item) {
-        mediaobserver.observe(object_MediaComponentMute[item], mediaObserverOptions);
-    });
-}
-
-function setTimeObserver() {
-    timeobserver.disconnect();
-    let timeObserverOptions = { attributes: true, attributeFilter: ['aria-label'] };
-    let object_timeSlider = $('.mejs-time-slider');
-
-    object_timeSlider.each(function(item) {
-        timeobserver.observe(object_timeSlider[item], timeObserverOptions);
-    });
-}
-
+//Set properties that trigger headerobserver
 function setHeaderObservers(objects) {
 
     //console.log('setting header observers on ' + objects.length + 'headers');
@@ -198,43 +111,161 @@ function setHeaderObservers(objects) {
     })
 }
 
+//Actions to run when htmlobserver is triggered
+function observehtml(mutations) {
+    for (let mutation of mutations) {
+        if (mutation.type == 'attributes') {
+            if (mutation.attributeName == 'data-location') {
+                //console.log('the data-location attribute of an observed object has changed!');
+                setTimeout(globalfixes(), 200);
+                displayAriaLevels(true);
+                initialPageLoadingFlag = true; //page changed, reset initial loading flag
+            } else if (mutation.attributeName == 'class') {
+                //console.log('the class attribute of an observed object has changed!');
+                popupfixes();
+            } else if (mutation.attributeName == 'style') {
+                //console.log('The inline style of an observed object has changed!');
+                if ($('.loading').css('display') == 'none' && initialPageLoadingFlag) {
+                    initialFixes();
+                    initialPageLoadingFlag = false; //stop running after first run
+                }
+            }
+        }
+    }
+}
 
-
-//enable observers when doc is ready
-docReady(function() {
-
-    allfixes();
-});
-
+//Actions to run when headerobserver is triggered
+function observeheaders(mutations) {
+    for (let mutation of mutations) {
+        if (mutation.attributeName == 'class') {
+            //console.log('The class of an observed header has changed!');
+            checkHeaderLevels();
+        }
+    }
+}
 
 // -------------------------------------------------------------------------
 //
-//		Accessibility fixes - grouped by global fixes, fixes for the menu 
-//      only and fixes for all other pages of the course
+//      [!!02] STARTUP - Accessibility fix runners
 //
 // -------------------------------------------------------------------------
-
-function allfixes() {
-    //console.log('running all fixes');
-    //re-initialize observer
-    setObservers();
-    setMediaObservers();
-    setTimeObserver();
-
-    //Run Global fixes
+//Fixes which should only be run once when a page loads
+//runs only once the Adapt "loading" logo is gone
+function initialFixes() {
+    addKeyboardListener();
+    destroyMediaPlayers();
+    showFirstAndLastFocus();
     globalfixes();
+}
+
+//Fixes which apply to both menu and pages
+//this function also detects if user is crrently in a menu or a page
+function globalfixes() {
+
+    setObservers();
+    stopAutoTranslate();
+    setNavigationTabOrder()
+    linkfixes();
+    altFixes();
 
     //if menu page, run menufixes, else run page fixes
     ($('#adapt').attr('data-location') == 'course') ? menufixes(): pagefixes();
 }
 
-function globalfixes() {
+//Fixes that only apply to menus
+function menufixes() {
 
-    //console.log('  running global fixes');
-    // -------------
-    // GLOBAL FIXES
-    // -------------
+    checkMenuHeaderLevels();
+}
 
+//Fixes that apply to pages
+function pagefixes() {
+
+    checkHeaderLevels();
+    updatePopupHeaderLevels();
+
+    globalQuestionComponentFixes();
+    componentMultiChoiceFixes();
+    componentGraphicalMultiChoiceFixes();
+    componentMatchingQuestionFixes();
+    componentOpenTextInputFixes();
+    componentAccordionFixes();
+    componentMediaFixes();
+    componentExposeFixes();
+    componentQuickNavFixes();
+    componentNarrativeFixes();
+    componentHotGraphicFixes();
+    componentHotGridFixes();
+    componentSliderFixes();
+}
+
+
+
+// [**] GLOBAL FIXES *******************************************************
+
+// -------------------------------------------------------------------------
+//
+//		[**01] GLOBAL FIXES - Stop auto translate
+//
+// -------------------------------------------------------------------------
+function stopAutoTranslate() {
+    // notranslate chrome
+    $('body').addClass('notranslate');
+    // notranslate Edge
+    $('body').attr('translate', 'no');
+}
+
+// -------------------------------------------------------------------------
+//
+//		[**02] GLOBAL FIXES - <a> anchor tag link fixes
+//
+// -------------------------------------------------------------------------
+function linkfixes() {
+    //add target = _blank to all external links
+    $('a').filter(function() {
+        return this.hostname && this.hostname !== location.hostname;
+    }).attr('target', '_blank');
+}
+
+// -------------------------------------------------------------------------
+//
+//      [**03] GLOBAL FIXES - Alt tags for <img> and tags with role="img"
+//
+// -------------------------------------------------------------------------
+function altFixes() {
+    $('img').each(function() {
+
+        //if img doesn't have an alt tag, create an empty one
+        if (!(hasAttr($(this), 'alt'))) {
+            $(this).attr('alt', '');
+        }
+
+        //if img has an aria-label, copy into alt tag and remove aria-label
+        if (hasAttr($(this), 'aria-label')) {
+            $(this).attr('alt', $(this).attr('aria-label'));
+            $(this).removeAttr('aria-label');
+        }
+
+        // if image has aria-hidden, remove it.
+        if ($(this).attr('aria-hidden') == 'true') {
+            $(this).removeAttr('aria-hidden');
+        }
+    });
+
+    //for any div with role="img", if the aria-label is empty, set it to aria-hidden
+    $('div[role="img"]').each(function() {
+        if ($(this).attr('aria-label') == "") {
+            $(this).attr('aria-hidden', true);
+        }
+    });
+}
+
+// -------------------------------------------------------------------------
+//
+//		[**04] GLOBAL FIXES - Navigation bar tab order
+//
+// -------------------------------------------------------------------------
+function setNavigationTabOrder() {
     //Tab order of buttons in the top navigation bar
     var buttonArray = [];
     var appliedLeftMargin = false;
@@ -260,53 +291,96 @@ function globalfixes() {
         buttonArray[i].detach();
         $(".navigation-inner").append(buttonArray[i]);
     }
+}
 
-    //anchor tag fixes (links)
-    //-----------------------------------------------------------------------------	
+// -------------------------------------------------------------------------
+//
+//		[**05] GLOBAL FIXES - Popups
+//
+// -------------------------------------------------------------------------
+var modal;
+var focusableElements;
+var firstFocusableElement;
+var lastFocusableElement;
+
+function popupfixes() {
+    if ($('html').hasClass('notify')) {
+
+        popupIsOpened = true;
+        trapinsidepopup();
+        $('.notify-popup-inner *[aria-level]').attr('aria-level', Number(lastHeaderLevelBeforeClickedButton) + 1);
+
+        displayAriaLevels(false);
+        allfixes();
+
+    } else {
+        popupIsOpened = false;
+    }
+}
+
+function trapinsidepopup() {
+
+    modal = $('.notify-popup');
+
+    // add all the elements inside modal which you want to make focusable
+    focusableElements = modal.find('button, input, select, textarea, details, [tabindex], a[href]').not('[tabindex = "-1"], [disabled="disabled"]');
+
+    //select the first and last ones
+    firstFocusableElement = focusableElements.first();
+    lastFocusableElement = focusableElements.last();
+
+    //console.log(focusableElements);
+    //console.log(firstFocusableElement + " " + lastFocusableElement + " " + focusableElements.length);
+    //console.log(firstFocusableElement.attributes);
+    //console.log(lastFocusableElement.attributes);
+
+    modal.children().removeClass('firstfocus');
+    modal.children().removeClass('lastfocus');
+    firstFocusableElement.addClass('firstfocus');
+    lastFocusableElement.addClass('lastfocus');
+
     linkfixes();
-
-    //img alt tag and aria-hidden fixes
-    //-----------------------------------------------------------------------------	
-    altFixes();
-
-    // ----------------
-    // 
-    // ----------------	
 }
 
-function menufixes() {
-
-    //console.log('  running menu fixes');
-    // ----------------
-    // MENU FIXES
-    // ----------------
-
-    //Shouldn't we run this code globally, not just in the menu?
-
-    // notranslate chrome
-    $('body').addClass('notranslate');
-
-    // notranslate Edge
-    $('body').attr('translate', 'no');
-    //
-    checkMenuHeaderLevels();
-
-    // ----------------
-    // 
-    // ----------------	
+function updatePopupHeaderLevels() {
+    $('button').click(function() {
+        //find the nearest parent object which contains an object with an aria-level, then find the object that has an aria level and get its aria level
+        lastHeaderLevelBeforeClickedButton = $(this).closest('div:has(div[aria-level])').find('div[aria-level]').attr('aria-level');
+    });
 }
 
-function pagefixes() {
 
-    //console.log('  running page fixes');
-    // ------------------
-    // COURSE PAGE FIXES
-    // ------------------
 
-    //Global component fixes
-    //-----------------------------------------------------------------------------
+// [^^] MENU FIXES ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-    //add aria live to question component instructions so learner will be alerted if they change	
+// -------------------------------------------------------------------------
+//
+//		[^^01] MENU FIXES - Check menu header levels
+//
+// -------------------------------------------------------------------------
+function checkMenuHeaderLevels() {
+    //Force level of page header to 1
+    $('html .course-heading *[aria-level]').attr('aria-level', 1);
+
+    //Force level of menu item titles to 2
+    $('html .menu-item-title-inner *[aria-level]').each(function() {
+        $(this).attr('aria-level', 2);
+    });
+
+    displayAriaLevels(false);
+}
+
+
+
+// [$$] PAGE FIXES $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
+
+// -------------------------------------------------------------------------
+//
+//		[$$01] PAGE FIXES - for all question components
+//
+// -------------------------------------------------------------------------
+function globalQuestionComponentFixes() {
+    //add aria live to all "question" component instructions so learner will be alerted if they change	
     let allQuestionComponents = $(".question-component");
 
     allQuestionComponents.each(function() {
@@ -314,8 +388,29 @@ function pagefixes() {
         $(this).find('.component-instruction-inner').attr('aria-live', 'assertive');
     });
 
-    // multiple choice fixes
+    // Auto focus instructions on empty selection submit
     //-----------------------------------------------------------------------------
+    $('.buttons-action').on("click", function() {
+        if ($(this).next().attr('disabled') == 'disabled') {
+            var componentid = $(this).parents('.component').attr('data-adapt-id');
+            var instrfocus = $('.component[data-adapt-id="' + componentid + '"] .component-instruction-inner');
+
+            //Only trigger if instructions exist and not empty
+            if (instrfocus.length > 0 && !(instrfocus.html() == "")) {
+                $([document.documentElement, document.body]).animate({
+                    scrollTop: instrfocus.offset().top - (window.innerHeight / 2)
+                }, 200);
+            }
+        }
+    });
+}
+
+// -------------------------------------------------------------------------
+//
+//		[$$02] PAGE FIXES - Component - adapt-contrib-mcq - 3.0.0
+//
+// -------------------------------------------------------------------------
+function componentMultiChoiceFixes() {
     let multiChoiceComponents = $('.mcq-component');
     multiChoiceComponents.each(function() {
 
@@ -324,9 +419,14 @@ function pagefixes() {
             $(this).find('.mcq-body-inner').wrap("<legend></legend>");
         }
     });
+}
 
-    // graphical multichoice fixes
-    //-----------------------------------------------------------------------------   
+// -------------------------------------------------------------------------
+//
+//		[$$03] PAGE FIXES - Component - adapt-contrib-gmcq - 4.0.0
+//
+// -------------------------------------------------------------------------
+function componentGraphicalMultiChoiceFixes() {
     let gmultiChoiceComponents = $('.gmcq-component');
     gmultiChoiceComponents.each(function() {
         if ($(this).find('fieldset').length == 0) {
@@ -334,10 +434,24 @@ function pagefixes() {
             $(this).find('.gmcq-body-inner').wrap("<legend></legend>");
         }
     });
-
-    //Matching questions fix & feedback fix
+    //graphical question focus fix
     //-----------------------------------------------------------------------------
 
+    //Instead, we need an event listener. when input has focus, highlight label.
+    //Problem is we can't do it with CSS because the input is after the label
+
+    //$('.gmcq-component label').attr('tabindex', '0');
+    //$('.gmcq-component label').keypress(function() {
+    //    $(this).click();
+    //});
+}
+
+// -------------------------------------------------------------------------
+//
+//		[$$04] PAGE FIXES - Component - adapt-contrib-matching - 3.0.1
+//
+// -------------------------------------------------------------------------
+function componentMatchingQuestionFixes() {
     $('.matching-select-container').each(function(k) {
         let glabel = $(this).parents().find('.matching-component').attr('data-adapt-id') + '_qlabel_' + k;
         $(this).find('.dropdown__inner').attr('id', glabel);
@@ -360,18 +474,28 @@ function pagefixes() {
         }, 100);
     });
     */
+}
 
-    //Open Textinput fix
-    //-----------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+//
+//		[$$05] PAGE FIXES - Component - adapt-contrib-openTextInput - 1.2.11
+//
+// -------------------------------------------------------------------------
+function componentOpenTextInputFixes() {
     $('.openTextInput-inner').each(function(k) {
         let olabel = $(this).parents().find('.openTextInput-component').attr('data-adapt-id') + '_qlabel_' + k;
         $(this).find('.openTextInput-count-characters-container').attr('aria-live', 'polite');
         $(this).find('.openTextInput-instruction-inner').attr('id', olabel);
         $(this).find('.openTextInput-answer-container textarea').attr('aria-labelledby', olabel);
     });
+}
 
-    //Accordion component accessibility fixes
-    //-----------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+//
+//		[$$06] PAGE FIXES - Component - adapt-contrib-accordion - 4.0.0
+//
+// -------------------------------------------------------------------------
+function componentAccordionFixes() {
     $('.accordion-component').each(function() {
         let parentID = $(this).attr('data-adapt-id');
         $('.accordion-item-title').each(function(i) {
@@ -380,9 +504,14 @@ function pagefixes() {
             $(this).next().attr('id', blockid);
         });
     });
+}
 
-    // video skip to transcript fix
-    //-----------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+//
+//		[$$07] PAGE FIXES - Component - adapt-contrib-media - 4.1.1
+//
+// -------------------------------------------------------------------------
+function componentMediaFixes() {
     var skiptxt = $('.aria-label.js-skip-to-transcript').attr('aria-label');
     $('.aria-label.js-skip-to-transcript').html(skiptxt);
     $('.aria-label.js-skip-to-transcript').removeAttr('aria-label');
@@ -393,55 +522,30 @@ function pagefixes() {
         var compid = $(this).parents('.component').attr('data-adapt-id');
         $('.' + compid + ' .media-transcript-button-container:first button').focus();
     });
+}
 
-    // Expose basic fixes
-    //-----------------------------------------------------------------------------
+function destroyMediaPlayers() {
+    $('video').each(function(k) {
+        var link = $(this).attr('src');
+        var track = $(this).children('track').attr('src');
+        var poster = $(this).attr('poster');
+
+        var newhtmlplayer = '<video width="100%" height="100%" poster="' + poster + '" controls><source src="' + link + '" type="video/mp4"><track style="z-index:10;" label="English" kind="subtitles" srclang="en" src="' + track + '" type="text/vtt" default></video>'
+        $(this).parents('.mejs-container').html(newhtmlplayer);
+    });
+}
+
+// -------------------------------------------------------------------------
+//
+//		[$$08] PAGE FIXES - Component - adapt-expose - 1.1.4
+//
+// -------------------------------------------------------------------------
+function componentExposeFixes() {
     $('.expose-component').each(function() {
-        //remove empty button
         $(this).find('.expose-item-button').remove();
-        //assign clickable div proper role
         $(this).find('.expose-item-cover').attr('role', 'button');
-        // make tabbable
         $(this).find('.expose-item-cover').attr('tabindex', '0');
-        //aria states between for proper toggle indication to assistive technology
         $(this).find('.expose-item-cover').attr('aria-pressed', 'false');
-    })
-
-    // Auto focus instructions on empty selection submit
-    //-----------------------------------------------------------------------------
-    $('.buttons-action').on("click", function() {
-        if ($(this).next().attr('disabled') == 'disabled') {
-            var componentid = $(this).parents('.component').attr('data-adapt-id');
-            var instrfocus = $('.component[data-adapt-id="' + componentid + '"] .component-instruction-inner');
-
-            //Only trigger if instructions exist and not empty
-            if (instrfocus.length > 0 && !(instrfocus.html() == "")) {
-                $([document.documentElement, document.body]).animate({
-                    scrollTop: instrfocus.offset().top - (window.innerHeight / 2)
-                }, 200);
-            }
-        }
-    });
-
-    // captions UI fixes when pressing space bar and click to show/hide elements
-    $(".mejs-captions-button button").on('keypress', function(e) {
-        if (e.which == 13) {
-            var getcapcss = $(this).next().css('visibility');
-            if (getcapcss == 'visible') {
-                $(this).next().css('visibility', 'hidden');
-            } else {
-                $(this).next().css('visibility', 'visible');
-            }
-        }
-    });
-
-    $(".mejs-captions-button button").click(function() {
-        var getcapcss = $(this).next().css('visibility');
-        if (getcapcss == 'visible') {
-            $(this).next().css('visibility', 'hidden');
-        } else {
-            $(this).next().css('visibility', 'visible');
-        }
     });
 
     //expose button div needs to react to enter press and change aria status
@@ -462,18 +566,29 @@ function pagefixes() {
             $(".expose-item-cover").attr('aria-pressed', 'true');
         }
     });
+}
 
+// -------------------------------------------------------------------------
+//
+//		[$$09] PAGE FIXES - Component - adapt-quicknav - 3.2.0
+//
+// -------------------------------------------------------------------------
+
+function componentQuickNavFixes() {
     //remove tooltips from buttons
     //-----------------------------------------------------------------------------
     $('.quicknav-widget').find('button').hover(function() {
         $(this).removeAttr('tooltip');
     });
-    // remove disabled button in quicknavigation from dom
-    // *** Was also removing buttons when using a different lock mechanism, disabled for now
-    //$('.quicknav button.disabled').remove();
+}
 
+// -------------------------------------------------------------------------
+//
+//		[$$10] PAGE FIXES - Component - adapt-contrib-narrative - 5.0.2
+//
+// -------------------------------------------------------------------------
+function componentNarrativeFixes() {
     //add aria-live to narrative 
-    //-----------------------------------------------------------------------------
     $('.narrative-content').attr('aria-live', 'polite');
 
     //narrative controls comprehensive aria labels
@@ -484,9 +599,15 @@ function pagefixes() {
         $('.base.narrative-controls.narrative-control-right').attr('aria-label', 'Next slide');
         $('.base.narrative-controls.narrative-control-left').attr('aria-label', 'Previous slide');
     }
+}
 
+// -------------------------------------------------------------------------
+//
+//		[$$11] PAGE FIXES - Component - adapt-contrib-hotgraphic - 4.3.0
+//
+// -------------------------------------------------------------------------
+function componentHotGraphicFixes() {
     //Hotgraphic pin title checker
-    //-----------------------------------------------------------------------------
     let hotgraphicPins = $('.hotgraphic-graphic-pin');
     hotgraphicPins.each(function() {
 
@@ -494,44 +615,14 @@ function pagefixes() {
             $(this).prepend('<p style="color:red; font-weight:bold;">VEUILLEZ AJOUTER UN TITRE / PLEASE ADD A PIN TITLE</p>')
         }
     });
+}
 
-    //Slider fixes
-    //-----------------------------------------------------------------------------
-
-    theSlider = $('.slider-component');
-    theSlider.each(function(i) {
-        var newid = $(this).attr('data-adapt-id') + "slabel" + i
-        $(this).find('.slider-instruction-inner').attr('id', newid);
-        $(this).find('.slider-item input').attr('aria-labelledby', newid);
-    });
-
-    //graphical question fix
-    //-----------------------------------------------------------------------------
-
-    //Instead, we need an event listener. when input has focus, highlight label.
-    //Problem is we can't do it with CSS because the input is after the label
-
-    //$('.gmcq-component label').attr('tabindex', '0');
-    //$('.gmcq-component label').keypress(function() {
-    //    $(this).click();
-    //});
-
-
-
-    //Media component fixes
-    frenchifyMediaLabels();
-
-    //header levels
-    checkHeaderLevels();
-    // ----------------
-    // 
-    // ----------------	
-
-    $('button').click(function() {
-        //find the nearest parent object which contains an object with an aria-level, then find the object that has an aria level and get its aria level
-        lastHeaderLevelBeforeClickedButton = $(this).closest('div:has(div[aria-level])').find('div[aria-level]').attr('aria-level');
-    });
-
+// -------------------------------------------------------------------------
+//
+//		[$$12] PAGE FIXES - Component - adapt-hotgrid - 3.2.0
+//
+// -------------------------------------------------------------------------
+function componentHotGridFixes() {
     //Hotrgrid fixes - aria label copy
     let hotGridButtons = $('.component.hotgrid-component .hotgrid-grid-item');
     hotGridButtons.each(function() {
@@ -539,7 +630,6 @@ function pagefixes() {
         $(this).click(hotGridCopyLabel());
     });
     hotGridCopyLabel();
-}
 
 function hotGridCopyLabel() {
     let hotGridButtons = $('.component.hotgrid-component .hotgrid-grid-item');
@@ -667,60 +757,37 @@ function addKeyboardListener() {
     }
 
 }
+        hotGridButtons.each(function() {
+            let hotGridButtonLabel = $(this).find('.aria-label');
+            let hotGridImage = $(this).find('.hotgrid-item-image img');
 
+            //console.log(hotGridButtonLabel.html().replace(/\s+/g, ' ').trim());
 
-
-// On Modal close, stop event listener from firing
-
-
-
-function linkfixes() {
-    //add target = _blank to all external links
-    $('a').filter(function() {
-        return this.hostname && this.hostname !== location.hostname;
-    }).attr('target', '_blank');
+            hotGridButtonLabel.attr('aria-hidden', 'true');
+            hotGridImage.attr('alt', hotGridButtonLabel.html().replace(/\s+/g, ' ').trim());
+        });
+    }
 }
 
-function altFixes() {
-    $('img').each(function() {
-
-        //if img doesn't have an alt tag, create an empty one
-        if (!(hasAttr($(this), 'alt'))) {
-            $(this).attr('alt', '');
-        }
-
-        //if img has an aria-label, copy into alt tag and remove aria-label
-        if (hasAttr($(this), 'aria-label')) {
-            $(this).attr('alt', $(this).attr('aria-label'));
-            $(this).removeAttr('aria-label');
-        }
-
-        // if image has aria-hidden, remove it.
-        if ($(this).attr('aria-hidden') == 'true') {
-            $(this).removeAttr('aria-hidden');
-        }
-    });
-
-    //for any div with role="img", if the aria-label is empty, set it to aria-hidden
-    $('div[role="img"]').each(function() {
-        if ($(this).attr('aria-label') == "") {
-            $(this).attr('aria-hidden', true);
-        }
+// -------------------------------------------------------------------------
+//
+//		[$$13] PAGE FIXES - Component - adapt-contrib-slider - 2.4.0
+//
+// -------------------------------------------------------------------------
+function componentSliderFixes() {
+    theSlider = $('.slider-component');
+    theSlider.each(function(i) {
+        var newid = $(this).attr('data-adapt-id') + "slabel" + i
+        $(this).find('.slider-instruction-inner').attr('id', newid);
+        $(this).find('.slider-item input').attr('aria-labelledby', newid);
     });
 }
 
-function checkMenuHeaderLevels() {
-    //Force level of page header to 1
-    $('html .course-heading *[aria-level]').attr('aria-level', 1);
-
-    //Force level of menu item titles to 2
-    $('html .menu-item-title-inner *[aria-level]').each(function() {
-        $(this).attr('aria-level', 2);
-    });
-
-    displayAriaLevels(false);
-}
-
+// -------------------------------------------------------------------------
+//
+//		[$$14] PAGE FIXES - header Levels
+//
+// -------------------------------------------------------------------------
 function checkHeaderLevels() {
     //header level warnings
 
@@ -780,79 +847,69 @@ function checkHeaderLevels() {
 
     //pass 3 - setup change event listeners to keep headers at set levels
     setHeaderObservers($('.js-heading'));
-
     displayAriaLevels(false);
 }
 
-function frenchifyMediaLabels() {
-    //Media component label fixes
-    $('.media-component').each(function() {
-        let playpauseButton = $(this).find('.mejs-playpause-button button');
-        let fullscreenButton = $(this).find('.mejs-fullscreen-button button');
-        let volumeButton = $(this).find('.mejs-volume-button button');
-        let volumeSlider = $(this).find('.mejs-volume-slider');
-        let volumeInstructions = $(this).find('.mejs-volume-button .mejs-offscreen');
-        let ccOptions = $(this).find('.mejs-captions-selector label');
-        let ccButton = $(this).find('.mejs-captions-button button');
-
-        playpauseButton.attr('title', theLabels[playpauseButton.attr('title')]);
-        playpauseButton.attr('aria-label', theLabels[playpauseButton.attr('aria-label')]);
-
-        fullscreenButton.attr('title', theLabels['Fullscreen']);
-        fullscreenButton.attr('aria-label', theLabels['Fullscreen']);
-
-        volumeButton.attr('title', theLabels[volumeButton.attr('title')]);
-        volumeButton.attr('aria-label', theLabels[volumeButton.attr('title')]);
-
-        volumeSlider.attr('aria-label', theLabels['Volume Slider']);
-        volumeInstructions.html(theLabels['volinstr-fr']);
-
-        ccOptions.each(function() {
-            $(this).html(theLabels[$(this).html()]);
-        });
-
-        ccButton.attr('title', theLabels['Captions/Subtitles']);
-        ccButton.attr('aria-label', theLabels['Captions/Subtitles']);
 
 
-    });
-}
-
-function forceTimeSliderLabel() {
-    //For media player time slider only
-    $('.media-component').each(function() {
-        let timeSlider = $(this).find('.mejs-time-slider');
-        if (timeSlider.attr('aria-label') == 'Time Slider') {
-            timeSlider.attr('aria-label', theLabels['Time Slider']);
-        }
-    });
-}
-
+// [%%] UTILITY FUNCTIONS %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 // -------------------------------------------------------------------------
 //
-//		Utility functions
+//		[%%01] UTILITY - Keyboard listener
 //
 // -------------------------------------------------------------------------
+function addKeyboardListener() {
 
-//sort a multidimensional array
-//-----------------------------------------------------------------------------
-function comparator(a, b) {
-    //Syntax: (condition) ? true action : false action
-    return (a === b) ? 0 : (a < b) ? -1 : 1
-}
+    //popup tab trap code
+    document.addEventListener('keydown', function(e) {
 
-function sortmulti(n, comparatorFunction, reverse) {
-    return function(first, second) {
-        if (reverse === true) {
-            return comparatorFunction(second[n], first[n]);
-        } else {
-            return comparatorFunction(first[n], second[n]);
+        if (popupIsOpened) {
+            //console.log('key pressed! ' + e.key);
+            var declared;
+            try {
+                focusableElements;
+                declared = true;
+            } catch (e) {
+                declared = false;
+            }
+
+            if (declared && firstFocusableElement !== typeof undefined && lastFocusableElement !== typeof undefined) {
+                let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
+                //console.log("key pressed! " + e.key);
+                //console.log(focusableElements.length);
+
+                if (isTabPressed) {
+                    if (e.shiftKey && firstFocusableElement.is(':focus')) {
+                        e.preventDefault();
+                        lastFocusableElement.focus();
+                    } else if (lastFocusableElement.is(':focus')) {
+                        e.preventDefault();
+                        firstFocusableElement.focus();
+                    }
+                }
+            }
         }
-    }
+    });
+
+    //Component - Narrative keypress code
+    $(".narrative-widget.component-widget *").keydown(function(e) {
+        if (e.keyCode == 37) {
+            $('.base.narrative-controls.narrative-control-left')[0].click();
+            event.stopPropagation(300);
+        } else if (e.keyCode == 39) {
+            $('.base.narrative-controls.narrative-control-right')[0].click();
+            event.stopPropagation(300);
+        }
+    });
+
 }
 
-//Check if object has a given attribute
+// -------------------------------------------------------------------------
+//
+//		[%%02] UTILITY - Check if object has a given attribute
+//
+// -------------------------------------------------------------------------
 function hasAttr(obj, attr) {
 
     let _attr = (obj.attr) ? obj.attr(attr) : obj.getAttribute(attr);
@@ -860,7 +917,11 @@ function hasAttr(obj, attr) {
 
 }
 
-//Pure Javascript document ready function
+// -------------------------------------------------------------------------
+//
+//		[%%03] UTILITY - Pure Javascript document ready function
+//
+// -------------------------------------------------------------------------
 function docReady(fn) {
     // see if DOM is already available
     if (document.readyState === "complete" || document.readyState === "interactive") {
@@ -871,8 +932,11 @@ function docReady(fn) {
     }
 }
 
-//Show aria levels above headers (for QA purposes)
-
+// -------------------------------------------------------------------------
+//
+//		[%%04] UTILITY - Show aria levels above headers (for QA purposes)
+//
+// -------------------------------------------------------------------------
 function displayAriaLevels() {
 
     if (displayAriaLevelsOnPage) {
@@ -887,7 +951,12 @@ function displayAriaLevels() {
     }
 }
 
-function addClasses() {
+// -------------------------------------------------------------------------
+//
+//		[%%05] UTILITY - add first and last focusable item styles to dom
+//
+// -------------------------------------------------------------------------
+function showFirstAndLastFocus() {
 
     if (showFocusableItemsInPopups) {
         $('body').append('<style>' +
