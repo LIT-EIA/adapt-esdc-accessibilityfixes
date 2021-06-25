@@ -631,9 +631,132 @@ function componentHotGridFixes() {
     });
     hotGridCopyLabel();
 
-    function hotGridCopyLabel() {
-        let hotGridButtons = $('.component.hotgrid-component .hotgrid-grid-item');
+function hotGridCopyLabel() {
+    let hotGridButtons = $('.component.hotgrid-component .hotgrid-grid-item');
 
+    hotGridButtons.each(function() {
+        let hotGridButtonLabel = $(this).find('.aria-label');
+        let hotGridImage = $(this).find('.hotgrid-item-image img');
+
+        //console.log(hotGridButtonLabel.html().replace(/\s+/g, ' ').trim());
+
+        hotGridButtonLabel.attr('aria-hidden', 'true');
+        hotGridImage.attr('alt', hotGridButtonLabel.html().replace(/\s+/g, ' ').trim());
+    });
+}
+
+
+// ---------------
+//   OTHER FIXES
+// ---------------
+
+// Code to trap tabbing between a start and end object
+
+var modal;
+var focusableElements;
+var firstFocusableElement;
+var lastFocusableElement;
+
+
+function trapinsidepopup() {
+    //keyboard operable focus hotgrid notify
+    $('.hotgrid-popup').keydown(function(e) { 
+        if(e.keyCode == 40){$('.hotgrid-popup').scrollTop($('.hotgrid-popup').scrollTop()+10);} 
+        if(e.keyCode == 38){$('.hotgrid-popup').scrollTop($('.hotgrid-popup').scrollTop()-10);} 
+    });
+    //keyboard operable focus hotgraphic-popup
+    $('.hotgraphic-popup').keydown(function(e) { 
+        if(e.keyCode == 40){$('.hotgraphic-popup').scrollTop($('.hotgraphic-popup').scrollTop()+10);} 
+        if(e.keyCode == 38){$('.hotgraphic-popup').scrollTop($('.hotgraphic-popup').scrollTop()-10);} 
+    });
+    // select the modal
+    modal = $('.notify-popup');
+    // add all the elements inside modal which you want to make focusable
+    focusableElements = modal.find('button, input, select, textarea, details, [tabindex], a[href]').not('[tabindex = "-1"], [disabled="disabled"]');
+
+    //select the first and last ones
+    firstFocusableElement = focusableElements.first();
+    lastFocusableElement = focusableElements.last();
+
+    //console.log(focusableElements);
+    //console.log(firstFocusableElement + " " + lastFocusableElement + " " + focusableElements.length);
+    //console.log(firstFocusableElement.attributes);
+    //console.log(lastFocusableElement.attributes);
+
+    modal.children().removeClass('firstfocus');
+    modal.children().removeClass('lastfocus');
+    firstFocusableElement.addClass('firstfocus');
+    lastFocusableElement.addClass('lastfocus');
+
+    //console.log('creating event listener!');
+
+    // fix links
+    linkfixes();
+}
+
+function destroyMediaPlayers() {
+    $('video').each(function(k) {
+        var link = $(this).attr('src');
+        var track = $(this).children('track').attr('src');
+        var poster = $(this).attr('poster');
+
+        var newhtmlplayer = '<video width="100%" height="100%" poster="' + poster + '" controls><source src="' + link + '" type="video/mp4"><track style="z-index:10;" label="English" kind="subtitles" srclang="en" src="' + track + '" type="text/vtt" default></video>'
+        $(this).parents('.mejs-container').html(newhtmlplayer);
+    });
+}
+
+function addKeyboardListener() {
+
+    //console.log('initializing keyboard...');
+    document.addEventListener('keydown', function(e) {
+
+        if (popupIsOpened) {
+            //Change this code to only run while a popup is open
+            //console.log('key pressed! ' + e.key);
+            var declared;
+            try {
+                focusableElements;
+                declared = true;
+            } catch (e) {
+                declared = false;
+            }
+
+            if (declared && firstFocusableElement !== typeof undefined && lastFocusableElement !== typeof undefined) {
+                let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
+                //console.log("key pressed! " + e.key);
+                //console.log(focusableElements.length);
+
+                if (isTabPressed) {
+                    if (e.shiftKey && firstFocusableElement.is(':focus')) {
+                        e.preventDefault();
+                        lastFocusableElement.focus();
+                    } else if (lastFocusableElement.is(':focus')) {
+                        e.preventDefault();
+                        firstFocusableElement.focus();
+                    }
+                }
+            }
+        }
+    });
+
+    //Issue 103
+    $(".narrative-widget.component-widget .base.narrative-controls.narrative-control-left, .base.narrative-controls.narrative-control-right, .narrative-progress ").click(function(e) {
+        var narelem = this;
+         setTimeout(function(){
+           focusnar(narelem);
+           e.stopPropagation();
+        }, 500);
+
+    });
+    function focusnar(val){
+        if ($(val).hasClass('narrative-hidden') == true){
+            $(val).parent().find('button:not(.narrative-hidden)').focus();
+        } else {
+            $(val).focus();
+        }
+    }
+
+}
         hotGridButtons.each(function() {
             let hotGridButtonLabel = $(this).find('.aria-label');
             let hotGridImage = $(this).find('.hotgrid-item-image img');
