@@ -792,6 +792,14 @@ function addKeyboardListener() {
 
     });
 
+    function focusnar(val) {
+        if ($(val).hasClass('narrative-hidden') == true) {
+            $(val).parent().find('button:not(.narrative-hidden)').focus();
+        } else {
+            $(val).focus();
+        }
+    }
+
     //Component - Narrative keypress code
     $(".narrative-widget.component-widget *").keydown(function(e) {
         if (e.keyCode == 37) {
@@ -801,23 +809,6 @@ function addKeyboardListener() {
             $('.base.narrative-controls.narrative-control-right')[0].click();
             event.stopPropagation(300);
         }
-    });
-
-    function focusnar(val) {
-        if ($(val).hasClass('narrative-hidden') == true) {
-            $(val).parent().find('button:not(.narrative-hidden)').focus();
-        } else {
-            $(val).focus();
-        }
-    }
-    hotGridButtons.each(function() {
-        let hotGridButtonLabel = $(this).find('.aria-label');
-        let hotGridImage = $(this).find('.hotgrid-item-image img');
-
-        //console.log(hotGridButtonLabel.html().replace(/\s+/g, ' ').trim());
-
-        hotGridButtonLabel.attr('aria-hidden', 'true');
-        hotGridImage.attr('alt', hotGridButtonLabel.html().replace(/\s+/g, ' ').trim());
     });
 }
 
