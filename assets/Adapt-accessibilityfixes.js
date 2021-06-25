@@ -792,6 +792,17 @@ function addKeyboardListener() {
 
     });
 
+    //Component - Narrative keypress code
+    $(".narrative-widget.component-widget *").keydown(function(e) {
+        if (e.keyCode == 37) {
+            $('.base.narrative-controls.narrative-control-left')[0].click();
+            event.stopPropagation(300);
+        } else if (e.keyCode == 39) {
+            $('.base.narrative-controls.narrative-control-right')[0].click();
+            event.stopPropagation(300);
+        }
+    });
+
     function focusnar(val) {
         if ($(val).hasClass('narrative-hidden') == true) {
             $(val).parent().find('button:not(.narrative-hidden)').focus();
