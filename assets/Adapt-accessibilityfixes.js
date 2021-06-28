@@ -44,6 +44,7 @@ var lastHeaderLevelBeforeClickedButton = 0;
 //      [**03] GLOBAL FIXES - Alt tags for <img> and tags with role="img"
 //      [**04] GLOBAL FIXES - Navigation bar tab order
 //      [**05] GLOBAL FIXES - Popups
+//      [**06] GLOBAL FIXES - Temporary fixes
 //
 // [^^] - Menu fixes
 //      [^^01] MENU FIXES - Check menu header levels    
@@ -167,6 +168,7 @@ function globalfixes() {
     setNavigationTabOrder()
     linkfixes();
     altFixes();
+    tempFixes();
 
     //if menu page, run menufixes, else run page fixes
     ($('#adapt').attr('data-location') == 'course') ? menufixes(): pagefixes();
@@ -309,6 +311,7 @@ function popupfixes() {
         popupIsOpened = true;
         trapinsidepopup();
         $('.notify-popup-inner *[aria-level]').attr('aria-level', Number(lastHeaderLevelBeforeClickedButton) + 1);
+        $('.notify-popup-inner *[aria-level]').attr('aria-disabled', 'true');
 
         $('.notify-popup-inner .hotgrid-popup-controls').click(trapinsidepopup());
 
@@ -321,17 +324,18 @@ function popupfixes() {
 }
 
 function trapinsidepopup() {
-
     //keyboard operable focus hotgrid notify
-    $('.hotgrid-popup').keydown(function(e) {
-        if (e.keyCode == 40) { $('.hotgrid-popup').scrollTop($('.hotgrid-popup').scrollTop() + 10); }
-        if (e.keyCode == 38) { $('.hotgrid-popup').scrollTop($('.hotgrid-popup').scrollTop() - 10); }
+    $('.notify').keydown(function(e) {
+        if (e.keyCode == 40) {
+            $('.hotgrid-popup-inner').scrollTo($('.hotgrid-popup-inner').scrollTop() + 10);
+            $('.hotgraphic-popup-inner').scrollTo($('.hotgraphic-popup-inner').scrollTop() + 10);
+        }
+        if (e.keyCode == 38) {
+            $('.hotgrid-popup-inner').scrollTo($('.hotgrid-popup-inner').scrollTop() - 10);
+            $('.hotgraphic-popup-inner').scrollTo($('.hotgraphic-popup-inner').scrollTop() - 10);
+        }
     });
-    //keyboard operable focus hotgraphic-popup
-    $('.hotgraphic-popup').keydown(function(e) {
-        if (e.keyCode == 40) { $('.hotgraphic-popup').scrollTop($('.hotgraphic-popup').scrollTop() + 10); }
-        if (e.keyCode == 38) { $('.hotgraphic-popup').scrollTop($('.hotgraphic-popup').scrollTop() - 10); }
-    });
+
     // select the modal
     modal = $('.notify-popup');
     // add all the elements inside modal which you want to make focusable
@@ -362,6 +366,24 @@ function updatePopupHeaderLevels() {
         //find the nearest parent object which contains an object with an aria-level, then find the object that has an aria level and get its aria level
         lastHeaderLevelBeforeClickedButton = $(this).closest('div:has(div[aria-level])').find('div[aria-level]').attr('aria-level');
     });
+}
+
+// -------------------------------------------------------------------------
+//
+//		[**06] GLOBAL FIXES - Temporary fixes
+//      These fixes should be removed and replaced with better options
+//      Suchs as CSS edits in the theme.
+//
+// -------------------------------------------------------------------------
+function tempFixes() {
+    $("html").append(
+        "<style>" +
+        "html *:focus, body div:focus, body p:focus, body button:focus, body label:focus, body input:focus, body *:focus" +
+        "{" +
+        "outline:3px solid #CD1C6A !important;" +
+        "}" +
+        "</style>"
+    );
 }
 
 
@@ -448,6 +470,19 @@ function componentGraphicalMultiChoiceFixes() {
             $(this).find('.gmcq-inner').wrap("<fieldset></fieldset>");
             $(this).find('.gmcq-body-inner').wrap("<legend></legend>");
         }
+
+        $(this).find('gmcq-widget component-widget *').attr('tabindex', '-1');
+        $(this).find('input').attr('tabindex', '-1');
+
+        $(this).find('.gmcq-item').attr('tabindex', '0');
+
+        $(this).find('.gmcq-item').keypress(function(e) {
+            if (e.keyCode === 13 || e.keyCode === 32) {
+                e.preventDefault();
+                $(this).find("input").click();
+            }
+        });
+
     });
     //graphical question focus fix
     //-----------------------------------------------------------------------------
@@ -455,10 +490,6 @@ function componentGraphicalMultiChoiceFixes() {
     //Instead, we need an event listener. when input has focus, highlight label.
     //Problem is we can't do it with CSS because the input is after the label
 
-    //$('.gmcq-component label').attr('tabindex', '0');
-    //$('.gmcq-component label').keypress(function() {
-    //    $(this).click();
-    //});
 }
 
 // -------------------------------------------------------------------------
@@ -802,10 +833,10 @@ function addKeyboardListener() {
 
     //Component - Narrative keypress code
     $(".narrative-widget.component-widget *").keydown(function(e) {
-        if (e.keyCode == 37) {
+        if (e.keyCode == 37 && !($('.base.narrative-controls.narrative-control-left').hasClass("narrative-hidden"))) {
             $('.base.narrative-controls.narrative-control-left')[0].click();
             event.stopPropagation(300);
-        } else if (e.keyCode == 39) {
+        } else if (e.keyCode == 39 && !($('.base.narrative-controls.narrative-control-right').hasClass("narrative-hidden"))) {
             $('.base.narrative-controls.narrative-control-right')[0].click();
             event.stopPropagation(300);
         }
