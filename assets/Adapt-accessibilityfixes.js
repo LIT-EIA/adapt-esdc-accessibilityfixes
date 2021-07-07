@@ -325,14 +325,18 @@ function popupfixes() {
 
 function trapinsidepopup() {
     //keyboard operable focus hotgrid notify
-    $('.notify').keydown(function(e) {
+    $('body').keydown(function(e) {
         if (e.keyCode == 40) {
-            $('.hotgrid-popup-inner').scrollTo($('.hotgrid-popup-inner').scrollTop() + 10);
-            $('.hotgraphic-popup-inner').scrollTo($('.hotgraphic-popup-inner').scrollTop() + 10);
+            $('.hotgrid-popup').scrollTo($('.hotgrid-popup').scrollTop() + 10);
+            //$('.hotgrid-popup-inner').scrollTo($('.hotgrid-popup-inner').scrollTop() + 10);
+            $('.hotgraphic-popup').scrollTo($('.hotgraphic-popup').scrollTop() + 10);
+            //$('.hotgraphic-popup-inner').scrollTo($('.hotgraphic-popup-inner').scrollTop() + 10);
         }
         if (e.keyCode == 38) {
-            $('.hotgrid-popup-inner').scrollTo($('.hotgrid-popup-inner').scrollTop() - 10);
-            $('.hotgraphic-popup-inner').scrollTo($('.hotgraphic-popup-inner').scrollTop() - 10);
+            $('.hotgrid-popup').scrollTo($('.hotgrid-popup').scrollTop() - 10);
+            //$('.hotgrid-popup-inner').scrollTo($('.hotgrid-popup-inner').scrollTop() - 10);
+            $('.hotgraphic-popup').scrollTo($('.hotgraphic-popup').scrollTop() - 10);
+            //$('.hotgraphic-popup-inner').scrollTo($('.hotgraphic-popup-inner').scrollTop() - 10);
         }
     });
 
@@ -361,6 +365,8 @@ function trapinsidepopup() {
     linkfixes();
 }
 
+
+
 function updatePopupHeaderLevels() {
     $('button').click(function() {
         //find the nearest parent object which contains an object with an aria-level, then find the object that has an aria level and get its aria level
@@ -386,8 +392,6 @@ function tempFixes() {
     );
 }
 
-
-
 // [^^] MENU FIXES ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 // -------------------------------------------------------------------------
@@ -406,8 +410,6 @@ function checkMenuHeaderLevels() {
 
     displayAriaLevels(false);
 }
-
-
 
 // [$$] PAGE FIXES $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
