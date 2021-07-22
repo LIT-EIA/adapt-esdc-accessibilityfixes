@@ -560,6 +560,31 @@ function componentAccordionFixes() {
 //
 // -------------------------------------------------------------------------
 function componentMediaFixes() {
+
+    var skipBtn = $('.aria-label.js-skip-to-transcript');
+    skipBtn.remove();
+
+    //OLD ANCHOR CODE ------ 
+    //var skiptxt = skipBtn.attr('aria-label');
+
+    //var parentID = $('.aria-label.js-skip-to-transcript').parents('.component').attr('data-adapt-id');
+    //var theParent = $('#' + parentID).find('media-inline-transcript-button').attr('id', parentID + 'TSCPT');
+
+    //var myAtag = '<a href = #' + parentID + 'TSCPT' + '>' + skiptxt + '</a>';
+
+    //$('.aria-label.js-skip-to-transcript').replaceWith(myAtag);
+    //$('.media-inline-transcript-button').attr('tabindex', '0');
+    //$('.media-transcript-container').attr('tabindex', '0');
+
+    // ---------------------------------------------------------------------------
+    //change that to focus to an ID
+    //$(".aria-label.js-skip-to-transcript").on("click", function() {
+    //    var compid = $(this).parents('.component').attr('data-adapt-id');
+    //    $('.' + compid + ' .media-transcript-button-container:first button').focus();
+    //});
+
+    // OLD BUTTON CODE ------
+    /*   
     var skiptxt = $('.aria-label.js-skip-to-transcript').attr('aria-label');
     $('.aria-label.js-skip-to-transcript').html(skiptxt);
     $('.aria-label.js-skip-to-transcript').removeAttr('aria-label');
@@ -570,6 +595,7 @@ function componentMediaFixes() {
         var compid = $(this).parents('.component').attr('data-adapt-id');
         $('.' + compid + ' .media-transcript-button-container:first button').focus();
     });
+    */
 }
 
 function destroyMediaPlayers() {
