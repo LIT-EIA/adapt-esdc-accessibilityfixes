@@ -178,6 +178,7 @@ function globalfixes() {
 function menufixes() {
 
     checkMenuHeaderLevels();
+    glossaryfix();
 }
 
 //Fixes that apply to pages
@@ -409,6 +410,11 @@ function checkMenuHeaderLevels() {
     });
 
     displayAriaLevels(false);
+}
+
+// Fix glossary aria
+function glossaryfix() {
+    $('.drawer-inner .aria-label').remove();
 }
 
 // [$$] PAGE FIXES $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
