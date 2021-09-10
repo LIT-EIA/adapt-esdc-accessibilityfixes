@@ -119,7 +119,7 @@ function observehtml(mutations) {
             if (mutation.attributeName == 'data-location') {
                 //console.log('the data-location attribute of an observed object has changed!');
                 setTimeout(globalfixes(), 200);
-                displayAriaLevels(true);
+                displayAriaLevels();
                 initialPageLoadingFlag = true; //page changed, reset initial loading flag
             } else if (mutation.attributeName == 'class') {
                 //console.log('the class attribute of an observed object has changed!');
@@ -316,7 +316,7 @@ function popupfixes() {
 
         $('.notify-popup-inner .hotgrid-popup-controls').click(trapinsidepopup());
 
-        displayAriaLevels(false);
+        displayAriaLevels();
         globalfixes();
 
     } else {
@@ -350,11 +350,6 @@ function trapinsidepopup() {
     firstFocusableElement = focusableElements.first();
     lastFocusableElement = focusableElements.last();
 
-    //console.log(focusableElements);
-    //console.log(firstFocusableElement + " " + lastFocusableElement + " " + focusableElements.length);
-    //console.log(firstFocusableElement.attributes);
-    //console.log(lastFocusableElement.attributes);
-
     modal.children().removeClass('firstfocus');
     modal.children().removeClass('lastfocus');
     firstFocusableElement.addClass('firstfocus');
@@ -370,8 +365,17 @@ function trapinsidepopup() {
 
 function updatePopupHeaderLevels() {
     $('button').click(function() {
-        //find the nearest parent object which contains an object with an aria-level, then find the object that has an aria level and get its aria level
-        lastHeaderLevelBeforeClickedButton = $(this).closest('div:has(div[aria-level])').find('div[aria-level]').attr('aria-level');
+
+        if (($(this).closest('.narrative-component').length > 0) &&
+            ($(this).closest('.narrative-component').find('.narrative-content').css('display') == 'none')) {
+            console.log('I MADE IT!');
+            lastHeaderLevelBeforeClickedButton = $(this).closest('div:has(.js-heading-inner[aria-level])').find('.js-heading-inner[aria-level]').attr('aria-level');
+
+        } else {
+            //find the nearest parent object which contains an object with an aria-level, then find the object that has an aria level and get its aria level
+            lastHeaderLevelBeforeClickedButton = $(this).closest('div:has(div[aria-level])').find('div[aria-level]').attr('aria-level');
+        }
+
     });
 }
 
@@ -409,7 +413,7 @@ function checkMenuHeaderLevels() {
         $(this).attr('aria-level', 2);
     });
 
-    displayAriaLevels(false);
+    displayAriaLevels();
 }
 
 // Fix glossary aria
@@ -751,12 +755,17 @@ function checkHeaderLevels() {
     //pass 1 - Set all header levels as they should be if all headers were used
     var pageElementTypes = ['.page-title', '.article-title', '.block-title', '.component-title'];
 
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < pageElementTypes.length; i++) {
         $(pageElementTypes[i] + ' .js-heading-inner').each(function() {
             $(this).attr('aria-level', i + 1);
             $(this).attr('data-level-type', i + 1);
         });
     }
+
+    $('.narrative-content-title-inner').each(function() {
+        $(this).attr('aria-level', pageElementTypes.length + 1);
+        $(this).attr('data-level-type', pageElementTypes.length + 1);
+    });
 
     //pass 2 - Fix headers if some are missing
     var allAriaLevels = $('html *[aria-level]');
@@ -804,7 +813,7 @@ function checkHeaderLevels() {
 
     //pass 3 - setup change event listeners to keep headers at set levels
     setHeaderObservers($('.js-heading'));
-    displayAriaLevels(false);
+    displayAriaLevels();
 }
 
 
