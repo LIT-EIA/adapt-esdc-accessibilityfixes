@@ -294,6 +294,8 @@ function setNavigationTabOrder() {
         buttonArray[i].detach();
         $(".navigation-inner").append(buttonArray[i]);
     }
+    // additionnally we want to ensure the focus is set to title tag on load
+    $( "title" ).focus();
 }
 
 // -------------------------------------------------------------------------
@@ -713,6 +715,8 @@ function componentHotGridFixes() {
         //copy the labels anytime one is clicked, probably a bit overzealous but works for now
         $(this).click(hotGridCopyLabel());
     });
+    // remove generic instruction aria label for how to use hotgrids
+    $('.hotgrid-header-inner.component-header-inner .aria-label').remove();
     hotGridCopyLabel();
 }
 
