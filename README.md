@@ -2,9 +2,14 @@
 
 ## ISSUE REPORTS (Only accessible by ESDC members)
 
-### RDI 
-https://014gc.sharepoint.com/:w:/r/sites/MeD/Shared%20Documents/Accessibility/Accessibility%20Testing/General%20A11Y%20testing/RoDI/A11Y-report-html-RDI-BIL-v3.docx?d=wbfb734e517104697a5e25dd695ae48d3&csf=1&web=1&e=2q7bSj
+### OHS
+https://014gc.sharepoint.com/:w:/s/MeD/EUwelrenzsVItYJgufo32eEB-dikA2FsP4PjHajZv2kdKQ?email=jenny.caron%40servicecanada.gc.ca&e=d6eVui
 
+### DTR
+???
+
+### Sec101
+???
 
 ESDC's special Javascript to fix Adapt accessibility issues.
 Coded to work with the following component version numbers:
