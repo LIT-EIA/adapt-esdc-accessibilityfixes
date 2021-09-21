@@ -3,7 +3,7 @@
 ## ISSUE REPORTS (Only accessible by ESDC members)
 
 ### OHS
-https://014gc.sharepoint.com/:w:/s/MeD/EUwelrenzsVItYJgufo32eEB-dikA2FsP4PjHajZv2kdKQ?email=jenny.caron%40servicecanada.gc.ca&e=d6eVui
+https://014gc.sharepoint.com/:w:/s/MeD/EUwelrenzsVItYJgufo32eEB-dikA2FsP4PjHajZv2kdKQ
 
 ### DTR
 ???
