@@ -424,9 +424,13 @@ function glossaryfix() {
     $('.drawer-inner .aria-label').remove();
 }
 // fix progress aria
-function progressfix() {
-    $('.pagelevelprogress-inner .aria-label').remove();
-}
+function progressfix(){
+    $('.pagelevelprogress-navigation').on( "click", function() {
+        console.log('progressfixed');
+        $('.pagelevelprogress-inner .aria-label').remove();
+        $('.base.drawer-close.icon.icon-cross').focus();
+    })
+};
 
 // [$$] PAGE FIXES $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
