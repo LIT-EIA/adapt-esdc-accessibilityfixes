@@ -371,7 +371,6 @@ function updatePopupHeaderLevels() {
 
         if (($(this).closest('.narrative-component').length > 0) &&
             ($(this).closest('.narrative-component').find('.narrative-content').css('display') == 'none')) {
-            console.log('I MADE IT!');
             lastHeaderLevelBeforeClickedButton = $(this).closest('div:has(.js-heading-inner[aria-level])').find('.js-heading-inner[aria-level]').attr('aria-level');
 
         } else {
@@ -426,7 +425,6 @@ function glossaryfix() {
 // fix progress aria
 function progressfix(){
     $('.pagelevelprogress-navigation').on( "click", function() {
-        console.log('progressfixed');
         $('.pagelevelprogress-inner .aria-label').remove();
         $('.base.drawer-close.icon.icon-cross').focus();
     })
