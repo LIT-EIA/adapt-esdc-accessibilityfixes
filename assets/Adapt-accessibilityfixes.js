@@ -200,6 +200,7 @@ function pagefixes() {
     componentHotGraphicFixes();
     componentHotGridFixes();
     componentSliderFixes();
+    progressfix();
 }
 
 
@@ -421,6 +422,10 @@ function checkMenuHeaderLevels() {
 // Fix glossary aria
 function glossaryfix() {
     $('.drawer-inner .aria-label').remove();
+}
+// fix progress aria
+function progressfix() {
+    $('.pagelevelprogress-inner .aria-label').remove();
 }
 
 // [$$] PAGE FIXES $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
@@ -831,7 +836,6 @@ function checkHeaderLevels() {
 // -------------------------------------------------------------------------
 function addKeyboardListener() {
     document.addEventListener('keydown', function(e) {
-
         if (popupIsOpened) {
             //Change this code to only run while a popup is open
             //console.log('key pressed! ' + e.key);
@@ -842,24 +846,35 @@ function addKeyboardListener() {
             } catch (e) {
                 declared = false;
             }
+            if (e.shiftKey){
+                if(firstFocusableElement.is(':focus')){
+                    e.preventDefault();
+                   lastFocusableElement.focus();
+                }
+                if($('#notify-heading').is(':focus')){
+                    e.preventDefault();
+                   firstFocusableElement.focus();
+                   trapinsidepopup();
+                }
 
-            if (declared && firstFocusableElement !== typeof undefined && lastFocusableElement !== typeof undefined) {
-                let isTabPressed = e.key === 'Tab' || e.keyCode === 9;
-                //console.log("key pressed! " + e.key);
-                //console.log(focusableElements.length);
-
-                if (isTabPressed) {
-                    if (e.shiftKey && firstFocusableElement.is(':focus')) {
-                        e.preventDefault();
-                        lastFocusableElement.focus();
-                    } else if (lastFocusableElement.is(':focus')) {
+            }else{
+                    if(lastFocusableElement.is(':focus')){
+                        if(e.keyCode == 13){
+                            //do nothing
+                        }else {
+                            e.preventDefault();
+                            firstFocusableElement.focus();
+                        }
+                    }
+                    if($('#notify-heading').is(':focus')){
                         e.preventDefault();
                         firstFocusableElement.focus();
-                    }
+                        trapinsidepopup();
+                    }       
                 }
+            
             }
-        }
-    });
+        });
 
     $(".narrative-widget.component-widget .base.narrative-controls.narrative-control-left, .base.narrative-controls.narrative-control-right, .narrative-progress ").click(function(e) {
         var narelem = this;
