@@ -157,6 +157,7 @@ function initialFixes() {
     destroyMediaPlayers();
     showFirstAndLastFocus();
     globalfixes();
+    focuspageload();
 }
 
 //Fixes which apply to both menu and pages
@@ -217,6 +218,11 @@ function stopAutoTranslate() {
     $('body').addClass('notranslate');
     // notranslate Edge
     $('body').attr('translate', 'no');
+}
+
+/// fix initial page focus
+function focuspageload(){
+    $('.accessibility .navigation .skip-nav-link').focus();
 }
 
 // -------------------------------------------------------------------------
@@ -295,8 +301,6 @@ function setNavigationTabOrder() {
         buttonArray[i].detach();
         $(".navigation-inner").append(buttonArray[i]);
     }
-    // additionnally we want to ensure the focus is set to title tag on load
-    $( "title" ).focus();
 }
 
 // -------------------------------------------------------------------------
