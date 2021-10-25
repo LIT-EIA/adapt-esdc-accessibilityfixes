@@ -85,19 +85,21 @@ docReady(function() {
     globalfixes();
 });
 
-let htmlobserver = new MutationObserver(observehtml);
-let headerobserver = new MutationObserver(observeheaders);
+var htmlobserver = new MutationObserver(observehtml);
+var headerobserver = new MutationObserver(observeheaders);
 var initialPageLoadingFlag = true;
 
 //Set properties that trigger htmlobserver
 function setObservers() {
     htmlobserver.disconnect();
 
-    let observerOptions = { attributes: true, attributeFilter: ['class', 'data-location', 'style'] };
-    let object_htmlTag = document.documentElement;
-    let object_Spinner = $('.loading')[0];
+    var observerOptions = { attributes: true, attributeFilter: ['class', 'data-location', 'style'] };
+    var object_htmlTag = document.documentElement;
+    var object_Spinner = $('.loading')[0];
+    var object_htmlTag2 = document.getElementsByClassName('drawer')[0];
     htmlobserver.observe(object_htmlTag, observerOptions);
     htmlobserver.observe(object_Spinner, observerOptions);
+    htmlobserver.observe(object_htmlTag2, observerOptions);
 }
 
 //Set properties that trigger headerobserver
@@ -105,7 +107,7 @@ function setHeaderObservers(objects) {
 
     //console.log('setting header observers on ' + objects.length + 'headers');
     headerobserver.disconnect();
-    let headerObserverOptions = { attributes: true, attributeFilter: ['class'] };
+    var headerObserverOptions = { attributes: true, attributeFilter: ['class'] };
 
     objects.each(function(item) {
         headerobserver.observe(objects[item], headerObserverOptions);
@@ -122,11 +124,20 @@ function observehtml(mutations) {
                 displayAriaLevels();
                 initialPageLoadingFlag = true; //page changed, reset initial loading flag
             } else if (mutation.attributeName == 'class') {
-                //console.log('the class attribute of an observed object has changed!');
-                popupfixes();
+                console.log("A class has been modified in the <html> tag!");
+                if (IsPopup()) {
+                    console.log("It's a popup!");
+                    popupfixes();
+                    StartKBTrap(FindPopup());
+                } else {
+                    //Spaghetti code to stop
+                    StartKBTrap(null, true);
+                }
             } else if (mutation.attributeName == 'style') {
                 //console.log('The inline style of an observed object has changed!');
                 if ($('.loading').css('display') == 'none' && initialPageLoadingFlag) {
+
+                    console.log('Running initial fixes! ###############');
                     initialFixes();
                     initialPageLoadingFlag = false; //stop running after first run
                 }
@@ -163,7 +174,6 @@ function initialFixes() {
 //Fixes which apply to both menu and pages
 //this function also detects if user is crrently in a menu or a page
 function globalfixes() {
-
     setObservers();
     stopAutoTranslate();
     setNavigationTabOrder()
@@ -201,7 +211,6 @@ function pagefixes() {
     componentHotGraphicFixes();
     componentHotGridFixes();
     componentSliderFixes();
-    progressfix();
 }
 
 
@@ -221,7 +230,7 @@ function stopAutoTranslate() {
 }
 
 /// fix initial page focus
-function focuspageload(){
+function focuspageload() {
     $('.accessibility .navigation .skip-nav-link').focus();
 }
 
@@ -331,44 +340,164 @@ function popupfixes() {
     }
 }
 
-function trapinsidepopup() {
-    //keyboard operable focus hotgrid notify
-    $('body').keydown(function(e) {
-        if (e.keyCode == 40) {
-            $('.hotgrid-popup').scrollTo($('.hotgrid-popup').scrollTop() + 10);
-            //$('.hotgrid-popup-inner').scrollTo($('.hotgrid-popup-inner').scrollTop() + 10);
-            $('.hotgraphic-popup').scrollTo($('.hotgraphic-popup').scrollTop() + 10);
-            //$('.hotgraphic-popup-inner').scrollTo($('.hotgraphic-popup-inner').scrollTop() + 10);
-        }
-        if (e.keyCode == 38) {
-            $('.hotgrid-popup').scrollTo($('.hotgrid-popup').scrollTop() - 10);
-            //$('.hotgrid-popup-inner').scrollTo($('.hotgrid-popup-inner').scrollTop() - 10);
-            $('.hotgraphic-popup').scrollTo($('.hotgraphic-popup').scrollTop() - 10);
-            //$('.hotgraphic-popup-inner').scrollTo($('.hotgraphic-popup-inner').scrollTop() - 10);
-        }
-    });
+//Is a popup opened?
+function IsPopup() {
 
-    // select the modal
-    modal = $('.notify-popup');
-    // add all the elements inside modal which you want to make focusable
-    focusableElements = modal.find('button, input, select, textarea, details, [tabindex], a[href]').not('[tabindex = "-1"], [disabled="disabled"]');
-
-    //select the first and last ones
-    firstFocusableElement = focusableElements.first();
-    lastFocusableElement = focusableElements.last();
-
-    modal.children().removeClass('firstfocus');
-    modal.children().removeClass('lastfocus');
-    firstFocusableElement.addClass('firstfocus');
-    lastFocusableElement.addClass('lastfocus');
-
-    //console.log('creating event listener!');
-
-    // fix links
-    linkfixes();
+    console.log("SHIIIIT" + $('.drawer').not('.display-none').length);
+    if ($('.notify-popup').length > 0 || $('.drawer').not('.display-none').length > 0) {
+        console.log('it is a popup!');
+        return (true);
+    } else {
+        return false;
+    }
 }
 
+//Find the popup and return a handler to it
+function FindPopup() {
 
+    //Find which popup was opened
+
+    if ($('.notify-popup').length > 0) {
+        console.log("The popup's type is: NOTIFY-POPUP");
+        var thePopup = $('.notify-popup');
+    } else if ($('.drawer').not('.display-none').length > 0) {
+        console.log("The popup's type is: DRAWER");
+        var thePopup = $('.drawer');
+
+        $('.a11y-focusguard').remove();
+        $('.drawer-inner .aria-label').remove();
+
+        $('.pagelevelprogress-navigation').on("click", function() {
+
+            setTimeout(function() {
+                $('.pagelevelprogress-inner .aria-label').remove();
+                $('.drawer-close').focus();
+            }, 50);
+        })
+        $('.pagelevelprogress-navigation').on("keydown", function() {
+
+            setTimeout(function() {
+                $('.pagelevelprogress-inner .aria-label').remove();
+                $('.drawer-close').focus();
+            }, 50);
+        })
+    }
+    //Add listener to close and X of the Popup
+    return (thePopup);
+}
+
+//Start keyboard trap on given popup object
+function StartKBTrap(object, forceStop = false) {
+
+    if (!forceStop) {
+        if (object != undefined || object != null) {
+
+            //keyboard operable focus hotgrid notify
+            $('body').keydown(function(e) {
+                if (e.keyCode == 40) {
+                    $('.hotgrid-popup').scrollTo($('.hotgrid-popup').scrollTop() + 10);
+                    $('.hotgraphic-popup').scrollTo($('.hotgraphic-popup').scrollTop() + 10);
+                }
+                if (e.keyCode == 38) {
+                    $('.hotgrid-popup').scrollTo($('.hotgrid-popup').scrollTop() - 10);
+                    $('.hotgraphic-popup').scrollTo($('.hotgraphic-popup').scrollTop() - 10);
+                }
+            });
+
+            console.log('Keyboard trap started!');
+            focusableElements = object.find('a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, *[tabindex], *[contenteditable]').not('.notify-popup-title-inner, .hotgrid-content-title, .hotgraphic-content-title, .disabled, .h1, .h2, .h3, .h4, .h5, .h6').filter(':visible');
+            //focusableElements = object.find('button, input, select, textarea, details, [tabindex], a[href]').not('[tabindex = "-1"], [disabled="disabled"]');
+
+            //select the first and last ones
+
+            initialFocusableElement = $('*:focus');
+            firstFocusableElement = focusableElements.first();
+            lastFocusableElement = focusableElements.last();
+
+            $('.initialfocus').removeClass('initialfocus');
+            $('.firstfocus').removeClass('firstfocus');
+            $('.lastfocus').removeClass('lastfocus');
+
+            initialFocusableElement.addClass('initialfocus');
+            firstFocusableElement.addClass('firstfocus');
+            lastFocusableElement.addClass('lastfocus');
+
+            //If it's a progress thing
+            if (object.find('.pagelevelprogress-indicator').length > 0) {
+                $('.drawer-close').focus();
+            } else if (object.find('.drawer-item').length > 0) {
+                firstFocusableElement.focus();
+            }
+
+            //Listing of all focusable item
+            focusableElements.each(function() {
+                console.log($(this));
+            });
+
+            //Bind Keydown event to body
+            object.on('keydown', PopupKeyboardHandler);
+
+            function PopupKeyboardHandler(e) {
+
+                if (e.keyCode == 27) {
+                    StopKBTrap();
+
+                } else if (e.shiftKey) {
+                    if (e.keyCode == 9) {
+                        if (firstFocusableElement.is(':focus')) {
+                            e.preventDefault();
+                            lastFocusableElement.focus();
+                        } else if (initialFocusableElement.is(':focus')) {
+                            e.preventDefault();
+                            lastFocusableElement.focus();
+                        }
+                    }
+
+                } else {
+                    if (lastFocusableElement.is(':focus')) {
+                        if (e.keyCode == 9) {
+                            e.preventDefault();
+                            firstFocusableElement.focus();
+                        }
+                    }
+                }
+            }
+
+            object.find('.hotgrid-popup-controls, .hotgraphic-popup-controls').click(function() {
+                setTimeout(waitForPageChange, 70);
+            });
+
+            function waitForPageChange() {
+                console.log('hotgrid page changed, restarting KB trap');
+                StopKBTrap();
+                StartKBTrap(FindPopup());
+            }
+            $('.notify-popup-done, .hotgrid-popup-close, .drawer-close').click(StopKBTrap);
+            $('.notify-popup-done, .hotgrid-popup-close, .drawer-close').on('keydown', function(e) {
+                console.log(e.keyCode);
+                if (e.keyCode == 13 || e.keyCode == 32) {
+                    StopKBTrap();
+                }
+            });
+        }
+    } else {
+        StopKBTrap();
+    }
+
+    //Unbind keyboard Keydown code from body tag
+    function StopKBTrap() {
+        console.log('Keyboard trap ended!');
+
+        if (object != undefined || object != null) {
+            object.unbind("keypress", PopupKeyboardHandler);
+        }
+        $('.initialfocus').removeClass('initialfocus');
+        $('.firstfocus').removeClass('firstfocus');
+        $('.lastfocus').removeClass('lastfocus');
+    }
+
+    linkfixes();
+}
 
 function updatePopupHeaderLevels() {
     $('button').click(function() {
@@ -421,18 +550,6 @@ function checkMenuHeaderLevels() {
 
     displayAriaLevels();
 }
-
-// Fix glossary aria
-function glossaryfix() {
-    $('.drawer-inner .aria-label').remove();
-}
-// fix progress aria
-function progressfix(){
-    $('.pagelevelprogress-navigation').on( "click", function() {
-        $('.pagelevelprogress-inner .aria-label').remove();
-        $('.base.drawer-close.icon.icon-cross').focus();
-    })
-};
 
 // [$$] PAGE FIXES $$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$
 
@@ -623,6 +740,8 @@ function componentMediaFixes() {
 
 function destroyMediaPlayers() {
     $('video').each(function(k) {
+
+        console.log('VIDEO PLAYER DESTROYED!');
         var link = $(this).attr('src');
         var track = $(this).children('track').attr('src');
         var poster = $(this).attr('poster');
@@ -841,46 +960,6 @@ function checkHeaderLevels() {
 //
 // -------------------------------------------------------------------------
 function addKeyboardListener() {
-    document.addEventListener('keydown', function(e) {
-        if (popupIsOpened) {
-            //Change this code to only run while a popup is open
-            //console.log('key pressed! ' + e.key);
-            var declared;
-            try {
-                focusableElements;
-                declared = true;
-            } catch (e) {
-                declared = false;
-            }
-            if (e.shiftKey){
-                if(firstFocusableElement.is(':focus')){
-                    e.preventDefault();
-                   lastFocusableElement.focus();
-                }
-                if($('#notify-heading').is(':focus')){
-                    e.preventDefault();
-                   firstFocusableElement.focus();
-                   trapinsidepopup();
-                }
-
-            }else{
-                    if(lastFocusableElement.is(':focus')){
-                        if(e.keyCode == 13){
-                            //do nothing
-                        }else {
-                            e.preventDefault();
-                            firstFocusableElement.focus();
-                        }
-                    }
-                    if($('#notify-heading').is(':focus')){
-                        e.preventDefault();
-                        firstFocusableElement.focus();
-                        trapinsidepopup();
-                    }       
-                }
-            
-            }
-        });
 
     $(".narrative-widget.component-widget .base.narrative-controls.narrative-control-left, .base.narrative-controls.narrative-control-right, .narrative-progress ").click(function(e) {
         var narelem = this;
@@ -932,7 +1011,7 @@ function docReady(fn) {
     // see if DOM is already available
     if (document.readyState === "complete" || document.readyState === "interactive") {
         // call on next available tick
-        setTimeout(fn, 1);
+        setTimeout(fn, 50);
     } else {
         document.addEventListener("DOMContentLoaded", fn);
     }
