@@ -326,11 +326,8 @@ function popupfixes() {
     if ($('html').hasClass('notify')) {
 
         popupIsOpened = true;
-        trapinsidepopup();
         $('.notify-popup-inner *[aria-level]').attr('aria-level', Number(lastHeaderLevelBeforeClickedButton) + 1);
         $('.notify-popup-inner *[aria-level]').attr('aria-disabled', 'true');
-
-        $('.notify-popup-inner .hotgrid-popup-controls').click(trapinsidepopup());
 
         displayAriaLevels();
         globalfixes();
@@ -422,11 +419,18 @@ function StartKBTrap(object, forceStop = false) {
             firstFocusableElement.addClass('firstfocus');
             lastFocusableElement.addClass('lastfocus');
 
-            //If it's a progress thing
+            //Drawer focus fixes
             if (object.find('.pagelevelprogress-indicator').length > 0) {
                 $('.drawer-close').focus();
             } else if (object.find('.drawer-item').length > 0) {
                 firstFocusableElement.focus();
+            }
+
+            //lastFocus is initialFocus fix
+            var ignoreInitial = false;
+            if ($('.lastfocus').hasClass('.initialfocus')) {
+                ignoreInitial = true;
+                $('.initialfocus').removeClass('initialfocus');
             }
 
             //Listing of all focusable item
@@ -447,7 +451,7 @@ function StartKBTrap(object, forceStop = false) {
                         if (firstFocusableElement.is(':focus')) {
                             e.preventDefault();
                             lastFocusableElement.focus();
-                        } else if (initialFocusableElement.is(':focus')) {
+                        } else if (!ignoreInitial && initialFocusableElement.is(':focus')) {
                             e.preventDefault();
                             lastFocusableElement.focus();
                         }
