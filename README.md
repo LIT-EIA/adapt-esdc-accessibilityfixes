@@ -1,16 +1,5 @@
 # Adapt-accessibilityfixes
 
-## ISSUE REPORTS (Only accessible by ESDC members)
-
-### OHS
-https://014gc.sharepoint.com/:w:/s/MeD/EUwelrenzsVItYJgufo32eEB-dikA2FsP4PjHajZv2kdKQ
-
-### DTR
-???
-
-### Sec101
-???
-
 ESDC's special Javascript to fix Adapt accessibility issues.
 Coded to work with the following component version numbers:
 
