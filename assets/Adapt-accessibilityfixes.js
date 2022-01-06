@@ -45,6 +45,7 @@ var lastHeaderLevelBeforeClickedButton = 0;
 //      [**04] GLOBAL FIXES - Navigation bar tab order
 //      [**05] GLOBAL FIXES - Popups
 //      [**06] GLOBAL FIXES - Temporary fixes
+//      [**07] GLOBAL FIXES - <a> auto apply target="_blank" for mailto
 //
 // [^^] - Menu fixes
 //      [^^01] MENU FIXES - Check menu header levels    
@@ -180,6 +181,7 @@ function globalfixes() {
     linkfixes();
     altFixes();
     tempFixes();
+    mailtoFix();
 
     //if menu page, run menufixes, else run page fixes
     ($('#adapt').attr('data-location') == 'course') ? menufixes(): pagefixes();
@@ -534,6 +536,21 @@ function tempFixes() {
         "}" +
         "</style>"
     );
+}
+
+// -------------------------------------------------------------------------
+//
+//      [**07] GLOBAL FIXES - <a> auto apply target="_blank" for mailto
+//
+// -------------------------------------------------------------------------
+function mailtoFix() {
+    $('a').each(function() {
+        var str = $(this).attr('href');
+        if (str !== undefined && str.indexOf('mailto') !== -1) {
+            alert(str);
+            $(this).attr('target', '_blank');
+        }
+    });
 }
 
 // [^^] MENU FIXES ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
