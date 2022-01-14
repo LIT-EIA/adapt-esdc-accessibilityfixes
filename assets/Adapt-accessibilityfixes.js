@@ -191,7 +191,7 @@ function globalfixes() {
 function menufixes() {
 
     checkMenuHeaderLevels();
-    glossaryfix();
+    //glossaryfix(); What was this? no associated function. Remove if no longer needed
 }
 
 //Fixes that apply to pages
@@ -233,7 +233,8 @@ function stopAutoTranslate() {
 
 /// fix initial page focus
 function focuspageload() {
-    $('.accessibility .navigation .skip-nav-link').focus();
+    $(head).focus();
+    //$('.accessibility .navigation .skip-nav-link').focus();
 }
 
 // -------------------------------------------------------------------------
