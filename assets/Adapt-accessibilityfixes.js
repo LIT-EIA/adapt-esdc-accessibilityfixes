@@ -775,8 +775,10 @@ function destroyMediaPlayers() {
         var link = $(this).attr('src');
         var track = $(this).children('track').attr('src');
         var poster = $(this).attr('poster');
+        var srcLang = $(this).find('track').attr('srclang');
+        var trackLabel = (srcLang === "fr") ? "French" : "English";
 
-        var newhtmlplayer = '<video width="100%" height="100%" poster="' + poster + '" controls><source src="' + link + '" type="video/mp4"><track style="z-index:10;" label="English" kind="subtitles" srclang="en" src="' + track + '" type="text/vtt" default></video>'
+        var newhtmlplayer = '<video width="100%" height="100%" poster="' + poster + '" controls><source src="' + link + '" type="video/mp4"><track style="z-index:10;" label="' + trackLabel + '" kind="subtitles" srclang="' + srcLang + '" src="' + track + '" type="text/vtt" default></video>'
         $(this).parents('.mejs-container').html(newhtmlplayer);
     });
 }
