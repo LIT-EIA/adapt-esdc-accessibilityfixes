@@ -273,12 +273,21 @@ function altFixes() {
             $(this).removeAttr('aria-hidden');
         }
 
-        // check if img is in narrative component
-        if ($(this).parents('.narrative-component').length == 1) {
-            var widget = $(this).closest('.narrative-widget');
+        // if img is in narrative component - copy aria-label into img alt
+        if ($(this).parents('.narrative-component').length === 1) {
+            var narWidget = $(this).closest('.narrative-widget');
             var imgIndex = $(this).parents('.narrative-slider-graphic').attr('data-index');
-            var altText = widget.find('div.narrative-content-item[data-index="' + imgIndex + '"]>div.aria-label').attr('aria-label');
+            var altText = narWidget.find('div.narrative-content-item[data-index="' + imgIndex + '"]>div.aria-label').attr('aria-label');
             $(this).attr('alt', altText)
+        }
+
+        // if img in imageSlider component - copu img alt into title aria-label
+        if ($(this).parents('.imageSlider-component').length === 1) {
+            var imgSlWidget = $(this).closest('.image-slider-widget');
+            var imgAlt = $(this).attr('alt');
+            var slideIndex = $(this).parents('.image-item').attr('data-slideindex');
+            var titleItem = imgSlWidget.find('div.title-item[data-slideindex="' + slideIndex + '"]');
+            titleItem.append('<div class="aria-label" role="img" aria-label="' + imgAlt + '"></div>');
         }
     });
 
