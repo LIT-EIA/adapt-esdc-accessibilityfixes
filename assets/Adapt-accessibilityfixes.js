@@ -268,14 +268,23 @@ function altFixes() {
         }
 
         // if image has aria-hidden, remove it.
-        if ($(this).attr('aria-hidden') == 'true') {
+        if ($(this).attr('aria-hidden') === 'true') {
+            console.log($(this).attr('src'));
             $(this).removeAttr('aria-hidden');
+        }
+
+        // check if img is in narrative component
+        if ($(this).parents('.narrative-component').length == 1) {
+            var widget = $(this).closest('.narrative-widget');
+            var imgIndex = $(this).parents('.narrative-slider-graphic').attr('data-index');
+            var altText = widget.find('div.narrative-content-item[data-index="' + imgIndex + '"]>div.aria-label').attr('aria-label');
+            $(this).attr('alt', altText)
         }
     });
 
     //for any div with role="img", if the aria-label is empty, set it to aria-hidden
     $('div[role="img"]').each(function() {
-        if ($(this).attr('aria-label') == "") {
+        if ($(this).attr('aria-label') === "") {
             $(this).attr('aria-hidden', true);
         }
     });
