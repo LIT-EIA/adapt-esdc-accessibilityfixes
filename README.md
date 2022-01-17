@@ -3,6 +3,10 @@
 ESDC's special Javascript to fix Adapt accessibility issues.
 Coded to work with the following component version numbers:
 
+## REPORTS
+https://014gc.sharepoint.com/:w:/r/sites/MeD/_layouts/15/Doc.aspx?sourcedoc=%7BB7961E4C-CEA7-48C5-B582-60B9FA37D9E1%7D&file=A11Y-report-html-OHSemployees-full-en.docx&action=default&mobileredirect=true
+
+
 ## FRAMEWORK
 Name | Ver. | path
 -------------------------------- | ------ | -------------------------------------------------------------
