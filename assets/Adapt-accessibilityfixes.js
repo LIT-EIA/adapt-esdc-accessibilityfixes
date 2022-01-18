@@ -557,7 +557,6 @@ function mailtoFix() {
     $('a').each(function() {
         var str = $(this).attr('href');
         if (str !== undefined && str.indexOf('mailto') !== -1) {
-            alert(str);
             $(this).attr('target', '_blank');
         }
     });
