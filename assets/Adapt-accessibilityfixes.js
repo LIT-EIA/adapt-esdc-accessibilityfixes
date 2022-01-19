@@ -125,7 +125,7 @@ function observehtml(mutations) {
                 displayAriaLevels();
                 initialPageLoadingFlag = true; //page changed, reset initial loading flag
             } else if (mutation.attributeName == 'class') {
-                console.log("A class has been modified in the <html> tag!");
+                //console.log("A class has been modified in the <html> tag!");
                 if (IsPopup()) {
                     console.log("It's a popup!");
                     popupfixes();
@@ -138,7 +138,7 @@ function observehtml(mutations) {
                 //console.log('The inline style of an observed object has changed!');
                 if ($('.loading').css('display') == 'none' && initialPageLoadingFlag) {
 
-                    console.log('Running initial fixes! ###############');
+                    //console.log('Running initial fixes! ###############');
                     initialFixes();
                     initialPageLoadingFlag = false; //stop running after first run
                 }
@@ -233,7 +233,7 @@ function stopAutoTranslate() {
 
 /// fix initial page focus
 function focuspageload() {
-    $(head).focus();
+    $('head').focus();
     //$('.accessibility .navigation .skip-nav-link').focus();
 }
 
@@ -270,7 +270,7 @@ function altFixes() {
 
         // if image has aria-hidden, remove it.
         if ($(this).attr('aria-hidden') === 'true') {
-            console.log($(this).attr('src'));
+            //console.log($(this).attr('src'));
             $(this).removeAttr('aria-hidden');
         }
 
@@ -352,9 +352,9 @@ function popupfixes() {
 //Is a popup opened?
 function IsPopup() {
 
-    console.log("SHIIIIT" + $('.drawer').not('.display-none').length);
+    //console.log("SHIIIIT" + $('.drawer').not('.display-none').length);
     if ($('.notify-popup').length > 0 || $('.drawer').not('.display-none').length > 0) {
-        console.log('it is a popup!');
+        //console.log('it is a popup!');
         return (true);
     } else {
         return false;
@@ -367,10 +367,10 @@ function FindPopup() {
     //Find which popup was opened
 
     if ($('.notify-popup').length > 0) {
-        console.log("The popup's type is: NOTIFY-POPUP");
+        //console.log("The popup's type is: NOTIFY-POPUP");
         var thePopup = $('.notify-popup');
     } else if ($('.drawer').not('.display-none').length > 0) {
-        console.log("The popup's type is: DRAWER");
+        //console.log("The popup's type is: DRAWER");
         var thePopup = $('.drawer');
 
         $('.a11y-focusguard').remove();
@@ -413,7 +413,7 @@ function StartKBTrap(object, forceStop = false) {
                 }
             });
 
-            console.log('Keyboard trap started!');
+            //console.log('Keyboard trap started!');
             focusableElements = object.find('a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, *[tabindex], *[contenteditable]').not('.notify-popup-title-inner, .hotgrid-content-title, .hotgraphic-content-title, .disabled, .h1, .h2, .h3, .h4, .h5, .h6').filter(':visible');
             //focusableElements = object.find('button, input, select, textarea, details, [tabindex], a[href]').not('[tabindex = "-1"], [disabled="disabled"]');
 
@@ -447,7 +447,7 @@ function StartKBTrap(object, forceStop = false) {
 
             //Listing of all focusable item
             focusableElements.each(function() {
-                console.log($(this));
+                //console.log($(this));
             });
 
             //Bind Keydown event to body
@@ -484,13 +484,13 @@ function StartKBTrap(object, forceStop = false) {
             });
 
             function waitForPageChange() {
-                console.log('hotgrid page changed, restarting KB trap');
+                //console.log('hotgrid page changed, restarting KB trap');
                 StopKBTrap();
                 StartKBTrap(FindPopup());
             }
             $('.notify-popup-done, .hotgrid-popup-close, .drawer-close').click(StopKBTrap);
             $('.notify-popup-done, .hotgrid-popup-close, .drawer-close').on('keydown', function(e) {
-                console.log(e.keyCode);
+                //console.log(e.keyCode);
                 if (e.keyCode == 13 || e.keyCode == 32) {
                     StopKBTrap();
                 }
@@ -502,7 +502,7 @@ function StartKBTrap(object, forceStop = false) {
 
     //Unbind keyboard Keydown code from body tag
     function StopKBTrap() {
-        console.log('Keyboard trap ended!');
+        //console.log('Keyboard trap ended!');
 
         if (object != undefined || object != null) {
             object.unbind("keypress", PopupKeyboardHandler);
@@ -771,7 +771,7 @@ function componentMediaFixes() {
 function destroyMediaPlayers() {
     $('video').each(function(k) {
 
-        console.log('VIDEO PLAYER DESTROYED!');
+        //console.log('VIDEO PLAYER DESTROYED!');
         var link = $(this).attr('src');
         var track = $(this).children('track').attr('src');
         var poster = $(this).attr('poster');
