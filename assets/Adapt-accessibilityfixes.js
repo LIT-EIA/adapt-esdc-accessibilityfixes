@@ -81,9 +81,14 @@ var lastHeaderLevelBeforeClickedButton = 0;
 //	    [!!01] STARTUP - Event and Mutation listeners
 //
 // -------------------------------------------------------------------------
+
 //run global fixes when document is ready
 docReady(function() {
-    globalfixes();
+    if (isIE()) {
+        $('.clearfix').css('display', 'block')
+    } else {
+        globalfixes();
+    }
 });
 
 var htmlobserver = new MutationObserver(observehtml);
@@ -101,6 +106,7 @@ function setObservers() {
     htmlobserver.observe(object_htmlTag, observerOptions);
     htmlobserver.observe(object_Spinner, observerOptions);
     htmlobserver.observe(object_htmlTag2, observerOptions);
+
 }
 
 //Set properties that trigger headerobserver
@@ -117,7 +123,7 @@ function setHeaderObservers(objects) {
 
 //Actions to run when htmlobserver is triggered
 function observehtml(mutations) {
-    for (let mutation of mutations) {
+    mutations.forEach(function(mutation) {
         if (mutation.type == 'attributes') {
             if (mutation.attributeName == 'data-location') {
                 //console.log('the data-location attribute of an observed object has changed!');
@@ -129,7 +135,7 @@ function observehtml(mutations) {
                 if (IsPopup()) {
                     console.log("It's a popup!");
                     popupfixes();
-                    StartKBTrap(FindPopup());
+                    StartKBTrap(FindPopup(), false);
                 } else {
                     //Spaghetti code to stop
                     StartKBTrap(null, true);
@@ -144,17 +150,17 @@ function observehtml(mutations) {
                 }
             }
         }
-    }
+    });
 }
 
 //Actions to run when headerobserver is triggered
 function observeheaders(mutations) {
-    for (let mutation of mutations) {
+    mutations.forEach(function(mutation) {
         if (mutation.attributeName == 'class') {
             //console.log('The class of an observed header has changed!');
             checkHeaderLevels();
         }
-    }
+    });
 }
 
 // -------------------------------------------------------------------------
@@ -396,7 +402,7 @@ function FindPopup() {
 }
 
 //Start keyboard trap on given popup object
-function StartKBTrap(object, forceStop = false) {
+function StartKBTrap(object, forceStop) {
 
     if (!forceStop) {
         if (object != undefined || object != null) {
@@ -486,7 +492,7 @@ function StartKBTrap(object, forceStop = false) {
             function waitForPageChange() {
                 //console.log('hotgrid page changed, restarting KB trap');
                 StopKBTrap();
-                StartKBTrap(FindPopup());
+                StartKBTrap(FindPopup(), false);
             }
             $('.notify-popup-done, .hotgrid-popup-close, .drawer-close').click(StopKBTrap);
             $('.notify-popup-done, .hotgrid-popup-close, .drawer-close').on('keydown', function(e) {
@@ -1082,5 +1088,25 @@ function showFirstAndLastFocus() {
             '.lastfocus{outline: 2px solid green;}' +
 
             '</style>');
+    }
+}
+
+// -------------------------------------------------------------------------
+//
+//		[%%06] UTILITY - check if browser is IE
+//
+// -------------------------------------------------------------------------
+
+function isIE() {
+    var ua = window.navigator.userAgent;
+    var old_ie = ua.indexOf('MSIE ');
+    var new_ie = ua.indexOf('Trident/');
+
+    if ((old_ie > -1) || (new_ie > -1)) {
+        console.log('this is IE')
+        return true;
+    } else {
+        console.log('this is not IE')
+        return false;
     }
 }
