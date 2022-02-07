@@ -239,7 +239,7 @@ function stopAutoTranslate() {
 
 /// fix initial page focus
 function focuspageload() {
-    $('head').focus();
+    $("head").focus();
     //$('.accessibility .navigation .skip-nav-link').focus();
 }
 
