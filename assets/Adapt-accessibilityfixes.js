@@ -133,7 +133,7 @@ function observehtml(mutations) {
             } else if (mutation.attributeName == 'class') {
                 //console.log("A class has been modified in the <html> tag!");
                 if (IsPopup()) {
-                    console.log("It's a popup!");
+                    //console.log("It's a popup!");
                     popupfixes();
                     StartKBTrap(FindPopup(), false);
                 } else {
@@ -1103,10 +1103,10 @@ function isIE() {
     var new_ie = ua.indexOf('Trident/');
 
     if ((old_ie > -1) || (new_ie > -1)) {
-        console.log('this is IE')
+        //console.log('this is IE')
         return true;
     } else {
-        console.log('this is not IE')
+        //console.log('this is not IE')
         return false;
     }
 }
