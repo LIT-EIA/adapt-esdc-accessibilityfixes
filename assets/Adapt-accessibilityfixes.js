@@ -38,13 +38,14 @@ var lastHeaderLevelBeforeClickedButton = 0;
 //      [!!01] STARTUP - Event and Mutation listeners
 //      [!!02] STARTUP - Accessibility fix runners
 //
-// [**] - Global fixes 
+// [**] - Global fixes
 //      [**01] GLOBAL FIXES - Stop auto translate
 //      [**02] GLOBAL FIXES - <a> anchor tag link fixes
 //      [**03] GLOBAL FIXES - Alt tags for <img> and tags with role="img"
 //      [**04] GLOBAL FIXES - Navigation bar tab order
 //      [**05] GLOBAL FIXES - Popups
 //      [**06] GLOBAL FIXES - Temporary fixes
+//      [**07] GLOBAL FIXES - <a> auto apply target="_blank" for mailto
 //
 // [^^] - Menu fixes
 //      [^^01] MENU FIXES - Check menu header levels    
@@ -83,7 +84,11 @@ var lastHeaderLevelBeforeClickedButton = 0;
 
 //run global fixes when document is ready
 docReady(function() {
-    if (!isIE()) { globalfixes(); }
+    if (isIE()) {
+        $('.clearfix').css('display', 'block')
+    } else {
+        globalfixes();
+    }
 });
 
 var htmlobserver = new MutationObserver(observehtml);
@@ -109,7 +114,7 @@ function setHeaderObservers(objects) {
 
     //console.log('setting header observers on ' + objects.length + 'headers');
     headerobserver.disconnect();
-    var headerObserverOptions = { childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'aria-label'] };
+    var headerObserverOptions = { attributes: true, attributeFilter: ['class'] };
 
     objects.each(function(item) {
         headerobserver.observe(objects[item], headerObserverOptions);
@@ -122,7 +127,7 @@ function observehtml(mutations) {
         if (mutation.type == 'attributes') {
             if (mutation.attributeName == 'data-location') {
                 //console.log('the data-location attribute of an observed object has changed!');
-                if (!isIE()) { setTimeout(globalfixes(), 200); }
+                setTimeout(globalfixes(), 200);
                 displayAriaLevels();
                 initialPageLoadingFlag = true; //page changed, reset initial loading flag
             } else if (mutation.attributeName == 'class') {
@@ -140,7 +145,7 @@ function observehtml(mutations) {
                 if ($('.loading').css('display') == 'none' && initialPageLoadingFlag) {
 
                     //console.log('Running initial fixes! ###############');
-                    if (!isIE()) { initialFixes(); }
+                    initialFixes();
                     initialPageLoadingFlag = false; //stop running after first run
                 }
             }
@@ -152,15 +157,8 @@ function observehtml(mutations) {
 function observeheaders(mutations) {
     mutations.forEach(function(mutation) {
         if (mutation.attributeName == 'class') {
-            if (mutation.target.className.indexOf('js-heading') > -1) {
-                //console.log('The class of an observed header has changed!');
-                checkHeaderLevels();
-            } else {
-                componentOpenTextFocusFixes();
-
-            }
-        } else if (mutation.attributeName == 'aria-label') {
-            checkAriaHidden();
+            //console.log('The class of an observed header has changed!');
+            checkHeaderLevels();
         }
     });
 }
@@ -189,6 +187,7 @@ function globalfixes() {
     linkfixes();
     altFixes();
     tempFixes();
+    mailtoFix();
 
     //if menu page, run menufixes, else run page fixes
     ($('#adapt').attr('data-location') == 'course') ? menufixes(): pagefixes();
@@ -250,10 +249,9 @@ function focuspageload() {
 //
 // -------------------------------------------------------------------------
 function linkfixes() {
-    //add target = _blank to all external links and mailtos
+    //add target = _blank to all external links
     $('a').filter(function() {
-        var str = $(this).attr('href');
-        return (this.hostname && this.hostname !== location.hostname) || (str !== undefined && str.indexOf('mailto') !== -1);
+        return this.hostname && this.hostname !== location.hostname;
     }).attr('target', '_blank');
 }
 
@@ -556,6 +554,20 @@ function tempFixes() {
     );
 }
 
+// -------------------------------------------------------------------------
+//
+//      [**07] GLOBAL FIXES - <a> auto apply target="_blank" for mailto
+//
+// -------------------------------------------------------------------------
+function mailtoFix() {
+    $('a').each(function() {
+        var str = $(this).attr('href');
+        if (str !== undefined && str.indexOf('mailto') !== -1) {
+            $(this).attr('target', '_blank');
+        }
+    });
+}
+
 // [^^] MENU FIXES ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 // -------------------------------------------------------------------------
@@ -695,68 +707,10 @@ function componentMatchingQuestionFixes() {
 // -------------------------------------------------------------------------
 function componentOpenTextInputFixes() {
     $('.openTextInput-inner').each(function(k) {
-
-        // correct labels
         let olabel = $(this).parents().find('.openTextInput-component').attr('data-adapt-id') + '_qlabel_' + k;
         $(this).find('.openTextInput-count-characters-container').attr('aria-live', 'polite');
         $(this).find('.openTextInput-instruction-inner').attr('id', olabel);
         $(this).find('.openTextInput-answer-container textarea').attr('aria-labelledby', olabel);
-
-        // reorder sequence
-        $(this).find('.openTextInput-item-modelanswer').after($(this).find('.openTextInput-count-characters'));
-
-        // remove aria-hidden from button if added
-        $(this).find('.buttons-action').on('click', function() {
-            setHeaderObservers($(this));
-        });
-
-        // remaining characters
-        var max = $(this).find('.openTextInput-count-amount').text();
-        var container = $(this).find('.openTextInput-count-characters-container');
-
-        // set up aria-live            
-        container.attr({
-            'aria-busy': 'true',
-            'aria-live': 'polite',
-            'aria-atomic': 'true',
-            'role': 'timer'
-        });
-        // announce at specific intervals
-        $(this).find('textarea.openTextInput-item-textbox').on('keyup', function() {
-            // update counter (sometimes delayed)
-            var userInput = $(this).val().length;
-            var rem = max - userInput;
-            $('.openTextInput-counter').text(rem);
-            0
-            // max/5 intervals
-            if ((rem % (max / 5) == 0)) {
-                container.attr('aria-busy', 'false');
-            } else {
-                container.attr('aria-busy', 'true');
-            }
-        });
-
-        // announce every time input is paused
-        /*$(this).find('.openTextInput-count-characters-container').attr({
-            'aria-live': 'polite',
-            'aria-atomic': 'true',
-            'role': 'timer'
-        });*/
-
-    });
-}
-
-function componentOpenTextFocusFixes() {
-    $('.openTextInput-widget').each(function() {
-        // adjust focus if modal answer is shown
-        if ($(this).hasClass('show-correct-answer')) {
-            $(this).find('.openTextInput-item-modelanswer').attr('tabindex', '0');
-            $(this).find('.openTextInput-item-modelanswer').focus();
-        } else {
-            $(this).find('.buttons-action').focus();
-        }
-        // remove changes saved from focus
-        $(this).find('.openTextInput-autosave').attr('aria-hidden', 'true');
     });
 }
 
@@ -1149,9 +1103,10 @@ function isIE() {
     var new_ie = ua.indexOf('Trident/');
 
     if ((old_ie > -1) || (new_ie > -1)) {
-        $('.clearfix').css('display', 'block')
+        //console.log('this is IE')
         return true;
     } else {
+        //console.log('this is not IE')
         return false;
     }
 }
