@@ -127,7 +127,7 @@ function observehtml(mutations) {
             } else if (mutation.attributeName == 'class') {
                 //console.log("A class has been modified in the <html> tag!");
                 if (IsPopup()) {
-                    console.log("It's a popup!");
+                    //console.log("It's a popup!");
                     popupfixes();
                     StartKBTrap(FindPopup());
                 } else {
@@ -181,7 +181,7 @@ function globalfixes() {
     linkfixes();
     altFixes();
     tempFixes();
-    mailtoFix();
+    //mailtoFix();
 
     //if menu page, run menufixes, else run page fixes
     ($('#adapt').attr('data-location') == 'course') ? menufixes(): pagefixes();
@@ -245,7 +245,8 @@ function focuspageload() {
 function linkfixes() {
     //add target = _blank to all external links
     $('a').filter(function() {
-        return this.hostname && this.hostname !== location.hostname;
+        var str = $(this).attr('href');
+        return (this.hostname && this.hostname !== location.hostname) || (str !== undefined && str.indexOf('mailto') !== -1);
     }).attr('target', '_blank');
 }
 
