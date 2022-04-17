@@ -72,6 +72,7 @@ var lastHeaderLevelBeforeClickedButton = 0;
 //		[%%03] UTILITY - Pure Javascript document ready function
 //		[%%04] UTILITY - Show aria levels above headers (for QA purposes)
 //		[%%05] UTILITY - add first and last focusable item styles to dom    
+//		[%%06] UTILITY - browser check
 
 
 // [!!] STARTUP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -83,7 +84,9 @@ var lastHeaderLevelBeforeClickedButton = 0;
 // -------------------------------------------------------------------------
 //run global fixes when document is ready
 docReady(function() {
-    globalfixes();
+    if (!isIE()) {
+        globalfixes();
+    }
 });
 
 var htmlobserver = new MutationObserver(observehtml);
@@ -121,7 +124,7 @@ function observehtml(mutations) {
         if (mutation.type == 'attributes') {
             if (mutation.attributeName == 'data-location') {
                 //console.log('the data-location attribute of an observed object has changed!');
-                setTimeout(globalfixes(), 200);
+                if (!isIE()) { setTimeout(globalfixes(), 200); }
                 displayAriaLevels();
                 initialPageLoadingFlag = true; //page changed, reset initial loading flag
             } else if (mutation.attributeName == 'class') {
@@ -139,7 +142,7 @@ function observehtml(mutations) {
                 if ($('.loading').css('display') == 'none' && initialPageLoadingFlag) {
 
                     //console.log('Running initial fixes! ###############');
-                    initialFixes();
+                    if (!isIE()) { initialFixes(); }
                     initialPageLoadingFlag = false; //stop running after first run
                 }
             }
@@ -1083,5 +1086,26 @@ function showFirstAndLastFocus() {
             '.lastfocus{outline: 2px solid green;}' +
 
             '</style>');
+    }
+}
+
+// -------------------------------------------------------------------------
+//
+//		[%%06] UTILITY - browser check
+//
+// -------------------------------------------------------------------------
+
+function isIE() {
+    var ua = window.navigator.userAgent;
+    var old_ie = ua.indexOf('MSIE ');
+    var new_ie = ua.indexOf('Trident/');
+
+    if ((old_ie > -1) || (new_ie > -1)) {
+        console.log('this is IE')
+        $('.clearfix').css('display', 'block');
+        return true;
+    } else {
+        console.log('this is not IE')
+        return false;
     }
 }
