@@ -609,11 +609,11 @@ function globalQuestionComponentFixes() {
             var instrfocus = $('.component[data-adapt-id="' + componentid + '"] .component-instruction-inner');
 
             //Only trigger if instructions exist and not empty
-            if (instrfocus.length > 0 && !(instrfocus.html() == "")) {
+            /*if (instrfocus.length > 0 && !(instrfocus.html() == "")) {
                 $([document.documentElement, document.body]).animate({
                     scrollTop: instrfocus.offset().top - (window.innerHeight / 2)
                 }, 200);
-            }
+            }*/
         }
     });
 }
@@ -1101,11 +1101,11 @@ function isIE() {
     var new_ie = ua.indexOf('Trident/');
 
     if ((old_ie > -1) || (new_ie > -1)) {
-        console.log('this is IE')
+        //console.log('this is IE')
         $('.clearfix').css('display', 'block');
         return true;
     } else {
-        console.log('this is not IE')
+        //console.log('this is not IE')
         return false;
     }
 }
