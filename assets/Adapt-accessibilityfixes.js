@@ -108,7 +108,6 @@ function setObservers() {
 
 //Set properties that trigger headerobserver
 function setHeaderObservers(objects) {
-
     //console.log('setting header observers on ' + objects.length + 'headers');
     headerobserver.disconnect();
     var headerObserverOptions = { attributes: true, attributeFilter: ['class'] };
@@ -705,12 +704,73 @@ function componentMatchingQuestionFixes() {
 // -------------------------------------------------------------------------
 function componentOpenTextInputFixes() {
     $('.openTextInput-inner').each(function(k) {
+
+        // add aria-labelledby for textarea
         let olabel = $(this).parents().find('.openTextInput-component').attr('data-adapt-id') + '_qlabel_' + k;
         $(this).find('.openTextInput-count-characters-container').attr('aria-live', 'polite');
         $(this).find('.openTextInput-instruction-inner').attr('id', olabel);
         $(this).find('.openTextInput-answer-container textarea').attr('aria-labelledby', olabel);
+
+        // stop instructions being read on page load
+        $(this).find('.openTextInput-instruction-inner').removeAttr('role');
+        $(this).find('.openTextInput-instruction-inner').removeAttr('aria-live');
+
+        // rearrange counter before buttons
+        var container = $(this).find('.openTextInput-answer-container');
+        var counter = $(this).find('.openTextInput-count-characters');
+        container.after(counter);
+        
+        // adjust focustrap when button-action is clicked
+        $(this).find('.buttons-action').click(()=>{
+            setOTobserver($(this).closest('.openTextInput-component'));
+
+        });
     });
 }
+
+var OTobserver = new MutationObserver(observeOT);
+
+function setOTobserver(obj) {
+    OTobserver.disconnect();
+    var OTobserverOptions = {attributes:true, childList: true, subtree:true,attributeFilter:['class','aria-label']};
+    OTobserver.observe(obj[0],OTobserverOptions);
+}
+
+function observeOT(mutations) {
+    var submitFlag = (mutations.length === 19) ? true: false; 
+    for (let mutation of mutations) {
+        if(submitFlag) {
+            if(mutation.target.classList[0]==='buttons-action') {
+                
+                // make buttons-action focusable
+                $(mutation.target).removeClass('aria-hidden');
+                $(mutation.target).removeAttr('aria-hidden');
+                $(mutation.target).removeAttr('tabindex');
+
+                // remove autosave from focus
+                $(mutation.target).parents('.openTextInput-widget').find('.openTextInput-count-characters').attr('tabindex','-1');
+                $(mutation.target).parents('.openTextInput-widget').find('.openTextInput-count-characters').attr('aria-hidden',true);
+            }
+            if(mutation.target.classList[0]==='buttons-marking-icon') {
+                $(mutation.target).attr('tabindex','0');
+                $(mutation.target).focus();
+            }
+        } else {
+            if(mutation.target.classList[0]==='buttons-marking-icon') {
+                $(mutation.target).attr('tabindex','-1');
+                $(mutation.target).attr('aria-hidden',true);
+            }
+            if(mutation.target.classList[0]==='openTextInput-item-modelanswer') {
+                // add focus to model answer
+                if($(mutation.target).hasClass('show-openTextInput-modelanswer')) {
+                    $(mutation.target).attr('tabindex','0');
+                    $(mutation.target).focus();
+                } 
+            } 
+        }
+    }
+}
+
 
 // -------------------------------------------------------------------------
 //
