@@ -72,6 +72,7 @@ var lastHeaderLevelBeforeClickedButton = 0;
 //		[%%03] UTILITY - Pure Javascript document ready function
 //		[%%04] UTILITY - Show aria levels above headers (for QA purposes)
 //		[%%05] UTILITY - add first and last focusable item styles to dom    
+//		[%%06] UTILITY - browser check
 
 
 // [!!] STARTUP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -84,9 +85,7 @@ var lastHeaderLevelBeforeClickedButton = 0;
 
 //run global fixes when document is ready
 docReady(function() {
-    if (isIE()) {
-        $('.clearfix').css('display', 'block')
-    } else {
+    if (!isIE()) {
         globalfixes();
     }
 });
@@ -111,7 +110,6 @@ function setObservers() {
 
 //Set properties that trigger headerobserver
 function setHeaderObservers(objects) {
-
     //console.log('setting header observers on ' + objects.length + 'headers');
     headerobserver.disconnect();
     var headerObserverOptions = { attributes: true, attributeFilter: ['class'] };
@@ -127,7 +125,7 @@ function observehtml(mutations) {
         if (mutation.type == 'attributes') {
             if (mutation.attributeName == 'data-location') {
                 //console.log('the data-location attribute of an observed object has changed!');
-                setTimeout(globalfixes(), 200);
+                if (!isIE()) { setTimeout(globalfixes(), 200); }
                 displayAriaLevels();
                 initialPageLoadingFlag = true; //page changed, reset initial loading flag
             } else if (mutation.attributeName == 'class') {
@@ -145,7 +143,7 @@ function observehtml(mutations) {
                 if ($('.loading').css('display') == 'none' && initialPageLoadingFlag) {
 
                     //console.log('Running initial fixes! ###############');
-                    initialFixes();
+                    if (!isIE()) { initialFixes(); }
                     initialPageLoadingFlag = false; //stop running after first run
                 }
             }
@@ -187,7 +185,7 @@ function globalfixes() {
     linkfixes();
     altFixes();
     tempFixes();
-    mailtoFix();
+    //mailtoFix();
 
     //if menu page, run menufixes, else run page fixes
     ($('#adapt').attr('data-location') == 'course') ? menufixes(): pagefixes();
@@ -251,7 +249,8 @@ function focuspageload() {
 function linkfixes() {
     //add target = _blank to all external links
     $('a').filter(function() {
-        return this.hostname && this.hostname !== location.hostname;
+        var str = $(this).attr('href');
+        return (this.hostname && this.hostname !== location.hostname) || (str !== undefined && str.indexOf('mailto') !== -1);
     }).attr('target', '_blank');
 }
 
@@ -611,11 +610,11 @@ function globalQuestionComponentFixes() {
             var instrfocus = $('.component[data-adapt-id="' + componentid + '"] .component-instruction-inner');
 
             //Only trigger if instructions exist and not empty
-            if (instrfocus.length > 0 && !(instrfocus.html() == "")) {
+            /*if (instrfocus.length > 0 && !(instrfocus.html() == "")) {
                 $([document.documentElement, document.body]).animate({
                     scrollTop: instrfocus.offset().top - (window.innerHeight / 2)
                 }, 200);
-            }
+            }*/
         }
     });
 }
@@ -707,12 +706,73 @@ function componentMatchingQuestionFixes() {
 // -------------------------------------------------------------------------
 function componentOpenTextInputFixes() {
     $('.openTextInput-inner').each(function(k) {
+
+        // add aria-labelledby for textarea
         let olabel = $(this).parents().find('.openTextInput-component').attr('data-adapt-id') + '_qlabel_' + k;
         $(this).find('.openTextInput-count-characters-container').attr('aria-live', 'polite');
         $(this).find('.openTextInput-instruction-inner').attr('id', olabel);
         $(this).find('.openTextInput-answer-container textarea').attr('aria-labelledby', olabel);
+
+        // stop instructions being read on page load
+        $(this).find('.openTextInput-instruction-inner').removeAttr('role');
+        $(this).find('.openTextInput-instruction-inner').removeAttr('aria-live');
+
+        // rearrange counter before buttons
+        var container = $(this).find('.openTextInput-answer-container');
+        var counter = $(this).find('.openTextInput-count-characters');
+        container.after(counter);
+
+        // adjust focustrap when button-action is clicked
+        $(this).find('.buttons-action').click(() => {
+            setOTobserver($(this).closest('.openTextInput-component'));
+
+        });
     });
 }
+
+var OTobserver = new MutationObserver(observeOT);
+
+function setOTobserver(obj) {
+    OTobserver.disconnect();
+    var OTobserverOptions = { attributes: true, childList: true, subtree: true, attributeFilter: ['class', 'aria-label'] };
+    OTobserver.observe(obj[0], OTobserverOptions);
+}
+
+function observeOT(mutations) {
+    var submitFlag = (mutations.length === 19) ? true : false;
+    for (let mutation of mutations) {
+        if (submitFlag) {
+            if (mutation.target.classList[0] === 'buttons-action') {
+
+                // make buttons-action focusable
+                $(mutation.target).removeClass('aria-hidden');
+                $(mutation.target).removeAttr('aria-hidden');
+                $(mutation.target).removeAttr('tabindex');
+
+                // remove autosave from focus
+                $(mutation.target).parents('.openTextInput-widget').find('.openTextInput-count-characters').attr('tabindex', '-1');
+                $(mutation.target).parents('.openTextInput-widget').find('.openTextInput-count-characters').attr('aria-hidden', true);
+            }
+            if (mutation.target.classList[0] === 'buttons-marking-icon') {
+                $(mutation.target).attr('tabindex', '0');
+                $(mutation.target).focus();
+            }
+        } else {
+            if (mutation.target.classList[0] === 'buttons-marking-icon') {
+                $(mutation.target).attr('tabindex', '-1');
+                $(mutation.target).attr('aria-hidden', true);
+            }
+            if (mutation.target.classList[0] === 'openTextInput-item-modelanswer') {
+                // add focus to model answer
+                if ($(mutation.target).hasClass('show-openTextInput-modelanswer')) {
+                    $(mutation.target).attr('tabindex', '0');
+                    $(mutation.target).focus();
+                }
+            }
+        }
+    }
+}
+
 
 // -------------------------------------------------------------------------
 //
@@ -1093,7 +1153,7 @@ function showFirstAndLastFocus() {
 
 // -------------------------------------------------------------------------
 //
-//		[%%06] UTILITY - check if browser is IE
+//		[%%06] UTILITY - browser check
 //
 // -------------------------------------------------------------------------
 
@@ -1104,6 +1164,7 @@ function isIE() {
 
     if ((old_ie > -1) || (new_ie > -1)) {
         //console.log('this is IE')
+        $('.clearfix').css('display', 'block');
         return true;
     } else {
         //console.log('this is not IE')
