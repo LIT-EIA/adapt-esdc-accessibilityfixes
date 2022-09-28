@@ -9,6 +9,12 @@
 //
 // -------------------------------------------------------------------------
 
+var Adapt = require('core/js/adapt');
+var pluginConfig = Adapt.config.attributes;
+console.log(pluginConfig);
+var checkbox = pluginConfig['_Adapt-accessibilityfixes']._fixes._answerFeedback;
+console.log(checkbox);
+
 //topnav button order
 var topNavButtons = [
     ".skip-nav-link",
