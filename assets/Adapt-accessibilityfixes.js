@@ -83,6 +83,14 @@ var lastHeaderLevelBeforeClickedButton = 0;
 //
 // -------------------------------------------------------------------------
 
+//adapt config
+var Adapt = require('core/js/adapt');
+var pluginConfig = Adapt.config.attributes['_Adapt-accessibilityfixes'];
+
+//adapt config auto add learner's pick to feedback
+var answerFeedback = pluginConfig._fixes._answerFeedback;
+
+
 //run global fixes when document is ready
 docReady(function() {
     if (!isIE()) {
@@ -334,21 +342,151 @@ function setNavigationTabOrder() {
 //		[**05] GLOBAL FIXES - Popups
 //
 // -------------------------------------------------------------------------
+
+// Added those listeners for future implementation for remplacing some Mutation Observers
+// Uses the Adapt framework's API from the published course file core/js/adapt.js
+// -----------------------------------------
+Adapt.on('popup:opened', function(popup) {
+    console.log('popup is opened');
+    //console.log(popup);
+});
+Adapt.on('popup:closed', function(popup) {
+    console.log('popup is closed');
+    //console.log(popup);
+});
+// -----------------------------------------
+
 var modal;
 var focusableElements;
 var firstFocusableElement;
 var lastFocusableElement;
 
+function addLearnersPick(){
+    switch (getPopupType()) {
+        case "mcq":
+          mcqFeedback();
+          break;
+        case "matching":
+          matchingFeedback();
+          break;
+        default:
+          break;
+      }
+}
+
+function mcqFeedback(){
+    var popupBox = $('.notify-popup');
+    var popupID = popupBox.attr('data-adapt-id');
+    if(popupID){
+        var answers = [];
+        var selectedAnswers = $(`div[data-adapt-id="${popupID}"]`).filter('.component').find('label.selected .mcq-item-inner')
+        selectedAnswers.each(function(){
+            answers.push(this.innerText);
+        })
+        var selectedAnswer = answers.join(', ');
+        var feedbackBox = $(`div[data-adapt-id="${popupID}"]`).filter('.notify-popup');
+        if(feedbackBox){
+            var answerState = getAnswerState(feedbackBox);
+            var answerLabel;
+            if($('html').attr('lang') === 'fr'){
+                answerLabel = 'Votre réponse :';
+            } else {
+                answerLabel = 'Your answer:';
+            }
+            var userSelection = `${answerLabel}&nbsp;${selectedAnswer}&nbsp;(${answerState.value})`;
+            if(feedbackBox.find('.user-selection-feedback').length < 1){
+                $(`<p class="user-selection-feedback" style="background: ${answerState.color}; padding: 10px 15px; display: inline-block; margin: 0;">${userSelection}</p>`).insertAfter(feedbackBox.find('.notify-popup-title'))
+            }
+        }
+    }
+}
+
+function matchingFeedback(){
+    var popupBox = $('.notify-popup');
+    var popupID = popupBox.attr('data-adapt-id');
+    if(popupID){
+        var answers = [];
+        var selectedAnswers = $(`div[data-adapt-id="${popupID}"]`).filter('.component').find('button .dropdown__inner');
+        selectedAnswers.each(function(){
+            answers.push(this.innerText);
+        })
+        var selectedAnswer = answers.join(', ');
+        var feedbackBox = $(`div[data-adapt-id="${popupID}"]`).filter('.notify-popup');
+        if(feedbackBox){
+            var answerState = getAnswerState(feedbackBox);
+            var answerLabel;
+            if($('html').attr('lang') === 'fr'){
+                answerLabel = 'Votre réponse :';
+            } else {
+                answerLabel = 'Your answer:';
+            }
+            var userSelection = `${answerLabel}&nbsp;${selectedAnswer}&nbsp;(${answerState.value})`;
+            if(feedbackBox.find('.user-selection-feedback').length < 1){
+                $(`<p class="user-selection-feedback" style="background: ${answerState.color}; padding: 10px 15px; display: inline-block; margin: 0;">${userSelection}</p>`).insertAfter(feedbackBox.find('.notify-popup-title'))
+            }
+        }
+    }
+}
+
+function getAnswerState(feedbackBox){
+    var lang = $('html').attr('lang');
+    var answer = {};
+    if(feedbackBox.hasClass('correct')){
+        if(lang === 'fr'){
+            answer.value = 'Correcte'
+        } else {
+            answer.value = 'Correct';
+        }
+        answer.color = '#008339';
+    } else if(feedbackBox.hasClass('partially-correct')){
+        if(lang === 'fr'){
+            answer.value = 'Paritiellement correcte'
+        } else {
+            answer.value = 'Partially correct';
+        }
+        answer.color = '#4178BB';
+    } else if(feedbackBox.hasClass('incorrect')){
+        if(lang === 'fr'){
+            answer.value = 'Incorrecte'
+        } else {
+            answer.value = 'Incorrect';
+        }
+        answer.color = '#B15C5C';
+    }
+    return answer
+}
+
+function getPopupType(){
+    var popup = $('.notify-popup');
+    if(popup.hasClass('component-mcq')){
+        return 'mcq';
+    } else if(popup.hasClass('component-matching')){
+        return 'matching'
+    }else if(popup.hasClass('component-gmcq')){
+        return 'gmcq'
+    }else if(popup.hasClass('hotgraphic')){
+        return 'hotgraphic'
+    }else if(popup.hasClass('hotgrid')){
+        return 'hotgrid'
+    }else if(popup.hasClass('component-slider')){
+        return 'slider'
+    } else if(popup.hasClass('notify-type-prompt')){
+        return 'incomplete'
+    }
+}
+
+
 function popupfixes() {
     if ($('html').hasClass('notify')) {
-
         popupIsOpened = true;
         $('.notify-popup-inner *[aria-level]').attr('aria-level', Number(lastHeaderLevelBeforeClickedButton) + 1);
         $('.notify-popup-inner *[aria-level]').attr('aria-disabled', 'true');
-
+        console.log(`Popup type is: ${getPopupType()}`);
         displayAriaLevels();
         globalfixes();
-
+        if(answerFeedback === true){
+            addLearnersPick();
+        }
     } else {
         popupIsOpened = false;
     }
@@ -370,7 +508,6 @@ function IsPopup() {
 function FindPopup() {
 
     //Find which popup was opened
-
     if ($('.notify-popup').length > 0) {
         //console.log("The popup's type is: NOTIFY-POPUP");
         var thePopup = $('.notify-popup');
@@ -382,7 +519,6 @@ function FindPopup() {
         $('.drawer-inner .aria-label').remove();
 
         $('.pagelevelprogress-navigation').on("click", function() {
-
             setTimeout(function() {
                 $('.pagelevelprogress-inner .aria-label').remove();
                 $('.drawer-close').focus();
