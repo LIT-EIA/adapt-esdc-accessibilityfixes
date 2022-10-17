@@ -25,8 +25,28 @@ var navSplitValue = 3;
 //Utility variables
 var popupIsOpened = false;
 var displayAriaLevelsOnPage = false;
+var loggerActivated = false;
 var showFocusableItemsInPopups = false;
 var lastHeaderLevelBeforeClickedButton = 0;
+
+//Logger for printing during development (for QA purposes)
+var logger = {
+    log: function(message){
+        if(loggerActivated){
+            console.log(message);
+        }
+    },
+    warn: function(message){
+        if(loggerActivated){
+            console.warn(message);
+        }
+    },
+    error: function(message){
+        if(loggerActivated){
+            console.error(message);
+        }
+    }
+}
 
 // -------------------------------------------------------------------------
 //
@@ -73,6 +93,8 @@ var lastHeaderLevelBeforeClickedButton = 0;
 //		[%%04] UTILITY - Show aria levels above headers (for QA purposes)
 //		[%%05] UTILITY - add first and last focusable item styles to dom    
 //		[%%06] UTILITY - browser check
+//		[%%07] UTILITY - logger for printing during development (for QA purposes)
+
 
 
 // [!!] STARTUP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -83,16 +105,16 @@ var lastHeaderLevelBeforeClickedButton = 0;
 //
 // -------------------------------------------------------------------------
 
-//adapt config
+//adapt api and config
 var Adapt = require('core/js/adapt');
 var pluginConfig = Adapt.config.attributes['_Adapt-accessibilityfixes'];
 
 //adapt config auto add learner's pick to feedback
 var answerFeedback = pluginConfig._fixes._answerFeedback;
 
-
 //run global fixes when document is ready
 docReady(function() {
+    console.log('doc ready!')
     if (!isIE()) {
         globalfixes();
     }
@@ -346,6 +368,7 @@ function setNavigationTabOrder() {
 // Added those listeners for future implementation for remplacing some Mutation Observers
 // Uses the Adapt framework's API from the published course file core/js/adapt.js
 // -----------------------------------------
+logger.warn('declaring event listener on popup:opened')
 Adapt.on('popup:opened', function(popup) {
     console.log('popup is opened');
     //console.log(popup);
@@ -354,6 +377,8 @@ Adapt.on('popup:closed', function(popup) {
     console.log('popup is closed');
     //console.log(popup);
 });
+
+
 // -----------------------------------------
 
 var modal;
@@ -481,10 +506,12 @@ function popupfixes() {
         popupIsOpened = true;
         $('.notify-popup-inner *[aria-level]').attr('aria-level', Number(lastHeaderLevelBeforeClickedButton) + 1);
         $('.notify-popup-inner *[aria-level]').attr('aria-disabled', 'true');
-        console.log(`Popup type is: ${getPopupType()}`);
+        logger.log(`Popup type is: ${getPopupType()}`);
         displayAriaLevels();
-        globalfixes();
-        if(answerFeedback === true){
+        altFixes();
+        linkfixes();
+        //globalfixes();
+        if(answerFeedback){
             addLearnersPick();
         }
     } else {
@@ -517,7 +544,7 @@ function FindPopup() {
 
         $('.a11y-focusguard').remove();
         $('.drawer-inner .aria-label').remove();
-
+        logger.warn('declaring event listeners for page level progress navigation')
         $('.pagelevelprogress-navigation').on("click", function() {
             setTimeout(function() {
                 $('.pagelevelprogress-inner .aria-label').remove();
@@ -592,6 +619,7 @@ function StartKBTrap(object, forceStop) {
             });
 
             //Bind Keydown event to body
+            logger.warn('declaring event listener for popup keyboard handler on keydown')
             object.on('keydown', PopupKeyboardHandler);
 
             function PopupKeyboardHandler(e) {
@@ -630,6 +658,7 @@ function StartKBTrap(object, forceStop) {
                 StartKBTrap(FindPopup(), false);
             }
             $('.notify-popup-done, .hotgrid-popup-close, .drawer-close').click(StopKBTrap);
+            logger.warn('declaring event listener for popup close on keydown');
             $('.notify-popup-done, .hotgrid-popup-close, .drawer-close').on('keydown', function(e) {
                 //console.log(e.keyCode);
                 if (e.keyCode == 13 || e.keyCode == 32) {
@@ -658,7 +687,6 @@ function StartKBTrap(object, forceStop) {
 
 function updatePopupHeaderLevels() {
     $('button').click(function() {
-
         if (($(this).closest('.narrative-component').length > 0) &&
             ($(this).closest('.narrative-component').find('.narrative-content').css('display') == 'none')) {
             lastHeaderLevelBeforeClickedButton = $(this).closest('div:has(.js-heading-inner[aria-level])').find('.js-heading-inner[aria-level]').attr('aria-level');
@@ -740,18 +768,20 @@ function globalQuestionComponentFixes() {
 
     // Auto focus instructions on empty selection submit
     //-----------------------------------------------------------------------------
+    logger.warn('declaring event listener for buttons-action');
     $('.buttons-action').on("click", function() {
-        if ($(this).next().attr('disabled') == 'disabled') {
-            var componentid = $(this).parents('.component').attr('data-adapt-id');
-            var instrfocus = $('.component[data-adapt-id="' + componentid + '"] .component-instruction-inner');
-
-            //Only trigger if instructions exist and not empty
-            /*if (instrfocus.length > 0 && !(instrfocus.html() == "")) {
-                $([document.documentElement, document.body]).animate({
-                    scrollTop: instrfocus.offset().top - (window.innerHeight / 2)
-                }, 200);
-            }*/
-        }
+        var button = $(this);
+        var instruction = button.parents('.component').find('.component-instruction-inner');
+        setTimeout(function(){
+            if (button.next().attr('disabled') == 'disabled') {
+                //Only trigger if instructions exist, not empty and no submit has validation error
+                if (instruction.length > 0 && !(instruction.html() == "") && instruction.hasClass('validation-error')) {
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: instruction.offset().top - (window.innerHeight / 2)
+                    }, 200);
+                }
+            }
+        }, 50)
     });
 }
 
@@ -1009,6 +1039,7 @@ function componentExposeFixes() {
     });
 
     // aria-pressed toggle for expose
+    logger.warn('declaring event listener on expose-item-cover click')
     $('.expose-item-cover').on('click', function() {
         if ($(".expose-item-cover").hasClass("fade")) {
             $(".expose-item-cover").attr('aria-pressed', 'false');
@@ -1257,7 +1288,6 @@ function docReady(fn) {
 //
 // -------------------------------------------------------------------------
 function displayAriaLevels() {
-
     if (displayAriaLevelsOnPage) {
         $('html *[aria-level]').each(function() {
             var checkPar = $(this).find('.medariadebug');
@@ -1269,6 +1299,7 @@ function displayAriaLevels() {
         });
     }
 }
+
 //Wee
 // -------------------------------------------------------------------------
 //
