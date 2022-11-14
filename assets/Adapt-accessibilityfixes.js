@@ -152,6 +152,7 @@ function setHeaderObservers(objects) {
 //Actions to run when htmlobserver is triggered
 function observehtml(mutations) {
     mutations.forEach(function(mutation) {
+        $('.js-heading-inner').removeAttr('data-a11y-force-focus');
         if (mutation.type == 'attributes') {
             if (mutation.attributeName == 'data-location') {
                 //console.log('the data-location attribute of an observed object has changed!');
@@ -505,7 +506,8 @@ function popupfixes() {
     if ($('html').hasClass('notify')) {
         popupIsOpened = true;
         $('.notify-popup-inner *[aria-level]').attr('aria-level', Number(lastHeaderLevelBeforeClickedButton) + 1);
-        $('.notify-popup-inner *[aria-level]').attr('aria-disabled', 'true');
+        //$('.notify').removeAttr('aria-labelledby'); // this removes the labelledby on role=dialog (removes one repetition)
+        //$('.notify-popup-inner *[aria-level]').attr('aria-disabled', 'true'); // why aria disabled? (adds unavailable to the title)
         logger.log(`Popup type is: ${getPopupType()}`);
         displayAriaLevels();
         altFixes();
@@ -708,12 +710,23 @@ function updatePopupHeaderLevels() {
 // -------------------------------------------------------------------------
 function tempFixes() {
     $("html").append(
-        "<style>" +
-        "html *:focus, body div:focus, body p:focus, body button:focus, body label:focus, body input:focus, body *:focus" +
-        "{" +
-        "outline:3px solid #CD1C6A !important;" +
-        "}" +
-        "</style>"
+        `<style>
+            html *:focus, body div:focus, body p:focus, body button:focus, body label:focus, body input:focus, body *:focus {
+            outline:3px solid #CD1C6A !important;
+            }
+
+            .component .component-instruction-inner.validation-error {
+                border: none!important;
+                outline:3px solid #CD1C6A !important;
+                color: #CD1C6A !important;
+                padding: 5px;
+            }
+
+            .button-margin {
+                margin-right:.5%
+            }
+
+        </style>`
     );
 }
 
@@ -762,20 +775,33 @@ function globalQuestionComponentFixes() {
     let allQuestionComponents = $(".question-component");
 
     allQuestionComponents.each(function() {
-        $(this).find('.component-instruction-inner').attr('role', 'alert');
-        $(this).find('.component-instruction-inner').attr('aria-live', 'assertive');
+        //$(this).find('.component-instruction-inner').attr('role', 'alert');
+        //$(this).find('.component-instruction-inner').attr('aria-live', 'assertive');
     });
 
     // Auto focus instructions on empty selection submit
     //-----------------------------------------------------------------------------
+
+    $('.component-instruction-inner').on('focusin', function(){
+        console.log('instruction is on focus');
+    })
+
+    $('.component-instruction-inner').on('focusout', function(){
+        console.log('instruction is out of focus');
+        $(this).removeAttr('tabindex role');
+    })
+
     logger.warn('declaring event listener for buttons-action');
     $('.buttons-action').on("click", function() {
         var button = $(this);
-        var instruction = button.parents('.component').find('.component-instruction-inner');
+        var component = button.parents('.component');
+        var instruction = component.find('.component-instruction-inner');
+        instruction.removeAttr('role');
         setTimeout(function(){
             if (button.next().attr('disabled') == 'disabled') {
-                //Only trigger if instructions exist, not empty and no submit has validation error
+                //Only trigger if instructions exist, not empty and submit has validation error
                 if (instruction.length > 0 && !(instruction.html() == "") && instruction.hasClass('validation-error')) {
+                    instruction.attr('role', 'alert');
                     $([document.documentElement, document.body]).animate({
                         scrollTop: instruction.offset().top - (window.innerHeight / 2)
                     }, 200);
@@ -871,11 +897,26 @@ function componentMatchingQuestionFixes() {
 //
 // -------------------------------------------------------------------------
 function componentOpenTextInputFixes() {
+    $('.openTextInput-component .buttons-action').removeClass('buttons-action-fullwidth buttons-action-enlarge');
+    $('.openTextInput-component .buttons-feedback').removeClass('no-feedback');
+
+
+
+    $('.openTextInput-answer-container .openTextInput-item-textbox').on('focusin', function(){
+        var charactercount = $(this).parents('.openTextInput-widget').find('.openTextInput-count-characters-container');
+        charactercount.attr('aria-live', 'polite');
+    })
+
+    $('.openTextInput-answer-container .openTextInput-item-textbox').on('focusout', function(){
+        var charactercount = $(this).parents('.openTextInput-widget').find('.openTextInput-count-characters-container');
+        charactercount.removeAttr('aria-live');
+    })
+
     $('.openTextInput-inner').each(function(k) {
 
         // add aria-labelledby for textarea
         let olabel = $(this).parents().find('.openTextInput-component').attr('data-adapt-id') + '_qlabel_' + k;
-        $(this).find('.openTextInput-count-characters-container').attr('aria-live', 'polite');
+        //$(this).find('.openTextInput-count-characters-container').attr('aria-live', 'polite');
         $(this).find('.openTextInput-instruction-inner').attr('id', olabel);
         $(this).find('.openTextInput-answer-container textarea').attr('aria-labelledby', olabel);
 
@@ -889,56 +930,31 @@ function componentOpenTextInputFixes() {
         container.after(counter);
 
         // adjust focustrap when button-action is clicked
-        $(this).find('.buttons-action').click(() => {
-            setOTobserver($(this).closest('.openTextInput-component'));
-
+        $(this).find('.buttons-action').click((button) => {
+            var target = $(button.currentTarget);
+            var target_text = target[0].innerText;
+            var parent = target.parent();
+            var feedback = parent.find('.buttons-feedback');
+            var textbox = target.parents('.openTextInput-widget').find('.openTextInput-answer-container .openTextInput-item-textbox')[0];
+            var modelanswer = target.parents('.openTextInput-widget').find('.openTextInput-item-modelanswer')[0].innerHTML;
+            if(textbox.value){
+                parent.prepend(`<button class="aria-hidden disabled button-margin" aria-hidden="true" disabled>${target_text}</button>`);
+                target.attr('aria-hidden', true).addClass('display-none');
+                feedback.removeAttr('disabled aria-hidden tabindex').removeClass('disabled aria-hidden');
+                Adapt.trigger('notify:popup', {
+                    title: 'Feedback',
+                    body: modelanswer
+                });
+                feedback.on('click', function(){
+                    Adapt.trigger('notify:popup', {
+                        title: 'Feedback',
+                        body: modelanswer
+                    });
+                })
+            } 
         });
     });
 }
-
-var OTobserver = new MutationObserver(observeOT);
-
-function setOTobserver(obj) {
-    OTobserver.disconnect();
-    var OTobserverOptions = { attributes: true, childList: true, subtree: true, attributeFilter: ['class', 'aria-label'] };
-    OTobserver.observe(obj[0], OTobserverOptions);
-}
-
-function observeOT(mutations) {
-    var submitFlag = (mutations.length === 19) ? true : false;
-    for (let mutation of mutations) {
-        if (submitFlag) {
-            if (mutation.target.classList[0] === 'buttons-action') {
-
-                // make buttons-action focusable
-                $(mutation.target).removeClass('aria-hidden');
-                $(mutation.target).removeAttr('aria-hidden');
-                $(mutation.target).removeAttr('tabindex');
-
-                // remove autosave from focus
-                $(mutation.target).parents('.openTextInput-widget').find('.openTextInput-count-characters').attr('tabindex', '-1');
-                $(mutation.target).parents('.openTextInput-widget').find('.openTextInput-count-characters').attr('aria-hidden', true);
-            }
-            if (mutation.target.classList[0] === 'buttons-marking-icon') {
-                $(mutation.target).attr('tabindex', '0');
-                $(mutation.target).focus();
-            }
-        } else {
-            if (mutation.target.classList[0] === 'buttons-marking-icon') {
-                $(mutation.target).attr('tabindex', '-1');
-                $(mutation.target).attr('aria-hidden', true);
-            }
-            if (mutation.target.classList[0] === 'openTextInput-item-modelanswer') {
-                // add focus to model answer
-                if ($(mutation.target).hasClass('show-openTextInput-modelanswer')) {
-                    $(mutation.target).attr('tabindex', '0');
-                    $(mutation.target).focus();
-                }
-            }
-        }
-    }
-}
-
 
 // -------------------------------------------------------------------------
 //
