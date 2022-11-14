@@ -25,8 +25,28 @@ var navSplitValue = 3;
 //Utility variables
 var popupIsOpened = false;
 var displayAriaLevelsOnPage = false;
+var loggerActivated = false;
 var showFocusableItemsInPopups = false;
 var lastHeaderLevelBeforeClickedButton = 0;
+
+//Logger for printing during development (for QA purposes)
+var logger = {
+    log: function(message){
+        if(loggerActivated){
+            console.log(message);
+        }
+    },
+    warn: function(message){
+        if(loggerActivated){
+            console.warn(message);
+        }
+    },
+    error: function(message){
+        if(loggerActivated){
+            console.error(message);
+        }
+    }
+}
 
 // -------------------------------------------------------------------------
 //
@@ -73,6 +93,8 @@ var lastHeaderLevelBeforeClickedButton = 0;
 //		[%%04] UTILITY - Show aria levels above headers (for QA purposes)
 //		[%%05] UTILITY - add first and last focusable item styles to dom    
 //		[%%06] UTILITY - browser check
+//		[%%07] UTILITY - logger for printing during development (for QA purposes)
+
 
 
 // [!!] STARTUP !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -83,16 +105,16 @@ var lastHeaderLevelBeforeClickedButton = 0;
 //
 // -------------------------------------------------------------------------
 
-//adapt config
+//adapt api and config
 var Adapt = require('core/js/adapt');
 var pluginConfig = Adapt.config.attributes['_Adapt-accessibilityfixes'];
 
 //adapt config auto add learner's pick to feedback
 var answerFeedback = pluginConfig._fixes._answerFeedback;
 
-
 //run global fixes when document is ready
 docReady(function() {
+    console.log('doc ready!')
     if (!isIE()) {
         globalfixes();
     }
@@ -130,6 +152,7 @@ function setHeaderObservers(objects) {
 //Actions to run when htmlobserver is triggered
 function observehtml(mutations) {
     mutations.forEach(function(mutation) {
+        $('.js-heading-inner').removeAttr('data-a11y-force-focus');
         if (mutation.type == 'attributes') {
             if (mutation.attributeName == 'data-location') {
                 //console.log('the data-location attribute of an observed object has changed!');
@@ -346,6 +369,7 @@ function setNavigationTabOrder() {
 // Added those listeners for future implementation for remplacing some Mutation Observers
 // Uses the Adapt framework's API from the published course file core/js/adapt.js
 // -----------------------------------------
+logger.warn('declaring event listener on popup:opened')
 Adapt.on('popup:opened', function(popup) {
     console.log('popup is opened');
     //console.log(popup);
@@ -354,6 +378,8 @@ Adapt.on('popup:closed', function(popup) {
     console.log('popup is closed');
     //console.log(popup);
 });
+
+
 // -----------------------------------------
 
 var modal;
@@ -480,11 +506,14 @@ function popupfixes() {
     if ($('html').hasClass('notify')) {
         popupIsOpened = true;
         $('.notify-popup-inner *[aria-level]').attr('aria-level', Number(lastHeaderLevelBeforeClickedButton) + 1);
-        $('.notify-popup-inner *[aria-level]').attr('aria-disabled', 'true');
-        console.log(`Popup type is: ${getPopupType()}`);
+        //$('.notify').removeAttr('aria-labelledby'); // this removes the labelledby on role=dialog (removes one repetition)
+        //$('.notify-popup-inner *[aria-level]').attr('aria-disabled', 'true'); // why aria disabled? (adds unavailable to the title)
+        logger.log(`Popup type is: ${getPopupType()}`);
         displayAriaLevels();
-        globalfixes();
-        if(answerFeedback === true){
+        altFixes();
+        linkfixes();
+        //globalfixes();
+        if(answerFeedback){
             addLearnersPick();
         }
     } else {
@@ -517,7 +546,7 @@ function FindPopup() {
 
         $('.a11y-focusguard').remove();
         $('.drawer-inner .aria-label').remove();
-
+        logger.warn('declaring event listeners for page level progress navigation')
         $('.pagelevelprogress-navigation').on("click", function() {
             setTimeout(function() {
                 $('.pagelevelprogress-inner .aria-label').remove();
@@ -592,6 +621,7 @@ function StartKBTrap(object, forceStop) {
             });
 
             //Bind Keydown event to body
+            logger.warn('declaring event listener for popup keyboard handler on keydown')
             object.on('keydown', PopupKeyboardHandler);
 
             function PopupKeyboardHandler(e) {
@@ -630,6 +660,7 @@ function StartKBTrap(object, forceStop) {
                 StartKBTrap(FindPopup(), false);
             }
             $('.notify-popup-done, .hotgrid-popup-close, .drawer-close').click(StopKBTrap);
+            logger.warn('declaring event listener for popup close on keydown');
             $('.notify-popup-done, .hotgrid-popup-close, .drawer-close').on('keydown', function(e) {
                 //console.log(e.keyCode);
                 if (e.keyCode == 13 || e.keyCode == 32) {
@@ -658,7 +689,6 @@ function StartKBTrap(object, forceStop) {
 
 function updatePopupHeaderLevels() {
     $('button').click(function() {
-
         if (($(this).closest('.narrative-component').length > 0) &&
             ($(this).closest('.narrative-component').find('.narrative-content').css('display') == 'none')) {
             lastHeaderLevelBeforeClickedButton = $(this).closest('div:has(.js-heading-inner[aria-level])').find('.js-heading-inner[aria-level]').attr('aria-level');
@@ -680,12 +710,23 @@ function updatePopupHeaderLevels() {
 // -------------------------------------------------------------------------
 function tempFixes() {
     $("html").append(
-        "<style>" +
-        "html *:focus, body div:focus, body p:focus, body button:focus, body label:focus, body input:focus, body *:focus" +
-        "{" +
-        "outline:3px solid #CD1C6A !important;" +
-        "}" +
-        "</style>"
+        `<style>
+            html *:focus, body div:focus, body p:focus, body button:focus, body label:focus, body input:focus, body *:focus {
+            outline:3px solid #CD1C6A !important;
+            }
+
+            .component .component-instruction-inner.validation-error {
+                border: none!important;
+                outline:3px solid #CD1C6A !important;
+                color: #CD1C6A !important;
+                padding: 5px;
+            }
+
+            .button-margin {
+                margin-right:.5%
+            }
+
+        </style>`
     );
 }
 
@@ -734,24 +775,39 @@ function globalQuestionComponentFixes() {
     let allQuestionComponents = $(".question-component");
 
     allQuestionComponents.each(function() {
-        $(this).find('.component-instruction-inner').attr('role', 'alert');
-        $(this).find('.component-instruction-inner').attr('aria-live', 'assertive');
+        //$(this).find('.component-instruction-inner').attr('role', 'alert');
+        //$(this).find('.component-instruction-inner').attr('aria-live', 'assertive');
     });
 
     // Auto focus instructions on empty selection submit
     //-----------------------------------------------------------------------------
-    $('.buttons-action').on("click", function() {
-        if ($(this).next().attr('disabled') == 'disabled') {
-            var componentid = $(this).parents('.component').attr('data-adapt-id');
-            var instrfocus = $('.component[data-adapt-id="' + componentid + '"] .component-instruction-inner');
 
-            //Only trigger if instructions exist and not empty
-            /*if (instrfocus.length > 0 && !(instrfocus.html() == "")) {
-                $([document.documentElement, document.body]).animate({
-                    scrollTop: instrfocus.offset().top - (window.innerHeight / 2)
-                }, 200);
-            }*/
-        }
+    $('.component-instruction-inner').on('focusin', function(){
+        console.log('instruction is on focus');
+    })
+
+    $('.component-instruction-inner').on('focusout', function(){
+        console.log('instruction is out of focus');
+        $(this).removeAttr('tabindex role');
+    })
+
+    logger.warn('declaring event listener for buttons-action');
+    $('.buttons-action').on("click", function() {
+        var button = $(this);
+        var component = button.parents('.component');
+        var instruction = component.find('.component-instruction-inner');
+        instruction.removeAttr('role');
+        setTimeout(function(){
+            if (button.next().attr('disabled') == 'disabled') {
+                //Only trigger if instructions exist, not empty and submit has validation error
+                if (instruction.length > 0 && !(instruction.html() == "") && instruction.hasClass('validation-error')) {
+                    instruction.attr('role', 'alert');
+                    $([document.documentElement, document.body]).animate({
+                        scrollTop: instruction.offset().top - (window.innerHeight / 2)
+                    }, 200);
+                }
+            }
+        }, 50)
     });
 }
 
@@ -841,11 +897,26 @@ function componentMatchingQuestionFixes() {
 //
 // -------------------------------------------------------------------------
 function componentOpenTextInputFixes() {
+    $('.openTextInput-component .buttons-action').removeClass('buttons-action-fullwidth buttons-action-enlarge');
+    $('.openTextInput-component .buttons-feedback').removeClass('no-feedback');
+
+
+
+    $('.openTextInput-answer-container .openTextInput-item-textbox').on('focusin', function(){
+        var charactercount = $(this).parents('.openTextInput-widget').find('.openTextInput-count-characters-container');
+        charactercount.attr('aria-live', 'polite');
+    })
+
+    $('.openTextInput-answer-container .openTextInput-item-textbox').on('focusout', function(){
+        var charactercount = $(this).parents('.openTextInput-widget').find('.openTextInput-count-characters-container');
+        charactercount.removeAttr('aria-live');
+    })
+
     $('.openTextInput-inner').each(function(k) {
 
         // add aria-labelledby for textarea
         let olabel = $(this).parents().find('.openTextInput-component').attr('data-adapt-id') + '_qlabel_' + k;
-        $(this).find('.openTextInput-count-characters-container').attr('aria-live', 'polite');
+        //$(this).find('.openTextInput-count-characters-container').attr('aria-live', 'polite');
         $(this).find('.openTextInput-instruction-inner').attr('id', olabel);
         $(this).find('.openTextInput-answer-container textarea').attr('aria-labelledby', olabel);
 
@@ -859,56 +930,31 @@ function componentOpenTextInputFixes() {
         container.after(counter);
 
         // adjust focustrap when button-action is clicked
-        $(this).find('.buttons-action').click(() => {
-            setOTobserver($(this).closest('.openTextInput-component'));
-
+        $(this).find('.buttons-action').click((button) => {
+            var target = $(button.currentTarget);
+            var target_text = target[0].innerText;
+            var parent = target.parent();
+            var feedback = parent.find('.buttons-feedback');
+            var textbox = target.parents('.openTextInput-widget').find('.openTextInput-answer-container .openTextInput-item-textbox')[0];
+            var modelanswer = target.parents('.openTextInput-widget').find('.openTextInput-item-modelanswer')[0].innerHTML;
+            if(textbox.value){
+                parent.prepend(`<button class="aria-hidden disabled button-margin" aria-hidden="true" disabled>${target_text}</button>`);
+                target.attr('aria-hidden', true).addClass('display-none');
+                feedback.removeAttr('disabled aria-hidden tabindex').removeClass('disabled aria-hidden');
+                Adapt.trigger('notify:popup', {
+                    title: 'Feedback',
+                    body: modelanswer
+                });
+                feedback.on('click', function(){
+                    Adapt.trigger('notify:popup', {
+                        title: 'Feedback',
+                        body: modelanswer
+                    });
+                })
+            } 
         });
     });
 }
-
-var OTobserver = new MutationObserver(observeOT);
-
-function setOTobserver(obj) {
-    OTobserver.disconnect();
-    var OTobserverOptions = { attributes: true, childList: true, subtree: true, attributeFilter: ['class', 'aria-label'] };
-    OTobserver.observe(obj[0], OTobserverOptions);
-}
-
-function observeOT(mutations) {
-    var submitFlag = (mutations.length === 19) ? true : false;
-    for (let mutation of mutations) {
-        if (submitFlag) {
-            if (mutation.target.classList[0] === 'buttons-action') {
-
-                // make buttons-action focusable
-                $(mutation.target).removeClass('aria-hidden');
-                $(mutation.target).removeAttr('aria-hidden');
-                $(mutation.target).removeAttr('tabindex');
-
-                // remove autosave from focus
-                $(mutation.target).parents('.openTextInput-widget').find('.openTextInput-count-characters').attr('tabindex', '-1');
-                $(mutation.target).parents('.openTextInput-widget').find('.openTextInput-count-characters').attr('aria-hidden', true);
-            }
-            if (mutation.target.classList[0] === 'buttons-marking-icon') {
-                $(mutation.target).attr('tabindex', '0');
-                $(mutation.target).focus();
-            }
-        } else {
-            if (mutation.target.classList[0] === 'buttons-marking-icon') {
-                $(mutation.target).attr('tabindex', '-1');
-                $(mutation.target).attr('aria-hidden', true);
-            }
-            if (mutation.target.classList[0] === 'openTextInput-item-modelanswer') {
-                // add focus to model answer
-                if ($(mutation.target).hasClass('show-openTextInput-modelanswer')) {
-                    $(mutation.target).attr('tabindex', '0');
-                    $(mutation.target).focus();
-                }
-            }
-        }
-    }
-}
-
 
 // -------------------------------------------------------------------------
 //
@@ -1009,6 +1055,7 @@ function componentExposeFixes() {
     });
 
     // aria-pressed toggle for expose
+    logger.warn('declaring event listener on expose-item-cover click')
     $('.expose-item-cover').on('click', function() {
         if ($(".expose-item-cover").hasClass("fade")) {
             $(".expose-item-cover").attr('aria-pressed', 'false');
@@ -1257,7 +1304,6 @@ function docReady(fn) {
 //
 // -------------------------------------------------------------------------
 function displayAriaLevels() {
-
     if (displayAriaLevelsOnPage) {
         $('html *[aria-level]').each(function() {
             var checkPar = $(this).find('.medariadebug');
@@ -1269,6 +1315,7 @@ function displayAriaLevels() {
         });
     }
 }
+
 //Wee
 // -------------------------------------------------------------------------
 //
