@@ -215,7 +215,6 @@ function globalfixes() {
     setNavigationTabOrder()
     linkfixes();
     altFixes();
-    tempFixes();
     //mailtoFix();
 
     //if menu page, run menufixes, else run page fixes
@@ -708,27 +707,12 @@ function updatePopupHeaderLevels() {
 //      Suchs as CSS edits in the theme.
 //
 // -------------------------------------------------------------------------
-function tempFixes() {
+/* function tempFixes() {
     $("html").append(
         `<style>
-            html *:focus, body div:focus, body p:focus, body button:focus, body label:focus, body input:focus, body *:focus {
-            outline:3px solid #CD1C6A !important;
-            }
-
-            .component .component-instruction-inner.validation-error {
-                border: none!important;
-                outline:3px solid #CD1C6A !important;
-                color: #CD1C6A !important;
-                padding: 5px;
-            }
-
-            .button-margin {
-                margin-right:.5%
-            }
-
         </style>`
     );
-}
+} */
 
 // -------------------------------------------------------------------------
 //
