@@ -41,9 +41,15 @@ define([ "core/js/adapt" ], function(Adapt) {
 
 		// The script mathJaxInit.js doesn't seem to do anything meaningful anymore - Francis
 		//loadScript({ src: 'assets/mathJaxInit.js' }, function() {
-			loadScript({ src: src }, function() {
-				Adapt.wait ? Adapt.wait.end() : Adapt.trigger("plugin:endWait");
+
+			loadScript({ src: './assets/jquery.i18n.js' }, function() {
+				loadScript({ src: './assets/jquery.i18n.messagestore.js' }, function() {
+					loadScript({ src: src }, function() {
+						Adapt.wait ? Adapt.wait.end() : Adapt.trigger("plugin:endWait");
+					});
+				});
 			});
+
 		//});
 	}
 

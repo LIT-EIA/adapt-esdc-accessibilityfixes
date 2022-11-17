@@ -48,6 +48,28 @@ var logger = {
     }
 }
 
+
+// Load translations to jquery.i18n (internationalization library)
+$.i18n().load( {
+    'en' : {
+        'adapt-next-slide' : 'Next slide',
+        'adapt-previous-slide' : 'Previous slide',
+        'adapt-your-answer' : 'Your answer:',
+        'adapt-correct' : 'Correct',
+        'adapt-partially-correct' : 'Partially correct',
+        'adapt-incorrect' : 'Incorrect'
+    },
+    'fr' : {
+        'adapt-next-slide' : 'Diapositive suivante',
+        'adapt-previous-slide' : 'Diapositive précédente',
+        'adapt-your-answer' : 'Votre réponse&nbsp;:',
+        'adapt-correct' : 'Correcte',
+        'adapt-partially-correct' : 'Paritiellement correcte',
+        'adapt-incorrect' : 'Incorrecte'
+    }
+} );
+
+
 // -------------------------------------------------------------------------
 //
 //		TABLE OF CONTENTS
@@ -412,12 +434,7 @@ function mcqFeedback(){
         var feedbackBox = $(`div[data-adapt-id="${popupID}"]`).filter('.notify-popup');
         if(feedbackBox){
             var answerState = getAnswerState(feedbackBox);
-            var answerLabel;
-            if($('html').attr('lang') === 'fr'){
-                answerLabel = 'Votre réponse :';
-            } else {
-                answerLabel = 'Your answer:';
-            }
+            var answerLabel = $.i18n('adapt-your-answer');
             var userSelection = `${answerLabel}&nbsp;${selectedAnswer}&nbsp;(${answerState.value})`;
             if(feedbackBox.find('.user-selection-feedback').length < 1){
                 $(`<p class="user-selection-feedback" style="background: ${answerState.color}; padding: 10px 15px; display: inline-block; margin: 0;">${userSelection}</p>`).insertAfter(feedbackBox.find('.notify-popup-title'))
@@ -439,12 +456,7 @@ function matchingFeedback(){
         var feedbackBox = $(`div[data-adapt-id="${popupID}"]`).filter('.notify-popup');
         if(feedbackBox){
             var answerState = getAnswerState(feedbackBox);
-            var answerLabel;
-            if($('html').attr('lang') === 'fr'){
-                answerLabel = 'Votre réponse :';
-            } else {
-                answerLabel = 'Your answer:';
-            }
+            var answerLabel = $.i18n('adapt-your-answer')
             var userSelection = `${answerLabel}&nbsp;${selectedAnswer}&nbsp;(${answerState.value})`;
             if(feedbackBox.find('.user-selection-feedback').length < 1){
                 $(`<p class="user-selection-feedback" style="background: ${answerState.color}; padding: 10px 15px; display: inline-block; margin: 0;">${userSelection}</p>`).insertAfter(feedbackBox.find('.notify-popup-title'))
@@ -454,28 +466,15 @@ function matchingFeedback(){
 }
 
 function getAnswerState(feedbackBox){
-    var lang = $('html').attr('lang');
     var answer = {};
     if(feedbackBox.hasClass('correct')){
-        if(lang === 'fr'){
-            answer.value = 'Correcte'
-        } else {
-            answer.value = 'Correct';
-        }
+        answer.value = $.i18n('adapt-correct')
         answer.color = '#008339';
     } else if(feedbackBox.hasClass('partially-correct')){
-        if(lang === 'fr'){
-            answer.value = 'Paritiellement correcte'
-        } else {
-            answer.value = 'Partially correct';
-        }
+        answer.value = $.i18n('adapt-partially-correct')
         answer.color = '#4178BB';
     } else if(feedbackBox.hasClass('incorrect')){
-        if(lang === 'fr'){
-            answer.value = 'Incorrecte'
-        } else {
-            answer.value = 'Incorrect';
-        }
+        answer.value = $.i18n('adapt-incorrect')
         answer.color = '#B15C5C';
     }
     return answer
@@ -1073,13 +1072,8 @@ function componentNarrativeFixes() {
     $('.narrative-content').attr('aria-live', 'polite');
 
     //narrative controls comprehensive aria labels
-    if ($('html').attr('lang') == 'fr') {
-        $('.base.narrative-controls.narrative-control-right').attr('aria-label', 'Diapositive suivante');
-        $('.base.narrative-controls.narrative-control-left').attr('aria-label', 'Diapositive précédente');
-    } else {
-        $('.base.narrative-controls.narrative-control-right').attr('aria-label', 'Next slide');
-        $('.base.narrative-controls.narrative-control-left').attr('aria-label', 'Previous slide');
-    }
+    $('.base.narrative-controls.narrative-control-right').attr('aria-label', $.i18n('adapt-next-slide'));
+    $('.base.narrative-controls.narrative-control-left').attr('aria-label', $.i18n('adapt-previous-slide'));
 }
 
 // -------------------------------------------------------------------------
