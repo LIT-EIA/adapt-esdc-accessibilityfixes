@@ -48,6 +48,36 @@ var logger = {
     }
 }
 
+
+// Load translations to jquery.i18n (internationalization library)
+$.i18n().load( {
+    'en' : {
+        'adapt-next-slide' : 'Next slide',
+        'adapt-previous-slide' : 'Previous slide',
+        'adapt-your-answer' : 'You have selected:',
+        'adapt-correct' : 'Correct',
+        'adapt-partially-correct' : 'Partially correct',
+        'adapt-incorrect' : 'Incorrect',
+        'adapt-feedback-sentence': 'Your answer is',
+        'adapt-feedback': 'Feedback',
+        'adapt-quote-open': '“',
+        'adapt-quote-close': '”'
+    },
+    'fr' : {
+        'adapt-next-slide' : 'Diapositive suivante',
+        'adapt-previous-slide' : 'Diapositive précédente',
+        'adapt-your-answer' : 'Vous avez selectionné&nbsp;:',
+        'adapt-correct' : 'Correcte',
+        'adapt-partially-correct' : 'Paritiellement correcte',
+        'adapt-incorrect' : 'Incorrecte',
+        'adapt-feedback-sentence': 'Votre réponse est',
+        'adapt-feedback': 'Rétroaction',
+        'adapt-quote-open': '«&nbsp;',
+        'adapt-quote-close': '&nbsp;»'
+    }
+} );
+
+
 // -------------------------------------------------------------------------
 //
 //		TABLE OF CONTENTS
@@ -107,10 +137,8 @@ var logger = {
 
 //adapt api and config
 var Adapt = require('core/js/adapt');
-var pluginConfig = Adapt.config.attributes['_Adapt-accessibilityfixes'];
+var pluginConfig = Adapt.course.attributes['_Adapt-accessibilityfixes'];
 
-//adapt config auto add learner's pick to feedback
-var answerFeedback = pluginConfig._fixes._answerFeedback;
 
 //run global fixes when document is ready
 docReady(function() {
@@ -215,9 +243,8 @@ function globalfixes() {
     setNavigationTabOrder()
     linkfixes();
     altFixes();
-    tempFixes();
     //mailtoFix();
-
+    //tempFixes();
     //if menu page, run menufixes, else run page fixes
     ($('#adapt').attr('data-location') == 'course') ? menufixes(): pagefixes();
 }
@@ -231,10 +258,8 @@ function menufixes() {
 
 //Fixes that apply to pages
 function pagefixes() {
-
     checkHeaderLevels();
     updatePopupHeaderLevels();
-
     globalQuestionComponentFixes();
     componentMultiChoiceFixes();
     componentGraphicalMultiChoiceFixes();
@@ -387,97 +412,113 @@ var focusableElements;
 var firstFocusableElement;
 var lastFocusableElement;
 
-function addLearnersPick(){
-    switch (getPopupType()) {
+function learnersPick(){
+    var config = pluginConfig._learnersPick;
+    var popupType = getPopupType();
+    var popupBox = $('.notify-popup');
+    var popupID = popupBox.attr('data-adapt-id');
+    var componentBox = $(`div[data-adapt-id="${popupID}"]`).filter('.component');
+    var isDisabled = componentBox.hasClass('disable-auto-feedback');
+    var isQuestion = (popupType === "mcq" || popupType === 'matching');
+    if(config._answerFeedback && isQuestion && !isDisabled){
+        var dialogBox = popupBox.parents('.notify');
+        dialogBox.removeAttr('aria-labelledby');
+        dialogBox.attr('aria-label', $.i18n('adapt-feedback'));
+        if(popupID){
+            var answers = [];
+            var selectedAnswers = selectionQuery(popupType, popupID);
+            selectedAnswers.each(function(){
+                if(selectedAnswers.length > 1){
+                    answers.push(`${$.i18n('adapt-quote-open')}${this.innerText}${$.i18n('adapt-quote-close')}`);
+                } else {
+                    answers.push(this.innerText);
+                }
+            })
+            var selectedAnswer = answers.join(', ');
+            var feedbackBox = $(`div[data-adapt-id="${popupID}"]`).filter('.notify-popup');
+            if(feedbackBox){
+                var infoIcon = '<svg class="info-icon" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" height="30" viewBox="0 0 1792 1792"><path fill="#fff" d="M1152 1376v-160q0-14-9-23t-23-9h-96v-512q0-14-9-23t-23-9h-320q-14 0-23 9t-9 23v160q0 14 9 23t23 9h96v320h-96q-14 0-23 9t-9 23v160q0 14 9 23t23 9h448q14 0 23-9t9-23zm-128-896v-160q0-14-9-23t-23-9h-192q-14 0-23 9t-9 23v160q0 14 9 23t23 9h192q14 0 23-9t9-23zm640 416q0 209-103 385.5t-279.5 279.5-385.5 103-385.5-103-279.5-279.5-103-385.5 103-385.5 279.5-279.5 385.5-103 385.5 103 279.5 279.5 103 385.5z"></path></svg>';
+                var popupTitle = feedbackBox.find('.notify-popup-title');
+                var popupTitleInner = feedbackBox.find('.notify-popup-title-inner');
+                var popupBody = feedbackBox.find('.notify-popup-body');
+                var answerState = getAnswerState(feedbackBox);
+                var answerLabel = $.i18n('adapt-your-answer');
+
+                if(config._titleMode === 'Show answer state as title'){
+                    if(config._titleColor){
+                        popupTitleInner[0].innerHTML = `${$.i18n('adapt-feedback-sentence')} <span style="font-weight: 400; color: ${answerState.color}">${answerState.value.toLowerCase()}.</span>`;
+                    } else {
+                        popupTitleInner[0].innerHTML = `${$.i18n('adapt-feedback-sentence')} <span style="font-weight: 400;">${answerState.value.toLowerCase()}.</span>`;
+                    }
+                    var userSelection = `${answerLabel}&nbsp;${selectedAnswer}`;
+                } else {
+                    var userSelection = `${answerLabel}&nbsp;${selectedAnswer}&nbsp;(${answerState.value})`;
+                }
+
+                if(config._titleMode === 'Use the word Feedback as title'){
+                    popupTitleInner[0].innerHTML = $.i18n('adapt-feedback');
+                }
+
+                if(feedbackBox.find('.user-selection-feedback').length < 1){
+
+                    var selectionParagraph = document.createElement('p');
+                    $(selectionParagraph).addClass('user-selection-feedback');
+                    
+                    if(config._selectionColor && config._selectionStyle === 'Bubble'){
+                        $(selectionParagraph).css('background-color', answerState.color);
+                    }
+
+                    selectionParagraph.innerHTML = userSelection;
+
+                    if(config._selectionStyle === 'Icon with text'){
+                        $(selectionParagraph).addClass('icon-answer');
+                        $(selectionParagraph).prepend(infoIcon);
+                    } else if(config._selectionStyle === 'Bubble'){
+                        $(selectionParagraph).addClass('bubble-answer');
+                    }
+
+                    if(config._selectionPosition === 'After title'){
+                        $(selectionParagraph).insertAfter(popupTitle)
+                    } else if(config._selectionPosition === 'After feedback'){
+                        // change focus order with ARIA flow-to
+
+                        $(selectionParagraph).insertAfter(popupBody)
+                        $('.notify-popup-body').css('margin-bottom', '30px');
+                    }
+
+                    if((config._selectionStyle === 'Icon with text' || config._selectionStyle === 'Plain text') && config._selectionPosition === 'After feedback'){
+                        $('<hr role="presentation"></hr>').insertAfter(popupBody);
+                    }
+                }
+            }
+        }
+    }
+}
+
+function selectionQuery(popupType, popupID){
+    switch (popupType) {
         case "mcq":
-          mcqFeedback();
+          return $(`div[data-adapt-id="${popupID}"]`).filter('.component').find('label.selected .mcq-item-inner');
           break;
         case "matching":
-          matchingFeedback();
+          return $(`div[data-adapt-id="${popupID}"]`).filter('.component').find('button .dropdown__inner');
           break;
         default:
           break;
       }
 }
 
-function mcqFeedback(){
-    var popupBox = $('.notify-popup');
-    var popupID = popupBox.attr('data-adapt-id');
-    if(popupID){
-        var answers = [];
-        var selectedAnswers = $(`div[data-adapt-id="${popupID}"]`).filter('.component').find('label.selected .mcq-item-inner')
-        selectedAnswers.each(function(){
-            answers.push(this.innerText);
-        })
-        var selectedAnswer = answers.join(', ');
-        var feedbackBox = $(`div[data-adapt-id="${popupID}"]`).filter('.notify-popup');
-        if(feedbackBox){
-            var answerState = getAnswerState(feedbackBox);
-            var answerLabel;
-            if($('html').attr('lang') === 'fr'){
-                answerLabel = 'Votre réponse :';
-            } else {
-                answerLabel = 'Your answer:';
-            }
-            var userSelection = `${answerLabel}&nbsp;${selectedAnswer}&nbsp;(${answerState.value})`;
-            if(feedbackBox.find('.user-selection-feedback').length < 1){
-                $(`<p class="user-selection-feedback" style="background: ${answerState.color}; padding: 10px 15px; display: inline-block; margin: 0;">${userSelection}</p>`).insertAfter(feedbackBox.find('.notify-popup-title'))
-            }
-        }
-    }
-}
-
-function matchingFeedback(){
-    var popupBox = $('.notify-popup');
-    var popupID = popupBox.attr('data-adapt-id');
-    if(popupID){
-        var answers = [];
-        var selectedAnswers = $(`div[data-adapt-id="${popupID}"]`).filter('.component').find('button .dropdown__inner');
-        selectedAnswers.each(function(){
-            answers.push(this.innerText);
-        })
-        var selectedAnswer = answers.join(', ');
-        var feedbackBox = $(`div[data-adapt-id="${popupID}"]`).filter('.notify-popup');
-        if(feedbackBox){
-            var answerState = getAnswerState(feedbackBox);
-            var answerLabel;
-            if($('html').attr('lang') === 'fr'){
-                answerLabel = 'Votre réponse :';
-            } else {
-                answerLabel = 'Your answer:';
-            }
-            var userSelection = `${answerLabel}&nbsp;${selectedAnswer}&nbsp;(${answerState.value})`;
-            if(feedbackBox.find('.user-selection-feedback').length < 1){
-                $(`<p class="user-selection-feedback" style="background: ${answerState.color}; padding: 10px 15px; display: inline-block; margin: 0;">${userSelection}</p>`).insertAfter(feedbackBox.find('.notify-popup-title'))
-            }
-        }
-    }
-}
-
 function getAnswerState(feedbackBox){
-    var lang = $('html').attr('lang');
     var answer = {};
     if(feedbackBox.hasClass('correct')){
-        if(lang === 'fr'){
-            answer.value = 'Correcte'
-        } else {
-            answer.value = 'Correct';
-        }
-        answer.color = '#008339';
+        answer.value = $.i18n('adapt-correct')
+        answer.color = '#BAFA2F';
     } else if(feedbackBox.hasClass('partially-correct')){
-        if(lang === 'fr'){
-            answer.value = 'Paritiellement correcte'
-        } else {
-            answer.value = 'Partially correct';
-        }
-        answer.color = '#4178BB';
+        answer.value = $.i18n('adapt-partially-correct')
+        answer.color = '#418FFF';
     } else if(feedbackBox.hasClass('incorrect')){
-        if(lang === 'fr'){
-            answer.value = 'Incorrecte'
-        } else {
-            answer.value = 'Incorrect';
-        }
-        answer.color = '#B15C5C';
+        answer.value = $.i18n('adapt-incorrect')
+        answer.color = '#FF534B';
     }
     return answer
 }
@@ -501,21 +542,25 @@ function getPopupType(){
     }
 }
 
-
 function popupfixes() {
     if ($('html').hasClass('notify')) {
         popupIsOpened = true;
+        var dialogBox = $(':not(html).notify');
         $('.notify-popup-inner *[aria-level]').attr('aria-level', Number(lastHeaderLevelBeforeClickedButton) + 1);
-        //$('.notify').removeAttr('aria-labelledby'); // this removes the labelledby on role=dialog (removes one repetition)
         //$('.notify-popup-inner *[aria-level]').attr('aria-disabled', 'true'); // why aria disabled? (adds unavailable to the title)
         logger.log(`Popup type is: ${getPopupType()}`);
         displayAriaLevels();
         altFixes();
         linkfixes();
         //globalfixes();
-        if(answerFeedback){
-            addLearnersPick();
-        }
+        learnersPick();
+        // Fix ARIA structure for popup
+        dialogBox.attr('role', 'alertdialog');
+        dialogBox.removeAttr('aria-modal');
+        $('.notify-popup').attr('role', 'dialog');
+        $('.notify-popup').attr('aria-modal', 'true');
+        $('.notify-popup-title-inner').removeAttr('tabindex');
+        $('.notify-popup').attr('tabindex', '-1').focus();
     } else {
         popupIsOpened = false;
     }
@@ -708,27 +753,12 @@ function updatePopupHeaderLevels() {
 //      Suchs as CSS edits in the theme.
 //
 // -------------------------------------------------------------------------
-function tempFixes() {
+/* function tempFixes() {
     $("html").append(
         `<style>
-            html *:focus, body div:focus, body p:focus, body button:focus, body label:focus, body input:focus, body *:focus {
-            outline:3px solid #CD1C6A !important;
-            }
-
-            .component .component-instruction-inner.validation-error {
-                border: none!important;
-                outline:3px solid #CD1C6A !important;
-                color: #CD1C6A !important;
-                padding: 5px;
-            }
-
-            .button-margin {
-                margin-right:.5%
-            }
-
         </style>`
     );
-}
+} */
 
 // -------------------------------------------------------------------------
 //
@@ -942,12 +972,12 @@ function componentOpenTextInputFixes() {
                 target.attr('aria-hidden', true).addClass('display-none');
                 feedback.removeAttr('disabled aria-hidden tabindex').removeClass('disabled aria-hidden');
                 Adapt.trigger('notify:popup', {
-                    title: 'Feedback',
+                    title: $.i18n('adapt-feedback'),
                     body: modelanswer
                 });
                 feedback.on('click', function(){
                     Adapt.trigger('notify:popup', {
-                        title: 'Feedback',
+                        title: $.i18n('adapt-feedback'),
                         body: modelanswer
                     });
                 })
@@ -1089,13 +1119,8 @@ function componentNarrativeFixes() {
     $('.narrative-content').attr('aria-live', 'polite');
 
     //narrative controls comprehensive aria labels
-    if ($('html').attr('lang') == 'fr') {
-        $('.base.narrative-controls.narrative-control-right').attr('aria-label', 'Diapositive suivante');
-        $('.base.narrative-controls.narrative-control-left').attr('aria-label', 'Diapositive précédente');
-    } else {
-        $('.base.narrative-controls.narrative-control-right').attr('aria-label', 'Next slide');
-        $('.base.narrative-controls.narrative-control-left').attr('aria-label', 'Previous slide');
-    }
+    $('.base.narrative-controls.narrative-control-right').attr('aria-label', $.i18n('adapt-next-slide'));
+    $('.base.narrative-controls.narrative-control-left').attr('aria-label', $.i18n('adapt-previous-slide'));
 }
 
 // -------------------------------------------------------------------------
