@@ -445,11 +445,10 @@ function learnersPick(){
                 var answerLabel = $.i18n('adapt-your-answer');
 
                 if(config._titleMode === 'Show answer state as title'){
-                    if(config._titleColor){
-                        popupTitleInner[0].innerHTML = `${$.i18n('adapt-feedback-sentence')} <span style="font-weight: 400; color: ${answerState.color}">${answerState.value.toLowerCase()}.</span>`;
-                    } else {
-                        popupTitleInner[0].innerHTML = `${$.i18n('adapt-feedback-sentence')} <span style="font-weight: 400;">${answerState.value.toLowerCase()}.</span>`;
-                    }
+                    popupTitleInner[0].innerHTML = `${$.i18n('adapt-feedback-sentence')} <span style="font-weight: 400;">${answerState.value.toLowerCase()}.</span>`;
+                    var userSelection = `${answerLabel}&nbsp;${selectedAnswer}`;
+                } else if(config._titleMode === 'Show answer state as title with color'){
+                    popupTitleInner[0].innerHTML = `${$.i18n('adapt-feedback-sentence')} <span style="font-weight: 400; color: ${answerState.color}">${answerState.value.toLowerCase()}.</span>`;
                     var userSelection = `${answerLabel}&nbsp;${selectedAnswer}`;
                 } else {
                     var userSelection = `${answerLabel}&nbsp;${selectedAnswer}&nbsp;(${answerState.value})`;
@@ -464,7 +463,7 @@ function learnersPick(){
                     var selectionParagraph = document.createElement('p');
                     $(selectionParagraph).addClass('user-selection-feedback');
                     
-                    if(config._selectionColor && config._selectionStyle === 'Bubble'){
+                    if(config._selectionStyle === 'Bubble with color'){
                         $(selectionParagraph).css('background-color', answerState.color);
                     }
 
@@ -473,15 +472,13 @@ function learnersPick(){
                     if(config._selectionStyle === 'Icon with text'){
                         $(selectionParagraph).addClass('icon-answer');
                         $(selectionParagraph).prepend(infoIcon);
-                    } else if(config._selectionStyle === 'Bubble'){
+                    } else if(config._selectionStyle === 'Bubble' || config._selectionStyle === 'Bubble with color'){
                         $(selectionParagraph).addClass('bubble-answer');
                     }
 
                     if(config._selectionPosition === 'After title'){
                         $(selectionParagraph).insertAfter(popupTitle)
                     } else if(config._selectionPosition === 'After feedback'){
-                        // change focus order with ARIA flow-to
-
                         $(selectionParagraph).insertAfter(popupBody)
                         $('.notify-popup-body').css('margin-bottom', '30px');
                     }
