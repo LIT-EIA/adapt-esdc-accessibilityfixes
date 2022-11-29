@@ -34,10 +34,10 @@
                       "title": "Popup Title",
                       "inputType": {
                         "type": "Select",
-                        "options": ["Show answer state as title", "Use the word Feedback as title", "Use title set in component"]
+                        "options": ["Show answer state as title", "Show answer state as title with color", "Use the word Feedback as title", "Use title set in component"]
                       },
                       "validators": [],
-                      "help": "Select how the title will be generated. Show answer state as title will replace the popup title with You are correct/You are incorrect. Use the word Feedback as title will replace the title with the word Feedback/Rétroaction, Use title set in component will use the tile set in field Feedback Title of the component."
+                      "help": "Select how the title will be generated. Show answer state as title will replace the popup title with You are correct/You are incorrect, Show answer with color will add the answer state color the the word. Use the word Feedback as title will replace the title with the word Feedback/Rétroaction, Use title set in component will use the tile set in field Feedback Title of the component."
                     },
                     "_selectionPosition": {
                       "type": "string",
@@ -58,28 +58,10 @@
                       "title": "Selection Style",
                       "inputType": {
                         "type": "Select",
-                        "options": ["Icon with text", "Bubble", "Plain text"]
+                        "options": ["Icon with text", "Plain text", "Bubble", "Bubble with color"]
                       },
                       "validators": [],
-                      "help": "Select the style of the learner's selectiom. Icon with text will display an icon with the learner's selection in plain text. Bubble will display the selection in a rounded section."
-                    },
-                    "_titleColor": {
-                      "type": "boolean",
-                      "required": false,
-                      "default": false,
-                      "title": "Enable Title Color (Green/Red/Blue)",
-                      "inputType": "Checkbox",
-                      "validators": [],
-                      "help": "If enabled, the words correct/incorrect/partially correct will have their associated colors (green/red/blue) in popup title."
-                    },
-                    "_selectionColor": {
-                      "type": "boolean",
-                      "required": false,
-                      "default": false,
-                      "title": "Enable Selection Color (Green/Red/Blue)",
-                      "inputType": "Checkbox",
-                      "validators": [],
-                      "help": "If enabled, the selection bubble will have the associated colors (green/red/blue) as background. If disabled, the bubble's background is white."
+                      "help": "Select the style of the learner's selectiom. Icon with text will display an icon with the learner's selection in plain text. Bubble will display the selection in a rounded section, Bubble with color will add the answer state color as background."
                     }
                   }
                 }
