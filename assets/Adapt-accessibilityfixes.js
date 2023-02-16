@@ -68,7 +68,7 @@ $.i18n().load( {
         'adapt-previous-slide' : 'Diapositive précédente',
         'adapt-your-answer' : 'Vous avez selectionné&nbsp;:',
         'adapt-correct' : 'Correcte',
-        'adapt-partially-correct' : 'Paritiellement correcte',
+        'adapt-partially-correct' : 'Partiellement correcte',
         'adapt-incorrect' : 'Incorrecte',
         'adapt-feedback-sentence': 'Votre réponse est',
         'adapt-feedback': 'Rétroaction',
