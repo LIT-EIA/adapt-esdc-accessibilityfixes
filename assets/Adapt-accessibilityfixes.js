@@ -444,17 +444,17 @@ function learnersPick(){
                 var answerState = getAnswerState(feedbackBox);
                 var answerLabel = $.i18n('adapt-your-answer');
 
-                if(config._titleMode === 'Show answer state as title'){
+                if(config._titleMode === 'state'){
                     popupTitleInner[0].innerHTML = `${$.i18n('adapt-feedback-sentence')} <span style="font-weight: 400;">${answerState.value.toLowerCase()}.</span>`;
                     var userSelection = `${answerLabel}&nbsp;${selectedAnswer}`;
-                } else if(config._titleMode === 'Show answer state as title with color'){
+                } else if(config._titleMode === 'stateWithColor'){
                     popupTitleInner[0].innerHTML = `${$.i18n('adapt-feedback-sentence')} <span style="font-weight: 400; color: ${answerState.color}">${answerState.value.toLowerCase()}.</span>`;
                     var userSelection = `${answerLabel}&nbsp;${selectedAnswer}`;
                 } else {
                     var userSelection = `${answerLabel}&nbsp;${selectedAnswer}&nbsp;(${answerState.value})`;
                 }
 
-                if(config._titleMode === 'Use the word Feedback as title'){
+                if(config._titleMode === 'feedbackWord'){
                     popupTitleInner[0].innerHTML = $.i18n('adapt-feedback');
                 }
 
@@ -463,27 +463,27 @@ function learnersPick(){
                     var selectionParagraph = document.createElement('p');
                     $(selectionParagraph).addClass('user-selection-feedback');
                     
-                    if(config._selectionStyle === 'Bubble with color'){
+                    if(config._selectionStyle === 'bubbleWithColor'){
                         $(selectionParagraph).css('background-color', answerState.color);
                     }
 
                     selectionParagraph.innerHTML = userSelection;
 
-                    if(config._selectionStyle === 'Icon with text'){
+                    if(config._selectionStyle === 'iconWithText'){
                         $(selectionParagraph).addClass('icon-answer');
                         $(selectionParagraph).prepend(infoIcon);
-                    } else if(config._selectionStyle === 'Bubble' || config._selectionStyle === 'Bubble with color'){
+                    } else if(config._selectionStyle === 'bubble' || config._selectionStyle === 'bubbleWithColor'){
                         $(selectionParagraph).addClass('bubble-answer');
                     }
 
-                    if(config._selectionPosition === 'After title'){
+                    if(config._selectionPosition === 'afterTitle'){
                         $(selectionParagraph).insertAfter(popupTitle)
-                    } else if(config._selectionPosition === 'After feedback'){
+                    } else if(config._selectionPosition === 'afterFeedback'){
                         $(selectionParagraph).insertAfter(popupBody)
                         $('.notify-popup-body').css('margin-bottom', '30px');
                     }
 
-                    if((config._selectionStyle === 'Icon with text' || config._selectionStyle === 'Plain text') && config._selectionPosition === 'After feedback'){
+                    if((config._selectionStyle === 'iconWithText' || config._selectionStyle === 'plainText') && config._selectionPosition === 'afterFeedback'){
                         $('<hr role="presentation"></hr>').insertAfter(popupBody);
                     }
                 }

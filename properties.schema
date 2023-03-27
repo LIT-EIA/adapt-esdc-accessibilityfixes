@@ -25,16 +25,16 @@
                       "title": "Enable learner's pick in question feedback",
                       "inputType": "Checkbox",
                       "validators": [],
-                      "help": "If enabled, the learner's answer will be automatically displayed in the feedback popup"
+                      "help": "If enabled, the learner's answer will be automatically displayed in the feedback popup. You can add the class disable-auto-feedback to a component to disable it."
                     },
                     "_titleMode": {
                       "type": "string",
                       "required": false,
-                      "default": "Show answer state as title",
+                      "default": "state",
                       "title": "Popup Title",
                       "inputType": {
                         "type": "Select",
-                        "options": ["Show answer state as title", "Show answer state as title with color", "Use the word Feedback as title", "Use title set in component"]
+                        "options": ["state", "stateWithColor", "feedbackWord", "originalComponent"]
                       },
                       "validators": [],
                       "help": "Select how the title will be generated. Show answer state as title will replace the popup title with You are correct/You are incorrect, Show answer with color will add the answer state color the the word. Use the word Feedback as title will replace the title with the word Feedback/Rétroaction, Use title set in component will use the tile set in field Feedback Title of the component."
@@ -42,11 +42,11 @@
                     "_selectionPosition": {
                       "type": "string",
                       "required": false,
-                      "default": "After feedback",
+                      "default": "afterFeedback",
                       "title": "Selection Position",
                       "inputType": {
                         "type": "Select",
-                        "options": ["After title", "After feedback"]
+                        "options": ["afterTitle", "afterFeedback"]
                       },
                       "validators": [],
                       "help": "Select the position where the learner's selection will be displayed. After title will display the selection after the popup title. After feedback will display the selection at the bottom of the popup."
@@ -54,11 +54,11 @@
                     "_selectionStyle": {
                       "type": "string",
                       "required": false,
-                      "default": "Icon with text",
+                      "default": "iconWithText",
                       "title": "Selection Style",
                       "inputType": {
                         "type": "Select",
-                        "options": ["Icon with text", "Plain text", "Bubble", "Bubble with color"]
+                        "options": ["iconWithText", "plainText", "bubble", "bubbleWithColor"]
                       },
                       "validators": [],
                       "help": "Select the style of the learner's selectiom. Icon with text will display an icon with the learner's selection in plain text. Bubble will display the selection in a rounded section, Bubble with color will add the answer state color as background."
