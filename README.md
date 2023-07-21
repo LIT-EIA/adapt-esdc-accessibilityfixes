@@ -14,7 +14,7 @@ https://014gc.sharepoint.com/:w:/r/sites/MeD/_layouts/15/Doc.aspx?sourcedoc=%7BB
 Name | Ver. | path
 -------------------------------- | ------ | -------------------------------------------------------------
 adapt-framework | 4.4.1 |  
-adapt-authoring | 0.10.2 |  
+adapt-authoring | 0.10.5 |  
 
 ## EXTENSIONS
 Name | Ver. | path
