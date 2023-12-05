@@ -1,4 +1,4 @@
-define([ "core/js/adapt" ], function(Adapt) {
+define(["core/js/adapt"], function (Adapt) {
 
 	function loadScript(scriptObject, callback) {
 		var head = document.getElementsByTagName('head')[0];
@@ -26,34 +26,14 @@ define([ "core/js/adapt" ], function(Adapt) {
 	}
 
 	function setUpMathJax() {
-		Adapt.wait ? Adapt.wait.begin() : Adapt.trigger("plugin:beginWait");
-
-		// Removed the config get and hardcoded src path inline - Francis
-		//var config = Adapt.config.get("_Adapt-accessibilityfixes");
-		var src = "./assets/Adapt-accessibilityfixes.js";
-
-		// Seems unecessary? - Francis
-		//loadScript({ 
-			/*type: "text/x-mathjax-config",
-			text: "MathJax.Hub.Config(" + JSON.stringify(inlineConfig) + ");"*/
-		//});
-		//
-
-		// The script mathJaxInit.js doesn't seem to do anything meaningful anymore - Francis
-		//loadScript({ src: 'assets/mathJaxInit.js' }, function() {
-
-			loadScript({ src: './assets/jquery.i18n.js' }, function() {
-				loadScript({ src: './assets/jquery.i18n.messagestore.js' }, function() {
-					loadScript({ src: src }, function() {
-						Adapt.wait ? Adapt.wait.end() : Adapt.trigger("plugin:endWait");
-					});
-				});
+		Adapt.once("i18n:ready", function () {
+			Adapt.wait ? Adapt.wait.begin() : Adapt.trigger("plugin:beginWait");
+			var src = "./assets/Adapt-accessibilityfixes.js";
+			loadScript({ src: src }, function () {
+				Adapt.wait ? Adapt.wait.end() : Adapt.trigger("plugin:endWait");
 			});
-
-		//});
+		})
 	}
 
-	// the .on portion of this seems unecessary now
-	Adapt.once("app:dataReady", setUpMathJax)//.on({});
-
+	Adapt.once("app:dataReady", setUpMathJax)
 });
