@@ -66,7 +66,7 @@ $.i18n().load( {
     'fr' : {
         'adapt-next-slide' : 'Diapositive suivante',
         'adapt-previous-slide' : 'Diapositive précédente',
-        'adapt-your-answer' : 'Vous avez selectionné&nbsp;:',
+        'adapt-your-answer' : 'Vous avez sélectionné&nbsp;:',
         'adapt-correct' : 'Correcte',
         'adapt-partially-correct' : 'Partiellement correcte',
         'adapt-incorrect' : 'Incorrecte',
