@@ -4,7 +4,7 @@
 
 // -------------------------------------------------------------------------
 //
-//		Important Variables - variables which we want quick access 
+//		Important Variables - variables which we want quick access
 //		to without people having to understand the rest of the code
 //
 // -------------------------------------------------------------------------
@@ -103,8 +103,8 @@ function i18n(key){
 //      [**07] GLOBAL FIXES - <a> auto apply target="_blank" for mailto
 //
 // [^^] - Menu fixes
-//      [^^01] MENU FIXES - Check menu header levels    
-//      
+//      [^^01] MENU FIXES - Check menu header levels
+//
 // [$$] - page fixes
 //		[$$01] PAGE FIXES - for all question components
 //		[$$02] PAGE FIXES - Component - adapt-contrib-mcq - 3.0.0
@@ -119,14 +119,14 @@ function i18n(key){
 //		[$$11] PAGE FIXES - Component - adapt-contrib-hotgraphic - 4.3.0
 //		[$$12] PAGE FIXES - Component - adapt-hotgrid - 3.2.0
 //		[$$13] PAGE FIXES - Component - adapt-contrib-slider - 2.4.0
-//		[$$14] PAGE FIXES - header Levels    
+//		[$$14] PAGE FIXES - header Levels
 
 // [%%] - Utility fixes
 //		[%%01] UTILITY - Keyboard listener
 //		[%%02] UTILITY - Check if object has a given attribute
 //		[%%03] UTILITY - Pure Javascript document ready function
 //		[%%04] UTILITY - Show aria levels above headers (for QA purposes)
-//		[%%05] UTILITY - add first and last focusable item styles to dom    
+//		[%%05] UTILITY - add first and last focusable item styles to dom
 //		[%%06] UTILITY - browser check
 //		[%%07] UTILITY - logger for printing during development (for QA purposes)
 
@@ -193,15 +193,9 @@ function observehtml(mutations) {
                 displayAriaLevels();
                 initialPageLoadingFlag = true; //page changed, reset initial loading flag
             } else if (mutation.attributeName == 'class') {
-                //console.log("A class has been modified in the <html> tag!");
-                if (IsPopup()) {
-                    //console.log("It's a popup!");
-                    popupfixes();
-                    StartKBTrap(FindPopup(), false);
-                } else {
-                    //Spaghetti code to stop
-                    StartKBTrap(null, true);
-                }
+              if (IsDrawer()) {
+                StartKBTrap(FindDrawer(), false);
+              }
             } else if (mutation.attributeName == 'style') {
                 //console.log('The inline style of an observed object has changed!');
                 if ($('.loading').css('display') == 'none' && initialPageLoadingFlag) {
@@ -401,12 +395,13 @@ function setNavigationTabOrder() {
 // -----------------------------------------
 logger.warn('declaring event listener on popup:opened')
 Adapt.on('popup:opened', function(popup) {
-    console.log('popup is opened');
-    //console.log(popup);
+    //console.log('popup is opened');
+    popupfixes();
+    StartKBTrap($(popup[0]), false);
 });
 Adapt.on('popup:closed', function(popup) {
-    console.log('popup is closed');
-    //console.log(popup);
+    //console.log('popup is closed');
+    StartKBTrap(null, true);
 });
 
 
@@ -467,7 +462,7 @@ function learnersPick(){
 
                     var selectionParagraph = document.createElement('p');
                     $(selectionParagraph).addClass('user-selection-feedback');
-                    
+
                     if(config._selectionStyle === 'bubbleWithColor'){
                         $(selectionParagraph).css('background-color', answerState.color);
                     }
@@ -545,7 +540,6 @@ function getPopupType(){
 }
 
 function popupfixes() {
-    if ($('html').hasClass('notify')) {
         popupIsOpened = true;
         var dialogBox = $(':not(html).notify');
         $('.notify-popup-inner *[aria-level]').attr('aria-level', Number(lastHeaderLevelBeforeClickedButton) + 1);
@@ -563,16 +557,13 @@ function popupfixes() {
         $('.notify-popup').attr('aria-modal', 'true');
         $('.notify-popup-title-inner').removeAttr('tabindex');
         $('.notify-popup').attr('tabindex', '-1').focus();
-    } else {
-        popupIsOpened = false;
-    }
 }
 
 //Is a popup opened?
-function IsPopup() {
+function IsDrawer() {
 
     //console.log("SHIIIIT" + $('.drawer').not('.display-none').length);
-    if ($('.notify-popup').length > 0 || $('.drawer').not('.display-none').length > 0) {
+    if ($('.drawer').not('.display-none').length > 0) {
         //console.log('it is a popup!');
         return (true);
     } else {
@@ -581,13 +572,10 @@ function IsPopup() {
 }
 
 //Find the popup and return a handler to it
-function FindPopup() {
+function FindDrawer() {
 
     //Find which popup was opened
-    if ($('.notify-popup').length > 0) {
-        //console.log("The popup's type is: NOTIFY-POPUP");
-        var thePopup = $('.notify-popup');
-    } else if ($('.drawer').not('.display-none').length > 0) {
+    if ($('.drawer').not('.display-none').length > 0) {
         //console.log("The popup's type is: DRAWER");
         var thePopup = $('.drawer');
 
@@ -704,7 +692,7 @@ function StartKBTrap(object, forceStop) {
             function waitForPageChange() {
                 //console.log('hotgrid page changed, restarting KB trap');
                 StopKBTrap();
-                StartKBTrap(FindPopup(), false);
+                StartKBTrap(FindDrawer(), false);
             }
             $('.notify-popup-done, .hotgrid-popup-close, .drawer-close').click(StopKBTrap);
             logger.warn('declaring event listener for popup close on keydown');
@@ -803,7 +791,7 @@ function checkMenuHeaderLevels() {
 //
 // -------------------------------------------------------------------------
 function globalQuestionComponentFixes() {
-    //add aria live to all "question" component instructions so learner will be alerted if they change	
+    //add aria live to all "question" component instructions so learner will be alerted if they change
     let allQuestionComponents = $(".question-component");
 
     allQuestionComponents.each(function() {
@@ -814,12 +802,8 @@ function globalQuestionComponentFixes() {
     // Auto focus instructions on empty selection submit
     //-----------------------------------------------------------------------------
 
-    $('.component-instruction-inner').on('focusin', function(){
-        console.log('instruction is on focus');
-    })
 
     $('.component-instruction-inner').on('focusout', function(){
-        console.log('instruction is out of focus');
         $(this).removeAttr('tabindex role');
     })
 
@@ -983,7 +967,7 @@ function componentOpenTextInputFixes() {
                         body: modelanswer
                     });
                 })
-            } 
+            }
         });
     });
 }
@@ -1014,7 +998,7 @@ function componentMediaFixes() {
     var skipBtn = $('.aria-label.js-skip-to-transcript');
     skipBtn.remove();
 
-    //OLD ANCHOR CODE ------ 
+    //OLD ANCHOR CODE ------
     //var skiptxt = skipBtn.attr('aria-label');
 
     //var parentID = $('.aria-label.js-skip-to-transcript').parents('.component').attr('data-adapt-id');
@@ -1034,7 +1018,7 @@ function componentMediaFixes() {
     //});
 
     // OLD BUTTON CODE ------
-    /*   
+    /*
     var skiptxt = $('.aria-label.js-skip-to-transcript').attr('aria-label');
     $('.aria-label.js-skip-to-transcript').html(skiptxt);
     $('.aria-label.js-skip-to-transcript').removeAttr('aria-label');
@@ -1117,7 +1101,7 @@ function componentQuickNavFixes() {
 //
 // -------------------------------------------------------------------------
 function componentNarrativeFixes() {
-    //add aria-live to narrative 
+    //add aria-live to narrative
     $('.narrative-content').attr('aria-live', 'polite');
 
     //narrative controls comprehensive aria labels
@@ -1242,7 +1226,7 @@ function checkHeaderLevels() {
                 //console.log('the next level had higher difference than 2! Changed to ' + allAriaLevels[i + 1].getAttribute('aria-level'));
             }
         }
-        //if the current level was lower than the next one, set the next one to its desired level 
+        //if the current level was lower than the next one, set the next one to its desired level
         //(the same level as the last time the same type of element was encountered)
         else if (currType > nextType) {
             //console.log('comparing an element of lower level with a higher.');
