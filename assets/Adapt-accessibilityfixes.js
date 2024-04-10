@@ -234,7 +234,6 @@ function observeheaders(mutations) {
 //runs only once the Adapt "loading" logo is gone
 function initialFixes() {
     addKeyboardListener();
-    destroyMediaPlayers();
     showFirstAndLastFocus();
     globalfixes();
     focuspageload();
@@ -1046,21 +1045,6 @@ function componentMediaFixes() {
         $('.' + compid + ' .media-transcript-button-container:first button').focus();
     });
     */
-}
-
-function destroyMediaPlayers() {
-    $('video').each(function(k) {
-
-        //console.log('VIDEO PLAYER DESTROYED!');
-        var link = $(this).attr('src');
-        var track = $(this).children('track').attr('src');
-        var poster = $(this).attr('poster');
-        var srcLang = $(this).find('track').attr('srclang');
-        var trackLabel = (srcLang === "fr") ? "French" : "English";
-
-        var newhtmlplayer = '<video width="100%" height="100%" poster="' + poster + '" controls><source src="' + link + '" type="video/mp4"><track style="z-index:10;" label="' + trackLabel + '" kind="subtitles" srclang="' + srcLang + '" src="' + track + '" type="text/vtt" default></video>'
-        $(this).parents('.mejs-container').html(newhtmlplayer);
-    });
 }
 
 // -------------------------------------------------------------------------
