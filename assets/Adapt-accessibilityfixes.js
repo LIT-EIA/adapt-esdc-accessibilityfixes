@@ -52,35 +52,30 @@ var logger = {
 // Load translations to jquery.i18n (internationalization library)
 $.i18n().load( {
     'en' : {
-        'adapt-next-slide' : 'Next slide',
-        'adapt-previous-slide' : 'Previous slide',
-        'adapt-your-answer' : 'You have selected:',
-        'adapt-correct' : 'Correct',
-        'adapt-partially-correct' : 'Partially correct',
-        'adapt-incorrect' : 'Incorrect',
-        'adapt-feedback-sentence': 'Your answer is',
-        'adapt-feedback': 'Feedback',
-        'adapt-quote-open': '“',
-        'adapt-quote-close': '”'
+        'adapt-a11y-next-slide' : 'Next slide',
+        'adapt-a11y-previous-slide' : 'Previous slide',
+        'adapt-a11y-your-answer' : 'You have selected:',
+        'adapt-a11y-correct' : 'Correct',
+        'adapt-a11y-partially-correct' : 'Partially correct',
+        'adapt-a11y-incorrect' : 'Incorrect',
+        'adapt-a11y-feedback-sentence': 'Your answer is',
+        'adapt-a11y-feedback': 'Feedback',
+        'adapt-a11y-quote-open': '“',
+        'adapt-a11y-quote-close': '”'
     },
     'fr' : {
-        'adapt-next-slide' : 'Diapositive suivante',
-        'adapt-previous-slide' : 'Diapositive précédente',
-        'adapt-your-answer' : 'Vous avez sélectionné&nbsp;:',
-        'adapt-correct' : 'Correcte',
-        'adapt-partially-correct' : 'Partiellement correcte',
-        'adapt-incorrect' : 'Incorrecte',
-        'adapt-feedback-sentence': 'Votre réponse est',
-        'adapt-feedback': 'Rétroaction',
-        'adapt-quote-open': '«&nbsp;',
-        'adapt-quote-close': '&nbsp;»'
+        'adapt-a11y-next-slide' : 'Diapositive suivante',
+        'adapt-a11y-previous-slide' : 'Diapositive précédente',
+        'adapt-a11y-your-answer' : 'Vous avez sélectionné&nbsp;:',
+        'adapt-a11y-correct' : 'Correcte',
+        'adapt-a11y-partially-correct' : 'Partiellement correcte',
+        'adapt-a11y-incorrect' : 'Incorrecte',
+        'adapt-a11y-feedback-sentence': 'Votre réponse est',
+        'adapt-a11y-feedback': 'Rétroaction',
+        'adapt-a11y-quote-open': '«&nbsp;',
+        'adapt-a11y-quote-close': '&nbsp;»'
     }
 } );
-
-function i18n(key){
-    $.i18n().locale = document.documentElement.lang;
-    return $.i18n(key);
-}
 
 
 // -------------------------------------------------------------------------
@@ -422,13 +417,13 @@ function learnersPick(){
     if(config._answerFeedback && isQuestion && !isDisabled){
         var dialogBox = popupBox.parents('.notify');
         dialogBox.removeAttr('aria-labelledby');
-        dialogBox.attr('aria-label', i18n('adapt-feedback'));
+        dialogBox.attr('aria-label', $.i18n.translate('adapt-a11y-feedback'));
         if(popupID){
             var answers = [];
             var selectedAnswers = selectionQuery(popupType, popupID);
             selectedAnswers.each(function(){
                 if(selectedAnswers.length > 1){
-                    answers.push(`${i18n('adapt-quote-open')}${this.innerText}${i18n('adapt-quote-close')}`);
+                    answers.push(`${$.i18n.translate('adapt-a11y-quote-open')}${this.innerText}${$.i18n.translate('adapt-a11y-quote-close')}`);
                 } else {
                     answers.push(this.innerText);
                 }
@@ -441,20 +436,20 @@ function learnersPick(){
                 var popupTitleInner = feedbackBox.find('.notify-popup-title-inner');
                 var popupBody = feedbackBox.find('.notify-popup-body');
                 var answerState = getAnswerState(feedbackBox);
-                var answerLabel = i18n('adapt-your-answer');
+                var answerLabel = $.i18n.translate('adapt-a11y-your-answer');
 
                 if(config._titleMode === 'state'){
-                    popupTitleInner[0].innerHTML = `${i18n('adapt-feedback-sentence')} <span style="font-weight: 400;">${answerState.value.toLowerCase()}.</span>`;
+                    popupTitleInner[0].innerHTML = `${$.i18n.translate('adapt-a11y-feedback-sentence')} <span style="font-weight: 400;">${answerState.value.toLowerCase()}.</span>`;
                     var userSelection = `${answerLabel}&nbsp;${selectedAnswer}`;
                 } else if(config._titleMode === 'stateWithColor'){
-                    popupTitleInner[0].innerHTML = `${i18n('adapt-feedback-sentence')} <span style="font-weight: 400; color: ${answerState.color}">${answerState.value.toLowerCase()}.</span>`;
+                    popupTitleInner[0].innerHTML = `${$.i18n.translate('adapt-a11y-feedback-sentence')} <span style="font-weight: 400; color: ${answerState.color}">${answerState.value.toLowerCase()}.</span>`;
                     var userSelection = `${answerLabel}&nbsp;${selectedAnswer}`;
                 } else {
                     var userSelection = `${answerLabel}&nbsp;${selectedAnswer}&nbsp;(${answerState.value})`;
                 }
 
                 if(config._titleMode === 'feedbackWord'){
-                    popupTitleInner[0].innerHTML = i18n('adapt-feedback');
+                    popupTitleInner[0].innerHTML = $.i18n.translate('adapt-a11y-feedback');
                 }
 
                 if(feedbackBox.find('.user-selection-feedback').length < 1){
@@ -507,13 +502,13 @@ function selectionQuery(popupType, popupID){
 function getAnswerState(feedbackBox){
     var answer = {};
     if(feedbackBox.hasClass('correct')){
-        answer.value = i18n('adapt-correct')
+        answer.value = $.i18n.translate('adapt-a11y-correct')
         answer.color = '#BAFA2F';
     } else if(feedbackBox.hasClass('partially-correct')){
-        answer.value = i18n('adapt-partially-correct')
+        answer.value = $.i18n.translate('adapt-a11y-partially-correct')
         answer.color = '#418FFF';
     } else if(feedbackBox.hasClass('incorrect')){
-        answer.value = i18n('adapt-incorrect')
+        answer.value = $.i18n.translate('adapt-a11y-incorrect')
         answer.color = '#FF534B';
     }
     return answer
@@ -957,12 +952,12 @@ function componentOpenTextInputFixes() {
                 target.attr('aria-hidden', true).addClass('display-none');
                 feedback.removeAttr('disabled aria-hidden tabindex').removeClass('disabled aria-hidden');
                 Adapt.trigger('notify:popup', {
-                    title: i18n('adapt-feedback'),
+                    title: $.i18n.translate('adapt-a11y-feedback'),
                     body: modelanswer
                 });
                 feedback.on('click', function(){
                     Adapt.trigger('notify:popup', {
-                        title: i18n('adapt-feedback'),
+                        title: $.i18n.translate('adapt-a11y-feedback'),
                         body: modelanswer
                     });
                 })
@@ -1089,8 +1084,8 @@ function componentNarrativeFixes() {
     $('.narrative-content').attr('aria-live', 'polite');
 
     //narrative controls comprehensive aria labels
-    $('.base.narrative-controls.narrative-control-right').attr('aria-label', i18n('adapt-next-slide'));
-    $('.base.narrative-controls.narrative-control-left').attr('aria-label', i18n('adapt-previous-slide'));
+    $('.base.narrative-controls.narrative-control-right').attr('aria-label', $.i18n.translate('adapt-a11y-next-slide'));
+    $('.base.narrative-controls.narrative-control-left').attr('aria-label', $.i18n.translate('adapt-a11y-previous-slide'));
 }
 
 // -------------------------------------------------------------------------
