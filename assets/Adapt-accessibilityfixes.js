@@ -143,6 +143,7 @@ var pluginConfig = Adapt.course.attributes['_Adapt-accessibilityfixes'];
 //run global fixes when document is ready
 docReady(function() {
     console.log('doc ready!')
+    Adapt.a11y._browserFocus.$body[0].removeEventListener('click', Adapt.a11y._browserFocus._onClick, true);
     if (!isIE()) {
         globalfixes();
     }
