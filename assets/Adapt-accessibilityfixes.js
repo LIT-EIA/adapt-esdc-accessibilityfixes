@@ -143,6 +143,7 @@ var pluginConfig = Adapt.course.attributes['_Adapt-accessibilityfixes'];
 //run global fixes when document is ready
 docReady(function() {
     console.log('doc ready!')
+    Adapt.a11y.config._options._tabbableElements = 'a,button,input,select,textarea,[tabindex]:not([data-a11y-force-focus]):not(".focusable-ignored")';
     if (!isIE()) {
         globalfixes();
     }
