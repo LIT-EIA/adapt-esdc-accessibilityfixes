@@ -189,7 +189,7 @@ function observehtml(mutations) {
                 displayAriaLevels();
                 initialPageLoadingFlag = true; //page changed, reset initial loading flag
             } else if (mutation.attributeName == 'class') {
-              if (IsDrawer()) {
+                if (IsDrawer() && $('.drawer-inner .aria-label').length) {
                 StartKBTrap(FindDrawer(), false);
               }
             } else if (mutation.attributeName == 'style') {
