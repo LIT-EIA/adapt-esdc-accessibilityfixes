@@ -190,8 +190,11 @@ function observehtml(mutations) {
                 initialPageLoadingFlag = true; //page changed, reset initial loading flag
             } else if (mutation.attributeName == 'class') {
                 if (IsDrawer() && $('.drawer-inner .aria-label').length) {
-                StartKBTrap(FindDrawer(), false);
-              }
+                    StartKBTrap(FindDrawer(), false);
+                  }
+                  if($('.drawer-inner').find('.drawer-item').length){
+                    StartKBTrap(FindDrawer(), false);
+                  }
             } else if (mutation.attributeName == 'style') {
                 //console.log('The inline style of an observed object has changed!');
                 if ($('.loading').css('display') == 'none' && initialPageLoadingFlag) {
