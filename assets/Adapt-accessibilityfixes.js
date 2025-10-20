@@ -258,7 +258,6 @@ function pagefixes() {
     componentMultiChoiceFixes();
     componentGraphicalMultiChoiceFixes();
     componentMatchingQuestionFixes();
-    componentOpenTextInputFixes();
     componentAccordionFixes();
     componentMediaFixes();
     componentExposeFixes();
@@ -900,71 +899,6 @@ function componentMatchingQuestionFixes() {
         }, 100);
     });
     */
-}
-
-// -------------------------------------------------------------------------
-//
-//		[$$05] PAGE FIXES - Component - adapt-contrib-openTextInput - 1.2.11
-//
-// -------------------------------------------------------------------------
-function componentOpenTextInputFixes() {
-    $('.openTextInput-component .buttons-action').removeClass('buttons-action-fullwidth buttons-action-enlarge');
-    $('.openTextInput-component .buttons-feedback').removeClass('no-feedback');
-
-
-
-    $('.openTextInput-answer-container .openTextInput-item-textbox').on('focusin', function(){
-        var charactercount = $(this).parents('.openTextInput-widget').find('.openTextInput-count-characters-container');
-        charactercount.attr('aria-live', 'polite');
-    })
-
-    $('.openTextInput-answer-container .openTextInput-item-textbox').on('focusout', function(){
-        var charactercount = $(this).parents('.openTextInput-widget').find('.openTextInput-count-characters-container');
-        charactercount.removeAttr('aria-live');
-    })
-
-    $('.openTextInput-inner').each(function(k) {
-
-        // add aria-labelledby for textarea
-        let olabel = $(this).parents().find('.openTextInput-component').attr('data-adapt-id') + '_qlabel_' + k;
-        //$(this).find('.openTextInput-count-characters-container').attr('aria-live', 'polite');
-        $(this).find('.openTextInput-instruction-inner').attr('id', olabel);
-        $(this).find('.openTextInput-answer-container textarea').attr('aria-labelledby', olabel);
-
-        // stop instructions being read on page load
-        $(this).find('.openTextInput-instruction-inner').removeAttr('role');
-        $(this).find('.openTextInput-instruction-inner').removeAttr('aria-live');
-
-        // rearrange counter before buttons
-        var container = $(this).find('.openTextInput-answer-container');
-        var counter = $(this).find('.openTextInput-count-characters');
-        container.after(counter);
-
-        // adjust focustrap when button-action is clicked
-        $(this).find('.buttons-action').click((button) => {
-            var target = $(button.currentTarget);
-            var target_text = target[0].innerText;
-            var parent = target.parent();
-            var feedback = parent.find('.buttons-feedback');
-            var textbox = target.parents('.openTextInput-widget').find('.openTextInput-answer-container .openTextInput-item-textbox')[0];
-            var modelanswer = target.parents('.openTextInput-widget').find('.openTextInput-item-modelanswer')[0].innerHTML;
-            if(textbox.value){
-                parent.prepend(`<button class="aria-hidden disabled button-margin" aria-hidden="true" disabled>${target_text}</button>`);
-                target.attr('aria-hidden', true).addClass('display-none');
-                feedback.removeAttr('disabled aria-hidden tabindex').removeClass('disabled aria-hidden');
-                Adapt.trigger('notify:popup', {
-                    title: $.i18n.translate('adapt-a11y-feedback'),
-                    body: modelanswer
-                });
-                feedback.on('click', function(){
-                    Adapt.trigger('notify:popup', {
-                        title: $.i18n.translate('adapt-a11y-feedback'),
-                        body: modelanswer
-                    });
-                })
-            }
-        });
-    });
 }
 
 // -------------------------------------------------------------------------
