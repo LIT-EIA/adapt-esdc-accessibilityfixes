@@ -147,6 +147,7 @@ docReady(function() {
     if (!isIE()) {
         globalfixes();
     }
+    Adapt.a11y._htmlCharRegex = /&[#a-zA-Z0-9]+;/g;
 });
 
 var htmlobserver = new MutationObserver(observehtml);
